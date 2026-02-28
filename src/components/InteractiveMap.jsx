@@ -1,62 +1,79 @@
-import React, { useCallback, useState } from 'react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import { MapPin } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import MapView from './MapView';
+import WeatherBar from './WeatherBar';
+import SearchBar from './SearchBar';
+import PitchModal from './PitchModal';
+import usePitches from '../hooks/usePitches';
 
-const containerStyle = {
-  width: '100%',
-  height: '100%'
-};
+const InteractiveMap = ({ location, placeName, country, weatherData, forecastData, recentRainfall, pastHourly, onOpenWeather }) => {
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState(null);
+  const [mapInstance, setMapInstance] = useState(null);
+  const [mapCenter, setMapCenter] = useState(null);
 
-const center = {
-  lat: 51.5074,
-  lng: -0.1278
-};
+  // Set initial center from user location (once)
+  useEffect(() => {
+    if (location && !mapCenter) {
+      setMapCenter({ lat: location.lat, lng: location.lng });
+    }
+  }, [location]);
 
-const InteractiveMap = () => {
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
-  });
+  // Single source of truth for pitch data
+  const { venues } = usePitches(mapInstance, location);
 
-  const [map, setMap] = useState(null);
-
-  const onLoad = useCallback(function callback(map) {
-    setMap(map);
+  const handleVenueSelect = useCallback((venue) => {
+    setSelectedVenue(venue);
+    setSearchExpanded(false);
+    // Center map on the pitch, offset south so marker is visible above the bottom sheet
+    setMapCenter({ lat: venue.lat - 0.003, lng: venue.lng });
   }, []);
 
-  const onUnmount = useCallback(function callback(map) {
-    setMap(null);
+  const handleCloseModal = useCallback(() => {
+    setSelectedVenue(null);
   }, []);
 
-  return isLoaded ? (
-    <div className="w-full h-screen relative">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={12}
-        onLoad={onLoad}
-        onUnmount={onUnmount}
-        options={{
-          disableDefaultUI: true,
-          zoomControl: true,
-        }}
-      >
-        <></>
-      </GoogleMap>
+  return (
+    <div className="w-full h-full relative">
+      {/* Weather bar — hides when search is expanded */}
+      <WeatherBar
+        weatherData={weatherData}
+        forecastData={forecastData}
+        pastHourly={pastHourly}
+        onCurrentClick={onOpenWeather}
+        hidden={searchExpanded}
+      />
 
-      <div className="absolute bottom-6 left-4 right-4 bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-gray-100 flex items-center space-x-3">
-        <div className="bg-blue-100 p-2 rounded-full">
-          <MapPin className="text-blue-600 w-6 h-6" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-gray-800 leading-tight">London</h2>
-          <p className="text-sm text-gray-500">United Kingdom</p>
-        </div>
-      </div>
-    </div>
-  ) : (
-    <div className="w-full h-screen flex items-center justify-center bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      {/* Search bar / modal */}
+      <SearchBar
+        onSearch={(q) => console.log('Searching', q)}
+        expanded={searchExpanded}
+        onExpand={() => setSearchExpanded(true)}
+        onCollapse={() => setSearchExpanded(false)}
+        venues={venues}
+        userLocation={location}
+        onVenueSelect={handleVenueSelect}
+      />
+
+      {/* Map — center is explicitly controlled */}
+      <MapView
+        center={mapCenter}
+        userLocation={location}
+        venues={venues}
+        zoom={15}
+        onVenueSelect={handleVenueSelect}
+        onMapReady={setMapInstance}
+      />
+
+      {/* Pitch modal — bottom sheet */}
+      {selectedVenue && (
+        <PitchModal
+          venue={selectedVenue}
+          userLocation={location}
+          weatherData={weatherData}
+          map={mapInstance}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };
