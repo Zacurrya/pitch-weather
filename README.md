@@ -58,41 +58,6 @@ Results are **cached by place ID** in a module-level `Map`, so re-opening a pitc
 
 ---
 
-## Project Structure
-
-├── public/
-│   └── backgrounds/               # Local condition-matched background images
-├── src/
-│   ├── App.jsx                        # Root – switches between WeatherScreen and SearchScreen
-│   ├── main.jsx                       # Vite entry point
-│   ├── data/
-│   │   └── venues.js                  # Sport filter definitions (football, cricket)
-│   ├── hooks/
-│   │   ├── useAirQuality.js           # AQI and UV logic separation
-│   │   ├── usePitches.js              # Search, enrich, dedupe, and track searched areas
-│   │   ├── useRainLikelihood.js       # Forecast-based rain probability logic
-│   │   └── useWeather.js              # Map-aware weather fetcher + ~1km grid caching
-├── search-screen/
-│   ├── SearchScreen.jsx           # Map screen orchestrator
-│   └── components/
-│       ├── LocateUserButton.jsx   # Snap-to-location FAB
-│       ├── MapView.jsx            # Google Map with venue markers
-│       ├── PhotoGallery.jsx       # Full-screen photo lightbox
-│       ├── PitchModal.jsx         # Bottom-sheet pitch details + conditions
-│       ├── SearchAreaButton.jsx   # "Search this area" pill
-│       ├── SearchBar.jsx          # Expandable search with filters
-│       └── WeatherBar.jsx         # Horizontal hourly weather strip
-├── utils/
-│   ├── conditionUtils.js          # Wetness/muddiness algorithm + colour/label helpers
-│   ├── pitchUtils.js              # Distance, walking time, opening hours helpers
-│   ├── placesUtils.js             # Google Places API (search, details, opening hours)
-│   └── weatherUtils.js            # OWM + Open-Meteo fetchers, icon mapping, backgrounds
-└── weather-screen/
-    └── WeatherScreen.jsx          # Full-screen weather dashboard
-```
-
----
-
 ## Environment Variables
 
 | Variable | Required | Description |
