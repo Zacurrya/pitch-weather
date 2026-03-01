@@ -1,4 +1,4 @@
-import { buildHourlyItems } from '../utils/weatherUtils';
+import { buildHourlyItems } from '../../utils/weatherUtils';
 
 const WeatherBar = ({ weatherData, forecastData, pastHourly, onCurrentClick, hidden }) => {
     if (!weatherData) return null;
@@ -15,9 +15,9 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, onCurrentClick, hid
                     <button
                         key={idx}
                         onClick={isMid ? onCurrentClick : undefined}
-                        className={`flex flex-col items-center bg-white/90 backdrop-blur-md rounded-[1.25rem] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-white/50 transition-all flex-1
+                        className={`flex flex-col items-center bg-white/95 backdrop-blur-md rounded-[1.25rem] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-white/60 transition-all flex-1
               ${isMid
-                                ? 'h-[clamp(5.5rem,22vw,7.5rem)] mx-0.5 translate-y-1 cursor-pointer active:scale-95 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border-white/80 z-10'
+                                ? 'h-[clamp(5.5rem,22vw,7.5rem)] mx-0.5 translate-y-1 cursor-pointer active:scale-95 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border-white/90 z-10'
                                 : 'h-[clamp(4.5rem,18vw,6rem)] mx-0.5 opacity-80 cursor-default'
                             }`}
                     >

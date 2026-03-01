@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 
 const containerStyle = {
@@ -8,7 +8,8 @@ const containerStyle = {
 
 const LIBRARIES = ['places'];
 
-const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, onVenueSelect, onMapReady }) => {
+const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged }) => {
+    const lastReportedCenter = useRef(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -31,6 +32,7 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
     const defaultOptions = {
         disableDefaultUI: true,
         zoomControl: false,
+        clickableIcons: false,
         ...options,
     };
 
@@ -50,6 +52,24 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
             onLoad={onLoad}
             onUnmount={onUnmount}
             options={defaultOptions}
+            onIdle={() => {
+                if (!map || !onCenterChanged) return;
+                const c = map.getCenter();
+                const bounds = map.getBounds();
+                if (!bounds) return;
+
+                const ne = bounds.getNorthEast();
+                // Distance from centre to NE corner ≈ viewport "radius"
+                const dLat = (ne.lat() - c.lat()) * 111320;
+                const dLng = (ne.lng() - c.lng()) * 111320 * Math.cos((c.lat() * Math.PI) / 180);
+                const visibleRadius = Math.sqrt(dLat * dLat + dLng * dLng);
+
+                const pos = { lat: c.lat(), lng: c.lng(), visibleRadius };
+                const last = lastReportedCenter.current;
+                if (last && Math.abs(last.lat - pos.lat) < 0.0005 && Math.abs(last.lng - pos.lng) < 0.0005) return;
+                lastReportedCenter.current = pos;
+                onCenterChanged(pos);
+            }}
         >
             {/* User location marker */}
             {userLocation && (

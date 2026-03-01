@@ -1,28 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { Navigation2, Footprints, Droplets, Flower2, Globe, Sun, CloudRain } from 'lucide-react';
-import { getDistanceKm, getWalkingMinutes, getPitchConditions, getTodayHours } from '../utils/pitchUtils';
-import { getPlaceDetails } from '../services/placesService';
+import { useEffect, useState } from 'react';
+import { Footprints, Droplets, Globe, CornerUpRight, TreePine } from 'lucide-react';
+import { getDistanceKm, getWalkingMinutes, getTodayHours } from '../../utils/pitchUtils';
+import { getPlaceDetails } from '../../utils/placesUtils';
+import { fetchPastWeather } from '../../utils/weatherUtils';
+import { calcPitchCondition, conditionColor, conditionLabel } from '../../utils/conditionUtils';
 import PhotoGallery from './PhotoGallery';
 
-const conditionIcons = {
-    'Likely Wet': <Droplets className="w-6 h-6 text-blue-500" strokeWidth={2.5} />,
-    'Possibly Damp': <Droplets className="w-6 h-6 text-blue-400" strokeWidth={2.5} />,
-    'Likely Dry': <Sun className="w-6 h-6 text-yellow-500" strokeWidth={2.5} />,
-    'Likely Muddy': <Flower2 className="w-6 h-6 text-orange-500" strokeWidth={2.5} />,
-    'Possibly Muddy': <Flower2 className="w-6 h-6 text-orange-400" strokeWidth={2.5} />,
-    'Firm Ground': <Sun className="w-6 h-6 text-green-500" strokeWidth={2.5} />,
-};
+// Module-level cache: placeId → { wetness, muddiness }
+const conditionCache = new Map();
 
-const PitchModal = ({ venue, userLocation, weatherData, recentRainfall, map, onClose }) => {
+const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     const [details, setDetails] = useState(null);
     const [photoExpanded, setPhotoExpanded] = useState(false);
+    const [condition, setCondition] = useState(null); // { wetness, muddiness } or null while loading
 
+    // Fetch place details (opening hours, photos, etc.)
     useEffect(() => {
         if (venue?.placeId && map) {
             setDetails(null);
             getPlaceDetails(map, venue.placeId).then(setDetails);
         }
     }, [venue?.placeId, map]);
+
+    // Fetch per-pitch weather and calculate conditions (cached by placeId)
+    useEffect(() => {
+        if (!venue?.placeId) return;
+
+        // Check cache first
+        if (conditionCache.has(venue.placeId)) {
+            setCondition(conditionCache.get(venue.placeId));
+            return;
+        }
+
+        // Fetch weather specific to this pitch's location
+        setCondition(null);
+        fetchPastWeather(venue.lat, venue.lng).then(({ totalRainMm, pastHourly }) => {
+            const result = calcPitchCondition(weatherData, totalRainMm, pastHourly);
+            conditionCache.set(venue.placeId, result);
+            setCondition(result);
+        });
+    }, [venue?.placeId, venue?.lat, venue?.lng, weatherData]);
 
     if (!venue) return null;
 
@@ -31,7 +48,8 @@ const PitchModal = ({ venue, userLocation, weatherData, recentRainfall, map, onC
         : null;
     const walkMins = distKm != null ? getWalkingMinutes(distKm) : null;
 
-    const conditions = getPitchConditions(weatherData, recentRainfall);
+    const wColor = condition ? conditionColor(condition.wetness) : null;
+    const mColor = condition ? conditionColor(condition.muddiness) : null;
 
     const thumbUrl = details?.photoUrl || venue.photoUrl || null;
     const allPhotos = details?.photos?.length ? details.photos : (thumbUrl ? [thumbUrl] : []);
@@ -79,8 +97,10 @@ const PitchModal = ({ venue, userLocation, weatherData, recentRainfall, map, onC
                             rel="noopener noreferrer"
                             className="flex flex-col items-center gap-0.5 flex-shrink-0 active:opacity-70"
                         >
-                            <Navigation2 className="w-6 h-6 text-black" strokeWidth={2} />
-                            <span className="text-[0.7rem] font-semibold text-black">Directions</span>
+                            <div className="w-6 h-6 rounded-full bg-[#1a73e8] flex items-center justify-center">
+                                <CornerUpRight className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            </div>
+                            <span className="text-[0.7rem] font-semibold text-[#1a73e8]">Directions</span>
                         </a>
                     </div>
 
@@ -135,14 +155,62 @@ const PitchModal = ({ venue, userLocation, weatherData, recentRainfall, map, onC
                         </div>
                     )}
 
-                    {/* ── Row 4: Pitch conditions ── */}
-                    <div className="flex flex-col gap-2 mb-3">
-                        {conditions.map((c, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                                {conditionIcons[c.label] || <CloudRain className="w-6 h-6 text-gray-400" />}
-                                <span className="text-black font-bold text-base">{c.label}</span>
-                            </div>
-                        ))}
+                    {/* ── Row 4: Pitch conditions (percentage bars) ── */}
+                    <div className="flex flex-col gap-3 mb-3">
+                        {condition ? (
+                            <>
+                                {/* Wetness */}
+                                <div className="flex items-center gap-3">
+                                    <Droplets className={`w-5 h-5 flex-shrink-0 ${wColor.text}`} strokeWidth={2.5} />
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-black font-semibold text-sm">Wetness</span>
+                                            <span className={`font-bold text-sm ${wColor.text}`}>
+                                                {conditionLabel(condition.wetness, 'wetness')} ({condition.wetness}%)
+                                            </span>
+                                        </div>
+                                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full ${wColor.bar} transition-all duration-700`}
+                                                style={{ width: `${condition.wetness}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Muddiness */}
+                                <div className="flex items-center gap-3">
+                                    <TreePine className={`w-5 h-5 flex-shrink-0 ${mColor.text}`} strokeWidth={2.5} />
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="text-black font-semibold text-sm">Muddiness</span>
+                                            <span className={`font-bold text-sm ${mColor.text}`}>
+                                                {conditionLabel(condition.muddiness, 'muddiness')} ({condition.muddiness}%)
+                                            </span>
+                                        </div>
+                                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full ${mColor.bar} transition-all duration-700`}
+                                                style={{ width: `${condition.muddiness}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            /* Shimmer loading skeleton */
+                            <>
+                                {[0, 1].map((i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <div className="w-5 h-5 rounded bg-gray-100 animate-pulse" />
+                                        <div className="flex-1">
+                                            <div className="h-4 w-20 bg-gray-100 rounded animate-pulse mb-1" />
+                                            <div className="w-full h-2 bg-gray-100 rounded-full" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </>
+                        )}
                     </div>
 
                 </div>
@@ -153,6 +221,7 @@ const PitchModal = ({ venue, userLocation, weatherData, recentRainfall, map, onC
                 <PhotoGallery
                     photos={allPhotos}
                     alt={venue.name}
+                    title={venue.name}
                     onClose={() => setPhotoExpanded(false)}
                 />
             )}

@@ -6,7 +6,7 @@ export const getIconPath = (condition) => {
         case 'clear':
             return '/weather_icons/Sunny.svg';
         case 'clouds':
-            return '/weather_icons/SunnyCloudy.svg';
+            return '/weather_icons/Cloudy.svg';
         case 'rain':
         case 'drizzle':
             return '/weather_icons/Raining.svg';
@@ -32,28 +32,25 @@ export const wmoToCondition = (code) => {
 };
 
 /**
- * Get an appropriate Unsplash background image based on time and weather.
+ * Get an appropriate background image path based on time and weather.
+ * Images are stored locally in /backgrounds/.
  */
 export const getBackground = (weather, sys, dt) => {
     const isNight = dt < sys.sunrise || dt > sys.sunset;
     const condition = weather[0]?.main?.toLowerCase() || '';
 
-    if (sys.sunrise === undefined || sys.sunset === undefined)
-        return "https://images.unsplash.com/photo-1601297183305-6df142704ea2?q=80&w=1080&auto=format&fit=crop";
-
     if (isNight) {
-        if (condition.includes('cloud')) return 'https://images.unsplash.com/photo-1509803874385-db7c23652552?q=80&w=1080&auto=format&fit=crop';
-        if (condition.includes('rain') || condition.includes('drizzle')) return 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=1080&auto=format&fit=crop';
-        return 'https://images.unsplash.com/photo-1436891620584-47fd0e565afb?q=80&w=1080&auto=format&fit=crop';
-    } else {
-        if (condition.includes('cloud')) {
-            return 'https://images.unsplash.com/photo-1534088568595-a066f410cbda?q=80&w=1080&auto=format&fit=crop';
-        }
-        if (condition.includes('rain') || condition.includes('drizzle')) return 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=1080&auto=format&fit=crop';
-        if (condition.includes('snow')) return 'https://images.unsplash.com/photo-1478265409131-1f65c88f965c?q=80&w=1080&auto=format&fit=crop';
-        if (condition.includes('thunderstorm')) return 'https://images.unsplash.com/photo-1605727216801-e27ce1d0ce49?q=80&w=1080&auto=format&fit=crop';
-        return 'https://images.unsplash.com/photo-1601297183305-6df142704ea2?q=80&w=1080&auto=format&fit=crop';
+        if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('thunderstorm'))
+            return '/backgrounds/rainy_night.png';
+        if (condition.includes('cloud')) return '/backgrounds/cloudy_night.png';
+        return '/backgrounds/clear_night.png';
     }
+
+    if (condition.includes('thunderstorm')) return '/backgrounds/thunderstorm.png';
+    if (condition.includes('rain') || condition.includes('drizzle')) return '/backgrounds/rainy_day.png';
+    if (condition.includes('snow')) return '/backgrounds/snowy_day.png';
+    if (condition.includes('cloud')) return '/backgrounds/cloudy_day.png';
+    return '/backgrounds/sunny_day.png';
 };
 
 /**
@@ -69,20 +66,17 @@ export const transformWeatherForDisplay = (weatherData) => {
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
 
-    const conditionMain = weatherData.weather[0].main;
-
     const humidity = weatherData.main.humidity;
     const visibilityMi = Math.round((weatherData.visibility || 10000) / 1609.34);
     const windSpeedKmH = Math.round(weatherData.wind.speed * 3.6);
     const windDeg = weatherData.wind.deg || 0;
 
-    const weatherIcon = getIconPath(conditionMain);
+    const weatherIcon = getIconPath(weatherData.weather[0].main);
 
     return {
         temp,
         feelsLike,
         description,
-        conditionMain,
         humidity,
         visibilityMi,
         windSpeedKmH,
@@ -202,4 +196,99 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
         { time: formatHour((currentHour + 1) % 24), icon: getIconPath('rain'), temp: currentTemp },
         { time: formatHour((currentHour + 2) % 24), icon: getIconPath('clouds'), temp: currentTemp + 1 },
     ];
+};
+
+const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+
+const getApiKey = () => import.meta.env.VITE_OPENWEATHER_API_KEY;
+
+/**
+ * Fetch current weather, 5-day forecast, and air quality for given coordinates.
+ * Returns { current, forecast, airQuality } or throws on failure.
+ */
+export const fetchWeatherByCoords = async (lat, lng) => {
+    const apiKey = getApiKey();
+
+    const [currentRes, forecastRes, airRes, uviRes] = await Promise.all([
+        fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`),
+        fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`),
+        fetch(`${BASE_URL}/air_pollution?lat=${lat}&lon=${lng}&appid=${apiKey}`),
+        fetch(`${BASE_URL}/uvi?lat=${lat}&lon=${lng}&appid=${apiKey}`),
+    ]);
+
+    const currentData = await currentRes.json();
+    const forecastData = await forecastRes.json();
+    const airData = airRes.ok ? await airRes.json() : null;
+    const uviData = uviRes.ok ? await uviRes.json() : null;
+
+    if (!currentRes.ok || !forecastRes.ok) {
+        throw new Error('Failed to fetch weather data');
+    }
+
+    return {
+        current: currentData,
+        forecast: forecastData,
+        airQuality: airData,
+        uvIndex: uviData?.value ?? null
+    };
+};
+
+/**
+ * Get the user's geolocation, falling back to Mile End, London.
+ * Returns { lat, lng }.
+ */
+export const getUserLocation = () => {
+    const FALLBACK = { lat: 51.52, lng: -0.04 }; // Mile End
+
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(FALLBACK);
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) =>
+                resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
+            () => resolve(FALLBACK),
+            { timeout: 10000 }
+        );
+    });
+};
+
+/**
+ * Fetch total rainfall (in mm) over the past 48 hours and past hourly data using the free Open-Meteo API.
+ * This takes no API key.
+ */
+export const fetchPastWeather = async (lat, lng) => {
+    try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum&hourly=temperature_2m,weather_code&past_days=2&forecast_days=1&timezone=auto`;
+        const res = await fetch(url);
+        if (!res.ok) return { totalRainMm: 0, pastHourly: [] };
+
+        const data = await res.json();
+        // data.daily.precipitation_sum usually has [dayBeforeYesterday, yesterday, today]
+        // We sum up the past days' rainfall
+        const precipArray = data.daily?.precipitation_sum || [];
+
+        // Sum up the first two elements (past 2 days) if they exist
+        let totalRainMm = 0;
+        if (precipArray.length >= 1) totalRainMm += (precipArray[0] || 0);
+        if (precipArray.length >= 2) totalRainMm += (precipArray[1] || 0);
+
+        // Build pastHourly array
+        const times = data.hourly?.time || [];
+        const temps = data.hourly?.temperature_2m || [];
+        const codes = data.hourly?.weather_code || [];
+
+        const pastHourly = times.map((time, idx) => ({
+            time,
+            temp: temps[idx],
+            weather_code: codes[idx]
+        }));
+
+        return { totalRainMm, pastHourly };
+    } catch (e) {
+        console.error("Failed to fetch past weather from Open-Meteo:", e);
+        return { totalRainMm: 0, pastHourly: [] };
+    }
 };

@@ -1,12 +1,9 @@
-import React from 'react';
-import { Eye, Navigation, ChevronUp, Droplets, TreePine, Sun } from 'lucide-react';  // Removed Wind if not used, or keep it if needed
+import { Eye, Navigation, ChevronUp, Droplets, TreePine, Sun } from 'lucide-react';
 import { getBackground, transformWeatherForDisplay } from '../utils/weatherUtils';
+import useRainLikelihood from '../hooks/useRainLikelihood';
+import useAirQuality from '../hooks/useAirQuality';
 
-// AQI levels from OpenWeatherMap (1–5)
-const AQI_LABELS = ['Good', 'Fair', 'Moderate', 'Poor', 'Very Poor'];
-const AQI_COLORS = ['text-green-600', 'text-lime-600', 'text-amber-600', 'text-orange-600', 'text-red-600'];
-
-const WeatherScreen = ({ weatherData, airQuality, uvIndex, onOpenMap }) => {
+const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenMap }) => {
     const {
         temp,
         feelsLike,
@@ -20,22 +17,8 @@ const WeatherScreen = ({ weatherData, airQuality, uvIndex, onOpenMap }) => {
     } = transformWeatherForDisplay(weatherData);
 
     const backgroundImage = getBackground(weatherData.weather, weatherData.sys, weatherData.dt);
-
-    // Air quality data
-    const aqiIndex = airQuality?.list?.[0]?.main?.aqi; // 1–5
-    const aqiLabel = aqiIndex ? AQI_LABELS[aqiIndex - 1] : null;
-    const aqiColor = aqiIndex ? AQI_COLORS[aqiIndex - 1] : 'text-gray-500';
-
-    // UV Index data
-    const getUvLabel = (val) => {
-        if (val === null || val === undefined) return { label: 'Loading', color: 'text-gray-500' };
-        if (val <= 2) return { label: 'Low', color: 'text-green-600' };
-        if (val <= 5) return { label: 'Moderate', color: 'text-amber-600' };
-        if (val <= 7) return { label: 'High', color: 'text-orange-600' };
-        if (val <= 10) return { label: 'Very High', color: 'text-red-600' };
-        return { label: 'Extreme', color: 'text-purple-600' };
-    };
-    const { label: uvLabel, color: uvColor } = getUvLabel(uvIndex);
+    const { isRaining, rainPct, rainLabel } = useRainLikelihood(weatherData, forecastData);
+    const { aqiIndex, aqiLabel, aqiColor, uvLabel, uvColor } = useAirQuality(airQuality, uvIndex);
 
     return (
         <div className="h-[100dvh] w-full relative overflow-hidden flex flex-col items-center bg-sky-200">
@@ -67,9 +50,11 @@ const WeatherScreen = ({ weatherData, airQuality, uvIndex, onOpenMap }) => {
 
                 {/* ── Center: Main weather card ── */}
                 <div className="w-[85%] max-w-[20rem] rounded-[2rem] bg-white/40 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/30 p-[clamp(1rem,4vw,1.5rem)] flex flex-col items-center gap-1">
-                    <p className="text-black/80 font-medium text-[clamp(0.8rem,3.2vw,1.05rem)] tracking-wide">
-                        Unlikely to Rain (15%)
-                    </p>
+                    {!isRaining && rainPct != null && (
+                        <p className="text-black/80 font-medium text-[clamp(0.8rem,3.2vw,1.05rem)] tracking-wide">
+                            {rainLabel} ({rainPct}%)
+                        </p>
+                    )}
 
                     <img
                         src={weatherIcon}

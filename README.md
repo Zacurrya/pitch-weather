@@ -1,16 +1,112 @@
-# React + Vite
+# Pitch Weather
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A mobile-first web app that helps you find nearby football and cricket pitches, check their real-time opening hours, and — most importantly — see how wet or muddy the ground is likely to be before you travel.
 
-Currently, two official plugins are available:
+Built with **React + Vite**, **Google Maps JavaScript API**, **OpenWeatherMap**, and **Open-Meteo**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Feature | Description |
+|---|---|
+| **Weather Dashboard** | Full-screen weather view with condition-matched local backgrounds, air quality, UV index, humidity, visibility, wind compass, and **live forecast rain likelihood** |
+| **Map-Aware Weather** | Weather data updates dynamically when panning the map. Uses ~1km coordinate bucketing for instant cache hits |
+| **Hourly Strip** | 5-slot weather bar showing past-→-current-→-future conditions using Open-Meteo history and OWM forecast |
+| **Pitch Finder** | Google Maps with sport-icon markers (football ⚽ / cricket 🏏). Search expands into a filterable list sorted by distance |
+| **Search This Area** | Zoom-aware search button — radius scales dynamically with map zoom level |
+| **Pitch Details** | Bottom-sheet with opening hours, photos, walking distance, website, Google Maps directions |
+| **Photo Gallery** | Full-screen lightbox with pre-cached images, swipe navigation, and dot indicators |
+| **Pitch Conditions** | Per-pitch wetness & muddiness algorithm (see below) |
+| **Locate Me** | One-tap snap-to-location button |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Pitch Condition Algorithm
+
+When you tap a pitch, the app fetches **48 hours of hourly weather history specific to that pitch's coordinates** from the free [Open-Meteo API](https://open-meteo.com/), then runs a weighted calculation to produce two 0–100% scores:
+
+### Wetness (how likely the surface is wet)
+
+| Factor | Weight | How it's calculated |
+|---|---|---|
+| Currently raining | 40% | `1.0` if the OWM condition is rain/drizzle/thunderstorm, else `0` |
+| Recent rainfall | 35% | Total precipitation (mm) over 48h, capped at 15mm → linear 0–1 |
+| Humidity | 15% | Current humidity mapped from 50–100% → linear 0–1 |
+| Time since last rain | 10% | Hours since the most recent rainy hour, inverted over a 12h drying window |
+
+### Muddiness (how likely the ground is soft/muddy)
+
+| Factor | Weight | How it's calculated |
+|---|---|---|
+| 48h rainfall total | 45% | Total precipitation capped at 20mm → linear 0–1 |
+| Sustained rain hours | 25% | Count of rainy hours ÷ total hours in the window |
+| Temperature effect | 15% | Colder temps slow evaporation: mapped from 15°C→0°C → linear 0–1 |
+| Humidity | 15% | Same as wetness humidity factor |
+
+### Human-readable labels
+
+| Percentage | Wetness Label | Muddiness Label |
+|---|---|---|
+| 0–14% | Bone Dry | Firm Ground |
+| 15–29% | Probably Fine | Probably Fine |
+| 30–49% | Possibly Damp | Possibly Muddy |
+| 50–69% | Likely Wet | Likely Muddy |
+| 70–100% | Definitely Wet | Definitely Muddy |
+
+Results are **cached by place ID** in a module-level `Map`, so re-opening a pitch you've already viewed is instant (no re-fetch).
+
+---
+
+## Project Structure
+
+├── public/
+│   └── backgrounds/               # Local condition-matched background images
+├── src/
+│   ├── App.jsx                        # Root – switches between WeatherScreen and SearchScreen
+│   ├── main.jsx                       # Vite entry point
+│   ├── data/
+│   │   └── venues.js                  # Sport filter definitions (football, cricket)
+│   ├── hooks/
+│   │   ├── useAirQuality.js           # AQI and UV logic separation
+│   │   ├── usePitches.js              # Search, enrich, dedupe, and track searched areas
+│   │   ├── useRainLikelihood.js       # Forecast-based rain probability logic
+│   │   └── useWeather.js              # Map-aware weather fetcher + ~1km grid caching
+├── search-screen/
+│   ├── SearchScreen.jsx           # Map screen orchestrator
+│   └── components/
+│       ├── LocateUserButton.jsx   # Snap-to-location FAB
+│       ├── MapView.jsx            # Google Map with venue markers
+│       ├── PhotoGallery.jsx       # Full-screen photo lightbox
+│       ├── PitchModal.jsx         # Bottom-sheet pitch details + conditions
+│       ├── SearchAreaButton.jsx   # "Search this area" pill
+│       ├── SearchBar.jsx          # Expandable search with filters
+│       └── WeatherBar.jsx         # Horizontal hourly weather strip
+├── utils/
+│   ├── conditionUtils.js          # Wetness/muddiness algorithm + colour/label helpers
+│   ├── pitchUtils.js              # Distance, walking time, opening hours helpers
+│   ├── placesUtils.js             # Google Places API (search, details, opening hours)
+│   └── weatherUtils.js            # OWM + Open-Meteo fetchers, icon mapping, backgrounds
+└── weather-screen/
+    └── WeatherScreen.jsx          # Full-screen weather dashboard
+```
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_OPENWEATHER_API_KEY` | Yes | OpenWeatherMap API key |
+| `VITE_GOOGLE_MAPS_API_KEY` | Yes | Google Maps JavaScript API key (with Places library enabled) |
+
+---
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+The app will request your location on load (falls back to Mile End, London).
