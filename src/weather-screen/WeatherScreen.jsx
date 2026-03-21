@@ -50,11 +50,9 @@ const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenM
 
                 {/* ── Center: Main weather card ── */}
                 <div className="w-[85%] max-w-[20rem] rounded-[2rem] bg-white/40 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/30 p-[clamp(1rem,4vw,1.5rem)] flex flex-col items-center gap-1">
-                    {!isRaining && rainPct != null && (
-                        <p className="text-black/80 font-medium text-[clamp(0.8rem,3.2vw,1.05rem)] tracking-wide">
-                            {rainLabel} ({rainPct}%)
-                        </p>
-                    )}
+                    <p className="text-black/80 font-medium text-[clamp(0.8rem,3.2vw,1.05rem)] tracking-wide">
+                        {isRaining ? 'Currently Raining' : rainPct != null ? `${rainLabel} (${rainPct}%)` : ''}
+                    </p>
 
                     <img
                         src={weatherIcon}
