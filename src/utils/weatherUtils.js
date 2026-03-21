@@ -1,3 +1,35 @@
+// Set to true to skip OpenWeatherMap API calls 
+const MOCK_WEATHER = true;
+
+const mockWeatherResponse = () => {
+    const now = Math.floor(Date.now() / 1000);
+    const current = {
+        name: 'London',
+        dt: now,
+        sys: { sunrise: now - 3600 * 4, sunset: now + 3600 * 6, country: 'GB' },
+        main: { temp: 14, feels_like: 12, humidity: 72, pressure: 1012 },
+        weather: [{ id: 801, main: 'Clouds', description: 'partly cloudy', icon: '02d' }],
+        wind: { speed: 4.5, deg: 220 },
+        visibility: 10000,
+    };
+
+    const forecast = {
+        list: Array.from({ length: 40 }, (_, i) => ({
+            dt: now + i * 10800,
+            main: { temp: 13 + Math.round(Math.sin(i) * 3), feels_like: 11, humidity: 70 },
+            weather: [{ id: 801, main: 'Clouds', description: 'partly cloudy', icon: '02d' }],
+            wind: { speed: 4, deg: 210 },
+            pop: 0.1,
+            dt_txt: new Date((now + i * 10800) * 1000).toISOString(),
+        })),
+    };
+
+    const airQuality = { list: [{ main: { aqi: 2 } }] };
+    const uvIndex = 2;
+
+    return { current, forecast, airQuality, uvIndex };
+};
+
 /**
  * Mapping of weather conditions to SVG icon paths.
  */
@@ -207,6 +239,8 @@ const getApiKey = () => import.meta.env.VITE_OPENWEATHER_API_KEY;
  * Returns { current, forecast, airQuality } or throws on failure.
  */
 export const fetchWeatherByCoords = async (lat, lng) => {
+    if (MOCK_WEATHER) return mockWeatherResponse();
+
     const apiKey = getApiKey();
 
     const [currentRes, forecastRes, airRes, uviRes] = await Promise.all([
@@ -250,7 +284,7 @@ export const getUserLocation = () => {
             (position) =>
                 resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
             () => resolve(FALLBACK),
-            { timeout: 10000 }
+            { timeout: 5000, maximumAge: 60000 }
         );
     });
 };
