@@ -3,7 +3,7 @@ import { Footprints, Droplets, Globe, CornerUpRight, TreePine } from 'lucide-rea
 import { getDistanceKm, getWalkingMinutes, getTodayHours } from '../../utils/pitchUtils';
 import { getPlaceDetails } from '../../utils/placesUtils';
 import { fetchPastWeather } from '../../utils/weatherUtils';
-import { calcPitchCondition, conditionColor, conditionLabel } from '../../utils/conditionUtils';
+import { calcPitchCondition, conditionColor, conditionLabel, pitchVerdict } from '../../utils/conditionUtils';
 import PhotoGallery from './PhotoGallery';
 
 // Module-level cache: placeId → { wetness, muddiness }
@@ -159,6 +159,16 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                     <div className="flex flex-col gap-3 mb-3">
                         {condition ? (
                             <>
+                                {/* Overall verdict */}
+                                {(() => {
+                                    const v = pitchVerdict(condition.wetness, condition.muddiness);
+                                    return (
+                                        <div className={`flex items-center justify-center rounded-xl py-2 px-4 ${v.bg}`}>
+                                            <span className={`font-bold text-base ${v.color}`}>{v.label}</span>
+                                        </div>
+                                    );
+                                })()}
+
                                 {/* Wetness */}
                                 <div className="flex items-center gap-3">
                                     <Droplets className={`w-5 h-5 flex-shrink-0 ${wColor.text}`} strokeWidth={2.5} />

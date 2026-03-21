@@ -103,6 +103,19 @@ export const conditionColor = (pct) => {
 };
 
 /**
+ * Derive an overall playability verdict from wetness and muddiness scores.
+ * @param {number} wetness   0–100
+ * @param {number} muddiness 0–100
+ * @returns {{ label: string, color: string, bg: string }}
+ */
+export const pitchVerdict = (wetness, muddiness) => {
+    const worst = Math.max(wetness, muddiness);
+    if (worst < 30) return { label: 'Playable',     color: 'text-green-700', bg: 'bg-green-100' };
+    if (worst < 60) return { label: 'High Risk',    color: 'text-amber-700', bg: 'bg-amber-100' };
+    return            { label: 'Not Suitable', color: 'text-red-700',   bg: 'bg-red-100'   };
+};
+
+/**
  * Convert a percentage to a human-readable label.
  * @param {number} pct  0–100
  * @param {'wetness'|'muddiness'} type
