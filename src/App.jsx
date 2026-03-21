@@ -4,15 +4,26 @@ import SearchScreen from './search-screen/SearchScreen';
 import { useWeather } from './hooks/useWeather';
 
 function App() {
-  const { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, refreshWeather } = useWeather();
+  const { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, error, refreshWeather } = useWeather();
   const [showMap, setShowMap] = useState(false);
 
-  if (loading || !weatherData || !location) {
+  if (loading) {
     return (
       <div className="w-full h-[100dvh] flex items-center justify-center bg-gray-900">
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
           <p className="text-white">Locating you...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !weatherData || !location) {
+    return (
+      <div className="w-full h-[100dvh] flex items-center justify-center bg-gray-900">
+        <div className="flex flex-col items-center gap-2 text-center px-6">
+          <p className="text-white text-lg font-semibold">Could not load weather</p>
+          <p className="text-gray-400 text-sm">Check your API keys and network connection, then reload.</p>
         </div>
       </div>
     );

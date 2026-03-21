@@ -16,6 +16,7 @@ export const useWeather = () => {
     const [uvIndex, setUvIndex] = useState(null);
     const [pastHourly, setPastHourly] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Keep the original user city name so it never changes on pan
     const cityNameRef = useRef(null);
@@ -69,6 +70,7 @@ export const useWeather = () => {
                 applyWeather(entry);
             } catch (error) {
                 console.error('Failed to initialise weather:', error);
+                setError(error);
             } finally {
                 setLoading(false);
             }
@@ -92,5 +94,5 @@ export const useWeather = () => {
         [fetchAndCache, applyWeather],
     );
 
-    return { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, refreshWeather };
+    return { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, error, refreshWeather };
 };
