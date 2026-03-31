@@ -1,55 +1,90 @@
-@reference "tailwindcss";
-
 /* App - top-level layout and loading/error states */
 
 .app__loading {
-  @apply w-full flex items-center justify-center bg-gray-900;
+  background-color: var(--color-gray-900);
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
   height: 100dvh;
 }
 
 .app__loading-inner {
-  @apply flex flex-col items-center;
+  flex-direction: column;
+  align-items: center;
+  display: flex;
 }
 
 .app__spinner {
-  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4;
+  margin-bottom: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 12);
+  width: calc(var(--spacing) * 12);
+  animation: var(--animate-spin);
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-color: var(--color-white);
+  border-radius: 9999px;
 }
 
 .app__loading-text {
-  @apply text-white;
+  color: var(--color-white);
 }
 
 .app__error {
-  @apply w-full flex items-center justify-center bg-gray-900;
+  background-color: var(--color-gray-900);
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
   height: 100dvh;
 }
 
 .app__error-inner {
-  @apply flex flex-col items-center gap-2 text-center px-6;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  padding-inline: calc(var(--spacing) * 6);
+  text-align: center;
+  flex-direction: column;
+  display: flex;
 }
 
 .app__error-title {
-  @apply text-white text-lg font-semibold;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
 }
 
 .app__error-msg {
-  @apply text-gray-400 text-sm;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  color: var(--color-gray-400);
 }
 
 .app__shell {
-  @apply relative w-full overflow-hidden bg-white font-sans;
+  background-color: var(--color-white);
+  width: 100%;
+  font-family: var(--font-sans);
+  position: relative;
+  overflow: hidden;
   height: 100dvh;
 }
 
 .app__map-layer {
-  @apply absolute inset-0 z-0;
+  inset: calc(var(--spacing) * 0);
+  z-index: 0;
+  position: absolute;
 }
 
 .app__weather-layer {
-  @apply absolute inset-0 z-10 translate-y-0;
+  inset: calc(var(--spacing) * 0);
+  z-index: 10;
+  translate: 0 0;
+  position: absolute;
   transition: transform 800ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .app__weather-layer--hidden {
-  @apply -translate-y-full pointer-events-none;
+  pointer-events: none;
+  translate: 0 -100%;
 }

@@ -1,14 +1,37 @@
-@reference "tailwindcss";
-
 /* SearchAreaButton - conditional button to trigger Places search */
 
 .search-area-btn__wrapper {
-  @apply absolute left-0 right-0 flex justify-center z-10 pointer-events-none transition-all duration-500;
+  pointer-events: none;
+  right: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  z-index: 10;
+  transition-property: all;
+  transition-timing-function: var(--default-transition-timing-function);
+  transition-duration: var(--default-transition-duration);
+  justify-content: center;
+  transition-duration: .5s;
+  display: flex;
+  position: absolute;
   top: clamp(10.5rem, 40vw, 18rem);
 }
 
 .search-area-btn {
-  @apply pointer-events-auto flex items-center gap-2 px-3.5 py-1.5 backdrop-blur-md rounded-full border font-semibold tracking-wide transition-all;
+  pointer-events: auto;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  border-style: solid;
+  padding-inline: calc(var(--spacing) * 3.5);
+  padding-block: calc(var(--spacing) * 1.5);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  backdrop-filter: blur(var(--blur-md));
+  transition-property: all;
+  transition-timing-function: var(--default-transition-timing-function);
+  transition-duration: var(--default-transition-duration);
+  border-width: 1px;
+  border-radius: 9999px;
+  display: flex;
   background: rgb(255 255 255 / 0.6);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
   border-color: rgb(255 255 255 / 0.4);
@@ -17,13 +40,14 @@
 }
 
 .search-area-btn:active {
-  @apply scale-95;
+  transform: scale(0.95);
 }
 
 .search-area-btn:disabled {
-  @apply opacity-40;
+  opacity: .4;
 }
 
 .search-area-btn__icon {
-  @apply w-3.5 h-3.5;
+  height: calc(var(--spacing) * 3.5);
+  width: calc(var(--spacing) * 3.5);
 }

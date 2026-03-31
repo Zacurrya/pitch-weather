@@ -1,9 +1,21 @@
-@reference "tailwindcss";
-
 /* LocateUserButton - re-centres map on user location */
 
 .locate-btn {
-  @apply absolute bottom-10 right-5 backdrop-blur-md rounded-full border flex items-center justify-center z-10 transition-transform;
+  right: calc(var(--spacing) * 5);
+  bottom: calc(var(--spacing) * 10);
+  z-index: 10;
+  border-style: solid;
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  backdrop-filter: blur(var(--blur-md));
+  transition-property: transform,translate,scale,rotate;
+  transition-timing-function: var(--default-transition-timing-function);
+  transition-duration: var(--default-transition-duration);
+  border-width: 1px;
+  border-radius: 9999px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: absolute;
   width: 3.25rem;
   height: 3.25rem;
   background: rgb(255 255 255 / 0.6);
@@ -12,10 +24,11 @@
 }
 
 .locate-btn:active {
-  @apply scale-95;
+  transform: scale(0.95);
 }
 
 .locate-btn__icon {
-  @apply w-5 h-5;
+  height: calc(var(--spacing) * 5);
+  width: calc(var(--spacing) * 5);
   color: rgb(0 0 0 / 0.8);
 }

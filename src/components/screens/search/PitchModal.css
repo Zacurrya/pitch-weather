@@ -1,231 +1,364 @@
-@reference "tailwindcss";
-
 /* PitchModal - bottom sheet with venue details and pitch conditions */
 
 .pitch-modal__backdrop {
-  @apply absolute inset-0 z-20;
+  inset: calc(var(--spacing) * 0);
+  z-index: 20;
+  position: absolute;
 }
 
 .pitch-modal__sheet-wrapper {
-  @apply absolute bottom-0 left-0 right-0 z-30;
+  right: calc(var(--spacing) * 0);
+  bottom: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  z-index: 30;
+  position: absolute;
   animation: slideUp 0.4s ease-out;
 }
 
 .pitch-modal__sheet {
-  @apply bg-white rounded-t-3xl px-5 pt-5 pb-6 overflow-y-auto;
+  border-top-left-radius: var(--radius-3xl);
+  border-top-right-radius: var(--radius-3xl);
+  background-color: var(--color-white);
+  padding-inline: calc(var(--spacing) * 5);
+  padding-top: calc(var(--spacing) * 5);
+  padding-bottom: calc(var(--spacing) * 6);
+  overflow-y: auto;
   box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
   max-height: 65dvh;
 }
 
 /* Row 1: Name, website, directions */
 .pitch-modal__header {
-  @apply flex items-center gap-3 mb-3;
+  margin-bottom: calc(var(--spacing) * 3);
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  display: flex;
 }
 
 .pitch-modal__sport-icon {
-  @apply w-10 h-10 object-contain flex-shrink-0;
+  height: calc(var(--spacing) * 10);
+  width: calc(var(--spacing) * 10);
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .pitch-modal__name-wrap {
-  @apply flex-1 min-w-0;
+  min-width: calc(var(--spacing) * 0);
+  flex: 1;
 }
 
 .pitch-modal__name {
-  @apply text-black font-bold text-lg truncate;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+  overflow: hidden;
 }
 
 .pitch-modal__link {
-  @apply flex flex-col items-center gap-0.5 flex-shrink-0;
+  align-items: center;
+  gap: calc(var(--spacing) * .5);
+  flex-direction: column;
+  flex-shrink: 0;
+  display: flex;
 }
 
 .pitch-modal__link:active {
-  @apply opacity-70;
+  opacity: .7;
 }
 
 .pitch-modal__link-icon {
-  @apply w-6 h-6 text-black;
+  height: calc(var(--spacing) * 6);
+  width: calc(var(--spacing) * 6);
+  color: var(--color-black);
 }
 
 .pitch-modal__link-label {
-  @apply font-semibold text-black;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-black);
   font-size: 0.7rem;
 }
 
 .pitch-modal__directions-circle {
-  @apply w-6 h-6 rounded-full flex items-center justify-center;
+  height: calc(var(--spacing) * 6);
+  width: calc(var(--spacing) * 6);
+  border-radius: 9999px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
   background: #1a73e8;
 }
 
 .pitch-modal__directions-arrow {
-  @apply w-3.5 h-3.5 text-white;
+  height: calc(var(--spacing) * 3.5);
+  width: calc(var(--spacing) * 3.5);
+  color: var(--color-white);
 }
 
 .pitch-modal__directions-label {
-  @apply font-semibold;
+  font-weight: var(--font-weight-semibold);
   font-size: 0.7rem;
   color: #1a73e8;
 }
 
 /* Future hourly forecast strip */
 .pitch-modal__forecast {
-  @apply flex gap-1.5 mb-3;
+  margin-bottom: calc(var(--spacing) * 3);
+  gap: calc(var(--spacing) * 1.5);
+  display: flex;
 }
 
 .pitch-modal__forecast-item {
-  @apply flex-1 flex flex-col items-center gap-1 rounded-2xl border py-2;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  border-radius: var(--radius-2xl);
+  border-style: solid;
+  padding-block: calc(var(--spacing) * 2);
+  border-width: 1px;
+  flex-direction: column;
+  flex: 1;
+  display: flex;
   background: rgb(56 189 248 / 0.08);
   border-color: rgb(186 230 253 / 1);
 }
 
 .pitch-modal__forecast-time {
-  @apply font-semibold;
+  font-weight: var(--font-weight-semibold);
   font-size: 0.65rem;
   color: rgb(0 0 0 / 0.5);
 }
 
 .pitch-modal__forecast-icon {
-  @apply w-7 h-7 object-contain;
+  height: calc(var(--spacing) * 7);
+  width: calc(var(--spacing) * 7);
+  object-fit: contain;
 }
 
 .pitch-modal__forecast-temp {
-  @apply text-sm font-bold text-black;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
 }
 
 /* Row 2: Status, hours, photo */
 .pitch-modal__info-row {
-  @apply flex gap-3 mb-3;
+  margin-bottom: calc(var(--spacing) * 3);
+  gap: calc(var(--spacing) * 3);
+  display: flex;
 }
 
 .pitch-modal__info-left {
-  @apply flex-1 flex flex-col justify-center gap-1;
+  justify-content: center;
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  flex: 1;
+  display: flex;
 }
 
 .pitch-modal__status-row {
-  @apply flex items-center gap-2;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  display: flex;
 }
 
 .pitch-modal__status--open {
-  @apply font-bold text-sm text-green-600;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-green-600);
 }
 
 .pitch-modal__status--closed {
-  @apply font-bold text-sm text-red-500;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-red-500);
 }
 
 .pitch-modal__hours {
-  @apply text-gray-500 text-sm;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  color: var(--color-gray-500);
 }
 
 .pitch-modal__address {
-  @apply text-gray-500 text-xs leading-snug;
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  line-height: var(--leading-snug);
+  color: var(--color-gray-500);
 }
 
 .pitch-modal__photo-btn {
-  @apply flex-shrink-0 transition-opacity;
+  transition-property: opacity;
+  transition-timing-function: var(--default-transition-timing-function);
+  transition-duration: var(--default-transition-duration);
+  flex-shrink: 0;
 }
 
 .pitch-modal__photo-btn:active {
-  @apply opacity-80;
+  opacity: .8;
 }
 
 .pitch-modal__thumbnail {
-  @apply object-cover rounded-xl;
+  border-radius: var(--radius-xl);
+  object-fit: cover;
   width: clamp(9rem, 42vw, 13rem);
   height: clamp(5.5rem, 26vw, 8rem);
 }
 
 /* Row 3: Distance and walking time */
 .pitch-modal__distance-row {
-  @apply flex items-center gap-4 mb-4 py-2 border-t border-gray-100;
+  margin-bottom: calc(var(--spacing) * 4);
+  align-items: center;
+  gap: calc(var(--spacing) * 4);
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-color: var(--color-gray-100);
+  padding-block: calc(var(--spacing) * 2);
+  display: flex;
 }
 
 .pitch-modal__distance {
-  @apply text-black font-bold text-base;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
 }
 
 .pitch-modal__walk {
-  @apply flex items-center gap-1.5 text-gray-600;
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  color: var(--color-gray-600);
+  display: flex;
 }
 
 .pitch-modal__walk-icon {
-  @apply w-5 h-5;
+  height: calc(var(--spacing) * 5);
+  width: calc(var(--spacing) * 5);
 }
 
 .pitch-modal__walk-time {
-  @apply font-semibold text-sm;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Row 4: Pitch condition bars */
 .pitch-modal__conditions {
-  @apply flex flex-col gap-3 mb-3;
+  margin-bottom: calc(var(--spacing) * 3);
+  gap: calc(var(--spacing) * 3);
+  flex-direction: column;
+  display: flex;
 }
 
 .pitch-modal__verdict {
-  @apply flex items-center justify-center w-[50%] mx-auto rounded-xl py-2;
+  border-radius: var(--radius-xl);
+  width: 50%;
+  padding-block: calc(var(--spacing) * 2);
+  justify-content: center;
+  align-items: center;
+  margin-inline: auto;
+  display: flex;
 }
 
 .pitch-modal__verdict-label {
-  @apply font-bold text-base;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  font-weight: var(--font-weight-bold);
 }
 
 .pitch-modal__condition-row {
-  @apply flex items-center gap-3;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  display: flex;
 }
 
 .pitch-modal__condition-icon {
-  @apply w-5 h-5 flex-shrink-0;
+  height: calc(var(--spacing) * 5);
+  width: calc(var(--spacing) * 5);
+  flex-shrink: 0;
 }
 
 .pitch-modal__condition-icon--wetness {
-  @apply text-sky-600;
+  color: var(--color-sky-600);
 }
 
 .pitch-modal__condition-icon--muddiness {
-  @apply text-amber-700;
+  color: var(--color-amber-700);
 }
 
 .pitch-modal__condition-body {
-  @apply flex-1;
+  flex: 1;
 }
 
 .pitch-modal__condition-header {
-  @apply flex items-center justify-between mb-1;
+  margin-bottom: calc(var(--spacing) * 1);
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
 }
 
 .pitch-modal__condition-title {
-  @apply text-black font-semibold text-sm;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-black);
 }
 
 .pitch-modal__condition-value {
-  @apply font-bold text-sm;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-bold);
 }
 
 .pitch-modal__bar-track {
-  @apply w-full h-2 bg-gray-100 rounded-full overflow-hidden;
+  height: calc(var(--spacing) * 2);
+  background-color: var(--color-gray-100);
+  border-radius: 9999px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .pitch-modal__bar-fill {
-  @apply h-full rounded-full;
+  border-radius: 9999px;
+  height: 100%;
   transition: all 700ms;
 }
 
 /* Loading skeleton */
 .pitch-modal__skeleton-row {
-  @apply flex items-center gap-3;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  display: flex;
 }
 
 .pitch-modal__skeleton-icon {
-  @apply w-5 h-5 rounded bg-gray-100 animate-pulse;
+  height: calc(var(--spacing) * 5);
+  width: calc(var(--spacing) * 5);
+  animation: var(--animate-pulse);
+  background-color: var(--color-gray-100);
+  border-radius: .25rem;
 }
 
 .pitch-modal__skeleton-body {
-  @apply flex-1;
+  flex: 1;
 }
 
 .pitch-modal__skeleton-text {
-  @apply h-4 w-20 bg-gray-100 rounded animate-pulse mb-1;
+  margin-bottom: calc(var(--spacing) * 1);
+  height: calc(var(--spacing) * 4);
+  width: calc(var(--spacing) * 20);
+  animation: var(--animate-pulse);
+  background-color: var(--color-gray-100);
+  border-radius: .25rem;
 }
 
 .pitch-modal__skeleton-bar {
-  @apply w-full h-2 bg-gray-100 rounded-full;
+  height: calc(var(--spacing) * 2);
+  background-color: var(--color-gray-100);
+  border-radius: 9999px;
+  width: 100%;
 }

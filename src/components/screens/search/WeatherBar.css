@@ -1,9 +1,16 @@
-@reference "tailwindcss";
-
 /* WeatherBar - horizontal hourly strip at top of map */
 
 .weather-bar {
-  @apply absolute top-1.5 left-0 right-0 w-full px-2 flex justify-center z-10 translate-y-0;
+  top: calc(var(--spacing) * 1.5);
+  right: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  translate: 0 0;
+  padding-inline: calc(var(--spacing) * 2);
+  justify-content: center;
+  display: flex;
+  position: absolute;
   transition: transform 500ms ease-out;
 }
 
@@ -12,7 +19,17 @@
 }
 
 .weather-bar__item {
-  @apply flex flex-col items-center backdrop-blur-md border flex-1 mx-0.5 opacity-80 cursor-default;
+  margin-inline: calc(var(--spacing) * 0.5);
+  cursor: default;
+  border-style: solid;
+  opacity: 0.8;
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  backdrop-filter: blur(var(--blur-md));
+  border-width: 1px;
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  display: flex;
   transition: all 150ms;
   background: rgb(255 255 255 / 0.95);
   border-radius: 1.25rem;
@@ -22,7 +39,10 @@
 }
 
 .weather-bar__item--current {
-  @apply mx-0.5 opacity-100 cursor-pointer z-10;
+  z-index: 10;
+  margin-inline: calc(var(--spacing) * 0.5);
+  cursor: pointer;
+  opacity: 1;
   height: clamp(5.5rem, 22vw, 7.5rem);
   transform: translateY(0.25rem);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
@@ -30,11 +50,12 @@
 }
 
 .weather-bar__item--current:active {
-  @apply scale-95;
+  transform: scale(0.95);
 }
 
 .weather-bar__time {
-  @apply pt-2 font-medium;
+  padding-top: calc(var(--spacing) * 2);
+  font-weight: var(--font-weight-medium);
   color: black;
   font-size: clamp(0.6rem, 2.2vw, 0.75rem);
 }
@@ -44,11 +65,14 @@
 }
 
 .weather-bar__icon-wrap {
-  @apply flex-1 flex items-center justify-center;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  display: flex;
 }
 
 .weather-bar__icon {
-  @apply object-contain;
+  object-fit: contain;
   width: clamp(1.6rem, 7vw, 2.2rem);
   height: clamp(1.6rem, 7vw, 2.2rem);
 }
@@ -59,7 +83,8 @@
 }
 
 .weather-bar__temp {
-  @apply pb-2 font-semibold;
+  padding-bottom: calc(var(--spacing) * 2);
+  font-weight: var(--font-weight-semibold);
   color: black;
   font-size: clamp(0.65rem, 2.2vw, 0.8rem);
 }

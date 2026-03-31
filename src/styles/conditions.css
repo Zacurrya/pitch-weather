@@ -1,38 +1,36 @@
-@reference "tailwindcss";
-
 /* Shared condition, verdict, AQI and UV colour classes */
 
 /* Condition bar fills */
-.condition-bar--green { @apply bg-green-500; }
-.condition-bar--amber { @apply bg-amber-400; }
-.condition-bar--red   { @apply bg-red-500; }
+.condition-bar--green { background-color: var(--color-green-500); }
+.condition-bar--amber { background-color: var(--color-amber-400); }
+.condition-bar--red   { background-color: var(--color-red-500); }
 
 /* Condition text labels */
-.condition-text--green { @apply text-green-600; }
-.condition-text--amber { @apply text-amber-600; }
-.condition-text--red   { @apply text-red-600; }
+.condition-text--green { color: var(--color-green-600); }
+.condition-text--amber { color: var(--color-amber-600); }
+.condition-text--red   { color: var(--color-red-600); }
 
 /* Pitch verdict backgrounds */
-.verdict-bg--green { @apply bg-green-100; }
-.verdict-bg--amber { @apply bg-amber-100; }
-.verdict-bg--red   { @apply bg-red-100; }
+.verdict-bg--green { background-color: var(--color-green-100); }
+.verdict-bg--amber { background-color: var(--color-amber-100); }
+.verdict-bg--red   { background-color: var(--color-red-100); }
 
 /* Pitch verdict text */
-.verdict-text--green { @apply text-green-700; }
-.verdict-text--amber { @apply text-amber-700; }
-.verdict-text--red   { @apply text-red-700; }
+.verdict-text--green { color: var(--color-green-700); }
+.verdict-text--amber { color: var(--color-amber-700); }
+.verdict-text--red   { color: var(--color-red-700); }
 
 /* AQI colours */
-.aqi--good      { @apply text-green-600; }
-.aqi--fair      { @apply text-lime-600; }
-.aqi--moderate  { @apply text-amber-600; }
-.aqi--poor      { @apply text-orange-600; }
-.aqi--very-poor { @apply text-red-600; }
+.aqi--good      { color: var(--color-green-600); }
+.aqi--fair      { color: var(--color-lime-600); }
+.aqi--moderate  { color: var(--color-amber-600); }
+.aqi--poor      { color: var(--color-orange-600); }
+.aqi--very-poor { color: var(--color-red-600); }
 
 /* UV colours */
-.uv--low       { @apply text-green-600; }
-.uv--moderate  { @apply text-amber-600; }
-.uv--high      { @apply text-orange-600; }
-.uv--very-high { @apply text-red-600; }
-.uv--extreme   { @apply text-purple-600; }
-.uv--default   { @apply text-gray-500; }
+.uv--low       { color: var(--color-green-600); }
+.uv--moderate  { color: var(--color-amber-600); }
+.uv--high      { color: var(--color-orange-600); }
+.uv--very-high { color: var(--color-red-600); }
+.uv--extreme   { color: var(--color-purple-600); }
+.uv--default   { color: var(--color-gray-500); }
