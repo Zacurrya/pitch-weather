@@ -15,7 +15,7 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
         libraries: LIBRARIES,
     });
 
-    const [map, setMap] = useState(null);
+    const [_map, setMap] = useState(null);
 
     const onLoad = useCallback((mapInstance) => {
         setMap(mapInstance);

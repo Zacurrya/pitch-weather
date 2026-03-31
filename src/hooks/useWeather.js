@@ -28,7 +28,7 @@ export const useWeather = () => {
             return weatherCache.get(key);
         }
 
-        const [{ current, forecast, airQuality: aq, uvIndex: uv }, { totalRainMm, pastHourly: ph }] =
+        const [{ current, forecast, airQuality: aq, uvIndex: uv }, { pastHourly: ph }] =
             await Promise.all([
                 fetchWeatherByCoords(lat, lng),
                 fetchPastWeather(lat, lng),
