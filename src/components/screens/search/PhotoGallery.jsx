@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import './PhotoGallery.css';
 
 /*
 Full-screen photo gallery lightbox.
@@ -17,12 +18,12 @@ const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
 
     return (
         <div
-            className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center"
+            className="gallery"
             onClick={onClose}
         >
             {/* Title */}
             {title && (
-                <h2 className="absolute top-6 left-1/2 -translate-x-1/2 text-white/90 font-semibold text-base sm:text-lg max-w-[65vw] truncate z-20 pointer-events-none drop-shadow-md">
+                <h2 className="gallery__title">
                     {title}
                 </h2>
             )}
@@ -30,23 +31,23 @@ const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
             {/* Close button */}
             <button
                 onClick={onClose}
-                className="absolute top-5 right-5 p-2 text-white/80 hover:text-white active:opacity-70 z-10"
+                className="gallery__close"
             >
-                <X className="w-8 h-8" strokeWidth={2.5} />
+                <X className="gallery__close-icon" strokeWidth={2.5} />
             </button>
 
             {/* Image + arrows */}
             <div
-                className="relative flex items-center justify-center w-full flex-1 px-4"
+                className="gallery__viewport"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Prev arrow */}
                 {photos.length > 1 && (
                     <button
                         onClick={prev}
-                        className="absolute left-3 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10"
+                        className="gallery__arrow gallery__arrow--prev"
                     >
-                        <ChevronLeft className="w-9 h-9" strokeWidth={2.5} />
+                        <ChevronLeft className="gallery__arrow-icon" strokeWidth={2.5} />
                     </button>
                 )}
 
@@ -56,8 +57,7 @@ const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
                         key={i}
                         src={src}
                         alt={`${alt} ${i + 1}`}
-                        className={`max-w-[92%] max-h-[80dvh] object-contain rounded-2xl select-none ${i === index ? 'block' : 'hidden'
-                            }`}
+                        className={`gallery__image ${i === index ? 'gallery__image--active' : ''}`}
                         draggable={false}
                     />
                 ))}
@@ -66,29 +66,28 @@ const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
                 {photos.length > 1 && (
                     <button
                         onClick={next}
-                        className="absolute right-3 p-2 text-white/70 hover:text-white active:scale-90 transition-all z-10"
+                        className="gallery__arrow gallery__arrow--next"
                     >
-                        <ChevronRight className="w-9 h-9" strokeWidth={2.5} />
+                        <ChevronRight className="gallery__arrow-icon" strokeWidth={2.5} />
                     </button>
                 )}
             </div>
 
             {/* Dot indicators */}
             {photos.length > 1 && (
-                <div className="flex gap-2 py-4" onClick={(e) => e.stopPropagation()}>
+                <div className="gallery__dots" onClick={(e) => e.stopPropagation()}>
                     {photos.map((_, i) => (
                         <button
                             key={i}
                             onClick={() => setIndex(i)}
-                            className={`w-2.5 h-2.5 rounded-full transition-all ${i === index ? 'bg-white scale-110' : 'bg-white/40'
-                                }`}
+                            className={`gallery__dot ${i === index ? 'gallery__dot--active' : ''}`}
                         />
                     ))}
                 </div>
             )}
 
             {/* Counter */}
-            <p className="text-white/60 text-sm font-medium pb-4">
+            <p className="gallery__counter">
                 {index + 1} / {photos.length}
             </p>
         </div>

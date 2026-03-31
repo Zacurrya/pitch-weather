@@ -6,6 +6,7 @@ import { getIconPath, wmoToCondition } from '@utils/weatherUtils';
 import usePlaceDetails from '@hooks/usePlaceDetails';
 import usePitchCondition from '@hooks/usePitchCondition';
 import PhotoGallery from './PhotoGallery';
+import './PitchModal.css';
 
 const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     const [photoExpanded, setPhotoExpanded] = useState(false);
@@ -40,55 +41,55 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     return (
         <>
             {/* Tap-outside backdrop */}
-            <div className="absolute inset-0 z-20" onClick={onClose} />
+            <div className="pitch-modal__backdrop" onClick={onClose} />
 
             {/* Bottom sheet */}
-            <div className="absolute bottom-0 left-0 right-0 z-30 animate-[slideUp_0.4s_ease-out]">
-                <div className="bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.15)] px-5 pt-5 pb-6 max-h-[65dvh] overflow-y-auto">
+            <div className="pitch-modal__sheet-wrapper">
+                <div className="pitch-modal__sheet">
 
                     {/* Row 1: Name, website, directions */}
-                    <div className="flex items-center gap-3 mb-3">
-                        <img src={sportIcon} alt={venue.type} className="w-10 h-10 object-contain flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                            <p className="text-black font-bold text-lg truncate">{venue.name}</p>
+                    <div className="pitch-modal__header">
+                        <img src={sportIcon} alt={venue.type} className="pitch-modal__sport-icon" />
+                        <div className="pitch-modal__name-wrap">
+                            <p className="pitch-modal__name">{venue.name}</p>
                         </div>
                         {details?.website && (
                             <a
                                 href={details.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex flex-col items-center gap-0.5 flex-shrink-0 active:opacity-70"
+                                className="pitch-modal__link"
                             >
-                                <Globe className="w-6 h-6 text-black" strokeWidth={2} />
-                                <span className="text-[0.7rem] font-semibold text-black">Website</span>
+                                <Globe className="pitch-modal__link-icon" strokeWidth={2} />
+                                <span className="pitch-modal__link-label">Website</span>
                             </a>
                         )}
                         <a
                             href={mapsUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex flex-col items-center gap-0.5 flex-shrink-0 active:opacity-70"
+                            className="pitch-modal__link"
                         >
-                            <div className="w-6 h-6 rounded-full bg-[#1a73e8] flex items-center justify-center">
-                                <CornerUpRight className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                            <div className="pitch-modal__directions-circle">
+                                <CornerUpRight className="pitch-modal__directions-arrow" strokeWidth={2.5} />
                             </div>
-                            <span className="text-[0.7rem] font-semibold text-[#1a73e8]">Directions</span>
+                            <span className="pitch-modal__directions-label">Directions</span>
                         </a>
                     </div>
 
                     {/* Next 5 hours from Open-Meteo (1-hour intervals, pitch coordinates) */}
                     {futureHourly.length > 0 && (
-                        <div className="flex gap-1.5 mb-3">
+                        <div className="pitch-modal__forecast">
                             {futureHourly.map((h) => {
                                 const hour = new Date(h.time).getHours();
                                 const time = `${hour.toString().padStart(2, '0')}:00`;
                                 const icon = getIconPath(wmoToCondition(h.weather_code));
                                 const temp = Math.round(h.temp);
                                 return (
-                                    <div key={h.time} className="flex-1 flex flex-col items-center gap-1 rounded-2xl bg-sky-50/80 border border-sky-100 py-2">
-                                        <span className="text-[0.65rem] font-semibold text-black/50">{time}</span>
-                                        <img src={icon} alt={time} className="w-7 h-7 object-contain" />
-                                        <span className="text-sm font-bold text-black">{temp}°C</span>
+                                    <div key={h.time} className="pitch-modal__forecast-item">
+                                        <span className="pitch-modal__forecast-time">{time}</span>
+                                        <img src={icon} alt={time} className="pitch-modal__forecast-icon" />
+                                        <span className="pitch-modal__forecast-temp">{temp}°C</span>
                                     </div>
                                 );
                             })}
@@ -96,38 +97,38 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                     )}
 
                     {/* Row 2: Status, hours, photo */}
-                    <div className="flex gap-3 mb-3">
-                        <div className="flex-1 flex flex-col justify-center gap-1">
+                    <div className="pitch-modal__info-row">
+                        <div className="pitch-modal__info-left">
                             {isOpen != null && (
-                                <div className="flex items-center gap-2">
-                                    <span className={`font-bold text-sm ${isOpen ? 'text-green-600' : 'text-red-500'}`}>
+                                <div className="pitch-modal__status-row">
+                                    <span className={isOpen ? 'pitch-modal__status--open' : 'pitch-modal__status--closed'}>
                                         {isOpen ? 'Open' : 'Closed'}
                                     </span>
                                     {todayHours && isOpen && todayHours.closesAt && (
-                                        <span className="text-gray-500 text-sm">
+                                        <span className="pitch-modal__hours">
                                             Closes {todayHours.closesAt}
                                         </span>
                                     )}
                                     {todayHours && !isOpen && todayHours.opensAt && (
-                                        <span className="text-gray-500 text-sm">
+                                        <span className="pitch-modal__hours">
                                             Opens {todayHours.opensAt}
                                         </span>
                                     )}
                                 </div>
                             )}
                             {venue.address && (
-                                <p className="text-gray-500 text-xs leading-snug">{venue.address}</p>
+                                <p className="pitch-modal__address">{venue.address}</p>
                             )}
                         </div>
                         {thumbUrl && (
                             <button
                                 onClick={() => setPhotoExpanded(true)}
-                                className="active:opacity-80 transition-opacity flex-shrink-0"
+                                className="pitch-modal__photo-btn"
                             >
                                 <img
                                     src={thumbUrl}
                                     alt={venue.name}
-                                    className="w-[clamp(9rem,42vw,13rem)] h-[clamp(5.5rem,26vw,8rem)] object-cover rounded-xl"
+                                    className="pitch-modal__thumbnail"
                                 />
                             </button>
                         )}
@@ -135,44 +136,44 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
                     {/* Row 3: Distance and walking time */}
                     {distKm != null && (
-                        <div className="flex items-center gap-4 mb-4 py-2 border-t border-gray-100">
-                            <span className="text-black font-bold text-base">
+                        <div className="pitch-modal__distance-row">
+                            <span className="pitch-modal__distance">
                                 {distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`}
                             </span>
-                            <div className="flex items-center gap-1.5 text-gray-600">
-                                <Footprints className="w-5 h-5" strokeWidth={2} />
-                                <span className="font-semibold text-sm">{walkMins} mins</span>
+                            <div className="pitch-modal__walk">
+                                <Footprints className="pitch-modal__walk-icon" strokeWidth={2} />
+                                <span className="pitch-modal__walk-time">{walkMins} mins</span>
                             </div>
                         </div>
                     )}
 
                     {/* Row 4: Pitch condition bars */}
-                    <div className="flex flex-col gap-3 mb-3">
+                    <div className="pitch-modal__conditions">
                         {condition ? (
                             <>
                                 {/* Overall verdict */}
                                 {(() => {
                                     const v = pitchVerdict(condition.wetness, condition.muddiness);
                                     return (
-                                        <div className={`flex items-center justify-center w-[50%] mx-auto rounded-xl py-2 ${v.bg}`}>
-                                            <span className={`font-bold text-base ${v.color}`}>{v.label}</span>
+                                        <div className={`pitch-modal__verdict ${v.bg}`}>
+                                            <span className={`pitch-modal__verdict-label ${v.color}`}>{v.label}</span>
                                         </div>
                                     );
                                 })()}
 
                                 {/* Wetness */}
-                                <div className="flex items-center gap-3">
-                                    <Droplets className="w-5 h-5 flex-shrink-0 text-sky-600" strokeWidth={2.5} />
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-black font-semibold text-sm">Wetness</span>
-                                            <span className={`font-bold text-sm ${wColor.text}`}>
+                                <div className="pitch-modal__condition-row">
+                                    <Droplets className="pitch-modal__condition-icon pitch-modal__condition-icon--wetness" strokeWidth={2.5} />
+                                    <div className="pitch-modal__condition-body">
+                                        <div className="pitch-modal__condition-header">
+                                            <span className="pitch-modal__condition-title">Wetness</span>
+                                            <span className={`pitch-modal__condition-value ${wColor.text}`}>
                                                 {conditionLabel(condition.wetness, 'wetness')} ({condition.wetness}%)
                                             </span>
                                         </div>
-                                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="pitch-modal__bar-track">
                                             <div
-                                                className={`h-full rounded-full ${wColor.bar} transition-all duration-700`}
+                                                className={`pitch-modal__bar-fill ${wColor.bar}`}
                                                 style={{ width: `${condition.wetness}%` }}
                                             />
                                         </div>
@@ -180,18 +181,18 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                                 </div>
 
                                 {/* Muddiness */}
-                                <div className="flex items-center gap-3">
-                                    <Footprints className="w-5 h-5 flex-shrink-0 text-amber-700" strokeWidth={2.5} />
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-black font-semibold text-sm">Muddiness</span>
-                                            <span className={`font-bold text-sm ${mColor.text}`}>
+                                <div className="pitch-modal__condition-row">
+                                    <Footprints className="pitch-modal__condition-icon pitch-modal__condition-icon--muddiness" strokeWidth={2.5} />
+                                    <div className="pitch-modal__condition-body">
+                                        <div className="pitch-modal__condition-header">
+                                            <span className="pitch-modal__condition-title">Muddiness</span>
+                                            <span className={`pitch-modal__condition-value ${mColor.text}`}>
                                                 {conditionLabel(condition.muddiness, 'muddiness')} ({condition.muddiness}%)
                                             </span>
                                         </div>
-                                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="pitch-modal__bar-track">
                                             <div
-                                                className={`h-full rounded-full ${mColor.bar} transition-all duration-700`}
+                                                className={`pitch-modal__bar-fill ${mColor.bar}`}
                                                 style={{ width: `${condition.muddiness}%` }}
                                             />
                                         </div>
@@ -202,11 +203,11 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                             /* Shimmer loading skeleton */
                             <>
                                 {[0, 1].map((i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <div className="w-5 h-5 rounded bg-gray-100 animate-pulse" />
-                                        <div className="flex-1">
-                                            <div className="h-4 w-20 bg-gray-100 rounded animate-pulse mb-1" />
-                                            <div className="w-full h-2 bg-gray-100 rounded-full" />
+                                    <div key={i} className="pitch-modal__skeleton-row">
+                                        <div className="pitch-modal__skeleton-icon" />
+                                        <div className="pitch-modal__skeleton-body">
+                                            <div className="pitch-modal__skeleton-text" />
+                                            <div className="pitch-modal__skeleton-bar" />
                                         </div>
                                     </div>
                                 ))}

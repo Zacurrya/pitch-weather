@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
 const AQI_LABELS = ['Good', 'Fair', 'Moderate', 'Poor', 'Very Poor'];
-const AQI_COLORS = ['text-green-600', 'text-lime-600', 'text-amber-600', 'text-orange-600', 'text-red-600'];
+const AQI_COLORS = ['aqi--good', 'aqi--fair', 'aqi--moderate', 'aqi--poor', 'aqi--very-poor'];
 
 const UV_THRESHOLDS = [
-    { max: 2, label: 'Low', color: 'text-green-600' },
-    { max: 5, label: 'Moderate', color: 'text-amber-600' },
-    { max: 7, label: 'High', color: 'text-orange-600' },
-    { max: 10, label: 'Very High', color: 'text-red-600' },
+    { max: 2, label: 'Low', color: 'uv--low' },
+    { max: 5, label: 'Moderate', color: 'uv--moderate' },
+    { max: 7, label: 'High', color: 'uv--high' },
+    { max: 10, label: 'Very High', color: 'uv--very-high' },
 ];
 
 /**
@@ -22,11 +22,11 @@ const useAirQuality = (airQuality, uvIndex) => {
         // AQI
         const aqiIndex = airQuality?.list?.[0]?.main?.aqi; // 1-5
         const aqiLabel = aqiIndex ? AQI_LABELS[aqiIndex - 1] : null;
-        const aqiColor = aqiIndex ? AQI_COLORS[aqiIndex - 1] : 'text-gray-500';
+        const aqiColor = aqiIndex ? AQI_COLORS[aqiIndex - 1] : 'uv--default';
 
         // UV
         let uvLabel = 'Loading';
-        let uvColor = 'text-gray-500';
+        let uvColor = 'uv--default';
 
         if (uvIndex != null) {
             const threshold = UV_THRESHOLDS.find((t) => uvIndex <= t.max);
@@ -35,7 +35,7 @@ const useAirQuality = (airQuality, uvIndex) => {
                 uvColor = threshold.color;
             } else {
                 uvLabel = 'Extreme';
-                uvColor = 'text-purple-600';
+                uvColor = 'uv--extreme';
             }
         }
 

@@ -10,6 +10,7 @@ import usePitches from '@hooks/usePitches';
 import useTextSearch from '@hooks/useTextSearch';
 import useMapWeatherSync from '@hooks/useMapWeatherSync';
 import { panToTargetWithOffset } from '@utils/mapUtils';
+import './SearchScreen.css';
 
 const SearchScreen = ({ onOpenWeather }) => {
   const { location, weatherData, forecastData, pastHourly, refreshWeather } = useWeatherContext();
@@ -77,7 +78,7 @@ const SearchScreen = ({ onOpenWeather }) => {
   }, [mapInstance, location]);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="search-screen">
       {/* Weather bar - hides when search is expanded */}
       <WeatherBar
         weatherData={weatherData}

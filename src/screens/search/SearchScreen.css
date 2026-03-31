@@ -1,0 +1,7 @@
+@reference "tailwindcss";
+
+/* SearchScreen - map orchestration container */
+
+.search-screen {
+  @apply w-full h-full relative;
+}

@@ -1,0 +1,21 @@
+@reference "tailwindcss";
+
+/* LocateUserButton - re-centres map on user location */
+
+.locate-btn {
+  @apply absolute bottom-10 right-5 backdrop-blur-md rounded-full border flex items-center justify-center z-10 transition-transform;
+  width: 3.25rem;
+  height: 3.25rem;
+  background: rgb(255 255 255 / 0.6);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  border-color: rgb(255 255 255 / 0.4);
+}
+
+.locate-btn:active {
+  @apply scale-95;
+}
+
+.locate-btn__icon {
+  @apply w-5 h-5;
+  color: rgb(0 0 0 / 0.8);
+}

@@ -1,0 +1,69 @@
+@reference "tailwindcss";
+
+/* WeatherBar - horizontal hourly strip at top of map */
+
+.weather-bar {
+  @apply absolute top-1.5 left-0 right-0 w-full px-2 flex justify-center z-10 translate-y-0;
+  transition: transform 500ms ease-out;
+}
+
+.weather-bar--hidden {
+  transform: translateY(-120%);
+}
+
+.weather-bar__item {
+  @apply flex flex-col items-center backdrop-blur-md border flex-1 mx-0.5 opacity-80 cursor-default;
+  transition: all 150ms;
+  background: rgb(255 255 255 / 0.95);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-color: rgb(255 255 255 / 0.6);
+  height: clamp(4.5rem, 18vw, 6rem);
+}
+
+.weather-bar__item--current {
+  @apply mx-0.5 opacity-100 cursor-pointer z-10;
+  height: clamp(5.5rem, 22vw, 7.5rem);
+  transform: translateY(0.25rem);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: rgb(255 255 255 / 0.9);
+}
+
+.weather-bar__item--current:active {
+  @apply scale-95;
+}
+
+.weather-bar__time {
+  @apply pt-2 font-medium;
+  color: black;
+  font-size: clamp(0.6rem, 2.2vw, 0.75rem);
+}
+
+.weather-bar__time--current {
+  font-size: clamp(0.65rem, 2.8vw, 0.85rem);
+}
+
+.weather-bar__icon-wrap {
+  @apply flex-1 flex items-center justify-center;
+}
+
+.weather-bar__icon {
+  @apply object-contain;
+  width: clamp(1.6rem, 7vw, 2.2rem);
+  height: clamp(1.6rem, 7vw, 2.2rem);
+}
+
+.weather-bar__icon--current {
+  width: clamp(2rem, 9vw, 3rem);
+  height: clamp(2rem, 9vw, 3rem);
+}
+
+.weather-bar__temp {
+  @apply pb-2 font-semibold;
+  color: black;
+  font-size: clamp(0.65rem, 2.2vw, 0.8rem);
+}
+
+.weather-bar__temp--current {
+  font-size: clamp(0.75rem, 2.8vw, 0.95rem);
+}

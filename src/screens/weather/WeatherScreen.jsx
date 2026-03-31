@@ -3,6 +3,7 @@ import { getBackground, transformWeatherForDisplay } from '@utils/weatherUtils';
 import { useWeatherContext } from '@contexts/WeatherContext';
 import useRainLikelihood from '@hooks/useRainLikelihood';
 import useAirQuality from '@hooks/useAirQuality';
+import './WeatherScreen.css';
 
 const WeatherScreen = ({ onOpenMap }) => {
     const { weatherData, forecastData, airQuality, uvIndex } = useWeatherContext();
@@ -24,120 +25,118 @@ const WeatherScreen = ({ onOpenMap }) => {
     const { aqiIndex, aqiLabel, aqiColor, uvLabel, uvColor } = useAirQuality(airQuality, uvIndex);
 
     return (
-        <div className="h-[100dvh] w-full relative overflow-hidden flex flex-col items-center bg-sky-200">
+        <div className="weather-screen">
             {/* Background image */}
             <div
-                className="absolute inset-0"
+                className="weather-screen__bg"
                 style={{
                     backgroundImage: `url('${backgroundImage}')`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
                 }}
             />
 
             {/* Semi-transparent overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/15 pointer-events-none" />
+            <div className="weather-screen__overlay" />
 
             {/* Content wrapper - safe area aware */}
-            <div className="relative z-10 flex flex-col items-center justify-between w-full h-full pt-[max(env(safe-area-inset-top,0px),2rem)] pb-[max(env(safe-area-inset-bottom,0px),0.5rem)] px-5">
+            <div className="weather-screen__content">
 
                 {/* Top: City and condition */}
-                <div className="text-center flex-shrink-0 mt-2">
-                    <h1 className="text-[clamp(2rem,9vw,2.75rem)] font-semibold text-white tracking-wide drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
+                <div className="weather-screen__header">
+                    <h1 className="weather-screen__city">
                         {cityName}
                     </h1>
-                    <p className="text-[clamp(0.95rem,4vw,1.25rem)] text-white/90 font-medium drop-shadow-[0_1px_4px_rgba(0,0,0,0.3)]">
+                    <p className="weather-screen__desc">
                         {description}
                     </p>
                 </div>
 
                 {/* Center: Main weather card */}
-                <div className="w-[85%] max-w-[20rem] rounded-[2rem] bg-white/40 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/30 p-[clamp(1rem,4vw,1.5rem)] flex flex-col items-center gap-1">
-                    <p className="text-black/80 font-medium text-[clamp(0.8rem,3.2vw,1.05rem)] tracking-wide">
+                <div className="weather-screen__card">
+                    <p className="weather-screen__rain-label">
                         {isRaining ? 'Currently Raining' : rainPct != null ? `${rainLabel} (${rainPct}%)` : ''}
                     </p>
 
                     <img
                         src={weatherIcon}
                         alt={description}
-                        className="w-[clamp(5.5rem,25vw,9rem)] h-[clamp(5.5rem,25vw,9rem)] object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.1)] my-1"
+                        className="weather-screen__icon"
                     />
 
-                    <h2 className="text-[clamp(3rem,13vw,5rem)] leading-[0.95] font-semibold text-black tracking-tighter">
+                    <h2 className="weather-screen__temp">
                         {temp}°C
                     </h2>
-                    <p className="text-[clamp(0.85rem,3.2vw,1.15rem)] text-black/70 font-medium -mt-1">
+                    <p className="weather-screen__feels-like">
                         Feels like {feelsLike}°C
                     </p>
                 </div>
 
                 {/* Info cards: Air Quality, UV, Humidity */}
-                <div className="flex gap-2 w-full max-w-[24rem] flex-shrink-0">
+                <div className="weather-screen__info-row">
                     {/* Air Quality */}
-                    <div className="flex-1 rounded-[1.25rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 py-3 px-2 flex flex-col items-center gap-1">
-                        <TreePine className="w-6 h-6 text-green-600" strokeWidth={2.5} />
-                        <p className="text-[0.65rem] font-bold text-black/60 uppercase tracking-tight">Air Quality</p>
-                        <p className="text-xl font-bold text-black leading-none">{aqiIndex ?? '–'}</p>
-                        <p className={`text-[0.6rem] font-bold ${aqiColor} truncate w-full text-center`}>
+                    <div className="weather-screen__info-card">
+                        <TreePine className="weather-screen__info-icon weather-screen__info-icon--aqi" strokeWidth={2.5} />
+                        <p className="weather-screen__info-label">Air Quality</p>
+                        <p className="weather-screen__info-value">{aqiIndex ?? '-'}</p>
+                        <p className={`weather-screen__info-sublabel ${aqiColor}`}>
                             {aqiLabel ?? 'Loading'}
                         </p>
                     </div>
 
                     {/* UV Index */}
-                    <div className="flex-1 rounded-[1.25rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 py-3 px-2 flex flex-col items-center gap-1">
-                        <Sun className="w-6 h-6 text-amber-500" strokeWidth={2.5} />
-                        <p className="text-[0.65rem] font-bold text-black/60 uppercase tracking-tight">UV Index</p>
-                        <p className="text-xl font-bold text-black leading-none">{uvIndex != null ? Math.round(uvIndex) : '–'}</p>
-                        <p className={`text-[0.6rem] font-bold ${uvColor} truncate w-full text-center`}>
+                    <div className="weather-screen__info-card">
+                        <Sun className="weather-screen__info-icon weather-screen__info-icon--uv" strokeWidth={2.5} />
+                        <p className="weather-screen__info-label">UV Index</p>
+                        <p className="weather-screen__info-value">{uvIndex != null ? Math.round(uvIndex) : '-'}</p>
+                        <p className={`weather-screen__info-sublabel ${uvColor}`}>
                             {uvLabel}
                         </p>
                     </div>
 
                     {/* Humidity */}
-                    <div className="flex-1 rounded-[1.25rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 py-3 px-2 flex flex-col items-center gap-1">
-                        <Droplets className="w-6 h-6 text-blue-500" strokeWidth={2.5} />
-                        <p className="text-[0.65rem] font-bold text-black/60 uppercase tracking-tight">Humidity</p>
-                        <p className="text-xl font-bold text-black leading-none">{humidity}%</p>
-                        <p className="text-[0.6rem] font-bold text-blue-600 truncate w-full text-center">
+                    <div className="weather-screen__info-card">
+                        <Droplets className="weather-screen__info-icon weather-screen__info-icon--humidity" strokeWidth={2.5} />
+                        <p className="weather-screen__info-label">Humidity</p>
+                        <p className="weather-screen__info-value">{humidity}%</p>
+                        <p className="weather-screen__info-sublabel weather-screen__info-sublabel--humidity">
                             {humidity > 70 ? 'High' : humidity > 40 ? 'Moderate' : 'Low'}
                         </p>
                     </div>
                 </div>
 
                 {/* Detail cards: Visibility and Wind */}
-                <div className="flex gap-3 w-[75%] max-w-[18rem] justify-center flex-shrink-0">
+                <div className="weather-screen__detail-row">
                     {/* Visibility */}
-                    <div className="flex-1 aspect-square rounded-[1.5rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 p-4 flex flex-col items-center justify-center gap-2">
-                        <p className="text-[clamp(0.75rem,2.8vw,0.95rem)] font-semibold text-black/70">Visibility</p>
-                        <Eye className="w-[clamp(2.2rem,9vw,3.5rem)] h-[clamp(2.2rem,9vw,3.5rem)] text-black/80" strokeWidth={1.5} />
-                        <p className="text-[clamp(1rem,4vw,1.4rem)] font-bold text-black">{visibilityMi} mi</p>
+                    <div className="weather-screen__detail-card">
+                        <p className="weather-screen__detail-title">Visibility</p>
+                        <Eye className="weather-screen__visibility-icon" strokeWidth={1.5} />
+                        <p className="weather-screen__detail-value">{visibilityMi} mi</p>
                     </div>
 
                     {/* Wind Speed */}
-                    <div className="flex-1 aspect-square rounded-[1.5rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 p-4 flex flex-col items-center justify-center gap-2">
-                        <p className="text-[clamp(0.75rem,2.8vw,0.95rem)] font-semibold text-black/70 text-center leading-tight">Wind Speed</p>
-                        <div className="relative w-[clamp(3rem,12vw,4.5rem)] h-[clamp(3rem,12vw,4.5rem)] rounded-full border-[2.5px] border-black/60 flex items-center justify-center bg-white/30">
-                            <span className="absolute top-1 text-[9px] font-bold text-black/60">N</span>
-                            <span className="absolute bottom-1 text-[9px] font-bold text-black/40">S</span>
-                            <span className="absolute left-1.5 text-[9px] font-bold text-black/40">W</span>
-                            <span className="absolute right-1.5 text-[9px] font-bold text-black/40">E</span>
+                    <div className="weather-screen__detail-card">
+                        <p className="weather-screen__detail-title weather-screen__detail-title--wind">Wind Speed</p>
+                        <div className="weather-screen__compass">
+                            <span className="weather-screen__compass-label weather-screen__compass-label--n">N</span>
+                            <span className="weather-screen__compass-label weather-screen__compass-label--s">S</span>
+                            <span className="weather-screen__compass-label weather-screen__compass-label--w">W</span>
+                            <span className="weather-screen__compass-label weather-screen__compass-label--e">E</span>
                             <Navigation
-                                className="w-[clamp(1.2rem,5vw,1.8rem)] h-[clamp(1.2rem,5vw,1.8rem)] text-black/80"
+                                className="weather-screen__compass-arrow"
                                 fill="currentColor"
                                 style={{ transform: `rotate(${windDeg + 180}deg)` }}
                             />
                         </div>
-                        <p className="text-[clamp(1rem,4vw,1.4rem)] font-bold text-black">{windSpeedKmH}km/h</p>
+                        <p className="weather-screen__detail-value">{windSpeedKmH}km/h</p>
                     </div>
                 </div>
 
                 {/* Bottom chevron - tap to open map */}
                 <button
                     onClick={onOpenMap}
-                    className="flex-shrink-0 w-14 h-8 flex items-center justify-center active:opacity-70 transition-all mb-1"
+                    className="weather-screen__chevron-btn"
                     aria-label="Open Map"
                 >
-                    <ChevronUp className="w-9 h-9 text-white stroke-[3] drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)] hover:-translate-y-1 transition-transform" />
+                    <ChevronUp className="weather-screen__chevron-icon" />
                 </button>
             </div>
         </div>

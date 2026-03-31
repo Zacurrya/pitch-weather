@@ -93,9 +93,9 @@ Return a colour class for a given percentage.
 60-100 -> red
 */
 export const conditionColor = (pct) => {
-    if (pct < 30) return { bar: 'bg-green-500', text: 'text-green-600' };
-    if (pct < 60) return { bar: 'bg-amber-400', text: 'text-amber-600' };
-    return { bar: 'bg-red-500', text: 'text-red-600' };
+    if (pct < 30) return { bar: 'condition-bar--green', text: 'condition-text--green' };
+    if (pct < 60) return { bar: 'condition-bar--amber', text: 'condition-text--amber' };
+    return { bar: 'condition-bar--red', text: 'condition-text--red' };
 };
 
 /**
@@ -106,9 +106,9 @@ Derive an overall playability verdict from wetness and muddiness scores.
 */
 export const pitchVerdict = (wetness, muddiness) => {
     const worst = Math.max(wetness, muddiness);
-    if (worst < 30) return { label: 'Playable',     color: 'text-green-700', bg: 'bg-green-100' };
-    if (worst < 60) return { label: 'High Risk',    color: 'text-amber-700', bg: 'bg-amber-100' };
-    return            { label: 'Not Suitable', color: 'text-red-700',   bg: 'bg-red-100'   };
+    if (worst < 30) return { label: 'Playable',     color: 'verdict-text--green', bg: 'verdict-bg--green' };
+    if (worst < 60) return { label: 'High Risk',    color: 'verdict-text--amber', bg: 'verdict-bg--amber' };
+    return            { label: 'Not Suitable', color: 'verdict-text--red',   bg: 'verdict-bg--red'   };
 };
 
 /**

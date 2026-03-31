@@ -1,0 +1,38 @@
+@reference "tailwindcss";
+
+/* Shared condition, verdict, AQI and UV colour classes */
+
+/* Condition bar fills */
+.condition-bar--green { @apply bg-green-500; }
+.condition-bar--amber { @apply bg-amber-400; }
+.condition-bar--red   { @apply bg-red-500; }
+
+/* Condition text labels */
+.condition-text--green { @apply text-green-600; }
+.condition-text--amber { @apply text-amber-600; }
+.condition-text--red   { @apply text-red-600; }
+
+/* Pitch verdict backgrounds */
+.verdict-bg--green { @apply bg-green-100; }
+.verdict-bg--amber { @apply bg-amber-100; }
+.verdict-bg--red   { @apply bg-red-100; }
+
+/* Pitch verdict text */
+.verdict-text--green { @apply text-green-700; }
+.verdict-text--amber { @apply text-amber-700; }
+.verdict-text--red   { @apply text-red-700; }
+
+/* AQI colours */
+.aqi--good      { @apply text-green-600; }
+.aqi--fair      { @apply text-lime-600; }
+.aqi--moderate  { @apply text-amber-600; }
+.aqi--poor      { @apply text-orange-600; }
+.aqi--very-poor { @apply text-red-600; }
+
+/* UV colours */
+.uv--low       { @apply text-green-600; }
+.uv--moderate  { @apply text-amber-600; }
+.uv--high      { @apply text-orange-600; }
+.uv--very-high { @apply text-red-600; }
+.uv--extreme   { @apply text-purple-600; }
+.uv--default   { @apply text-gray-500; }

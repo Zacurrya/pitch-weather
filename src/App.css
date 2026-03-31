@@ -1,0 +1,55 @@
+@reference "tailwindcss";
+
+/* App - top-level layout and loading/error states */
+
+.app__loading {
+  @apply w-full flex items-center justify-center bg-gray-900;
+  height: 100dvh;
+}
+
+.app__loading-inner {
+  @apply flex flex-col items-center;
+}
+
+.app__spinner {
+  @apply animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4;
+}
+
+.app__loading-text {
+  @apply text-white;
+}
+
+.app__error {
+  @apply w-full flex items-center justify-center bg-gray-900;
+  height: 100dvh;
+}
+
+.app__error-inner {
+  @apply flex flex-col items-center gap-2 text-center px-6;
+}
+
+.app__error-title {
+  @apply text-white text-lg font-semibold;
+}
+
+.app__error-msg {
+  @apply text-gray-400 text-sm;
+}
+
+.app__shell {
+  @apply relative w-full overflow-hidden bg-white font-sans;
+  height: 100dvh;
+}
+
+.app__map-layer {
+  @apply absolute inset-0 z-0;
+}
+
+.app__weather-layer {
+  @apply absolute inset-0 z-10 translate-y-0;
+  transition: transform 800ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.app__weather-layer--hidden {
+  @apply -translate-y-full pointer-events-none;
+}

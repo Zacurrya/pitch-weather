@@ -1,0 +1,88 @@
+@reference "tailwindcss";
+
+/* PhotoGallery - full-screen lightbox with navigation */
+
+.gallery {
+  @apply fixed inset-0 z-50 flex flex-col items-center justify-center;
+  background: rgb(0 0 0 / 0.95);
+}
+
+.gallery__title {
+  @apply absolute top-6 left-1/2 -translate-x-1/2 font-semibold text-base max-w-[65vw] truncate z-20 pointer-events-none;
+  color: rgb(255 255 255 / 0.9);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.gallery__close {
+  @apply absolute top-5 right-5 p-2 z-10;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.gallery__close:hover {
+  @apply text-white;
+}
+
+.gallery__close:active {
+  @apply opacity-70;
+}
+
+.gallery__close-icon {
+  @apply w-8 h-8;
+}
+
+.gallery__viewport {
+  @apply relative flex items-center justify-center w-full flex-1 px-4;
+}
+
+.gallery__arrow {
+  @apply absolute p-2 z-10 transition-all;
+  color: rgb(255 255 255 / 0.7);
+}
+
+.gallery__arrow:hover {
+  @apply text-white;
+}
+
+.gallery__arrow:active {
+  @apply scale-90;
+}
+
+.gallery__arrow--prev {
+  @apply left-3;
+}
+
+.gallery__arrow--next {
+  @apply right-3;
+}
+
+.gallery__arrow-icon {
+  @apply w-9 h-9;
+}
+
+.gallery__image {
+  @apply max-w-[92%] object-contain rounded-2xl select-none hidden;
+  max-height: 80dvh;
+}
+
+.gallery__image--active {
+  @apply block;
+}
+
+.gallery__dots {
+  @apply flex gap-2 py-4;
+}
+
+.gallery__dot {
+  @apply w-2.5 h-2.5 rounded-full transition-all;
+  background: rgb(255 255 255 / 0.4);
+}
+
+.gallery__dot--active {
+  @apply bg-white;
+  transform: scale(1.1);
+}
+
+.gallery__counter {
+  @apply text-sm font-medium pb-4;
+  color: rgb(255 255 255 / 0.6);
+}

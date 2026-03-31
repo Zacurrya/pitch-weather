@@ -2,6 +2,7 @@ import { useCallback, useState, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { getVenueSportIcon } from '@utils/pitchUtils';
 import { panToTargetWithOffset } from '@utils/mapUtils';
+import './MapView.css';
 
 const containerStyle = {
     width: '100%',
@@ -51,8 +52,8 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
 
     if (!isLoaded) {
         return (
-            <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+            <div className="map-view__loading">
+                <div className="map-view__spinner" />
             </div>
         );
     }
