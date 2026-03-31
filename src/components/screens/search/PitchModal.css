@@ -314,7 +314,10 @@
   font-weight: var(--font-weight-bold);
 }
 
-.pitch-modal__bar-track {
+.pitch-modal__bar-progress {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0;
   height: calc(var(--spacing) * 2);
   background-color: var(--color-gray-100);
   border-radius: 9999px;
@@ -322,10 +325,202 @@
   overflow: hidden;
 }
 
-.pitch-modal__bar-fill {
+.pitch-modal__bar-progress::-webkit-progress-bar {
+  background-color: var(--color-gray-100);
   border-radius: 9999px;
-  height: 100%;
-  transition: all 700ms;
+}
+
+.pitch-modal__bar-progress::-webkit-progress-value {
+  border-radius: 9999px;
+  transition: width 700ms ease;
+}
+
+.pitch-modal__bar-progress::-moz-progress-bar {
+  border-radius: 9999px;
+  transition: width 700ms ease;
+}
+
+.pitch-modal__bar-progress.condition-bar--green::-webkit-progress-value {
+  background-color: var(--color-green-500);
+}
+
+.pitch-modal__bar-progress.condition-bar--amber::-webkit-progress-value {
+  background-color: var(--color-amber-400);
+}
+
+.pitch-modal__bar-progress.condition-bar--red::-webkit-progress-value {
+  background-color: var(--color-red-500);
+}
+
+.pitch-modal__bar-progress.condition-bar--green::-moz-progress-bar {
+  background-color: var(--color-green-500);
+}
+
+.pitch-modal__bar-progress.condition-bar--amber::-moz-progress-bar {
+  background-color: var(--color-amber-400);
+}
+
+.pitch-modal__bar-progress.condition-bar--red::-moz-progress-bar {
+  background-color: var(--color-red-500);
+}
+
+/* Sport-specific weather insights */
+.pitch-modal__sport-insights {
+  margin-top: calc(var(--spacing) * 1);
+  border-radius: var(--radius-xl);
+  border-style: solid;
+  border-width: 1px;
+  padding: calc(var(--spacing) * 3);
+}
+
+.pitch-modal__sport-insights--football {
+  border-color: rgb(186 230 253 / 1);
+  background: rgb(240 249 255 / 0.65);
+}
+
+.pitch-modal__sport-insights--cricket {
+  border-color: rgb(187 247 208 / 1);
+  background: rgb(240 253 244 / 0.65);
+}
+
+.pitch-modal__sport-insights-title {
+  margin-bottom: calc(var(--spacing) * 2);
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.pitch-modal__sport-insights--football .pitch-modal__sport-insights-title {
+  color: rgb(7 89 133 / 0.7);
+}
+
+.pitch-modal__sport-insights--cricket .pitch-modal__sport-insights-title {
+  color: rgb(6 95 70 / 0.7);
+}
+
+.pitch-modal__sport-insights-list {
+  gap: calc(var(--spacing) * 2.5);
+  flex-direction: column;
+  display: flex;
+}
+
+.pitch-modal__sport-metric {
+  border-radius: 0.65rem;
+  border-style: solid;
+  border-width: 1px;
+  background-color: var(--color-white);
+  padding-inline: calc(var(--spacing) * 2.5);
+  padding-block: calc(var(--spacing) * 2);
+}
+
+.pitch-modal__sport-metric--football {
+  border-color: rgb(186 230 253 / 1);
+}
+
+.pitch-modal__sport-metric--cricket {
+  border-color: rgb(187 247 208 / 1);
+}
+
+.pitch-modal__sport-metric-header {
+  margin-bottom: calc(var(--spacing) * 1);
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.pitch-modal__sport-metric-name {
+  gap: calc(var(--spacing) * 1);
+  align-items: center;
+  display: flex;
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.pitch-modal__sport-metric-name--football {
+  color: rgb(7 89 133 / 0.6);
+}
+
+.pitch-modal__sport-metric-name--cricket {
+  color: rgb(6 95 70 / 0.6);
+}
+
+.pitch-modal__sport-metric-icon {
+  height: calc(var(--spacing) * 3.5);
+  width: calc(var(--spacing) * 3.5);
+}
+
+.pitch-modal__sport-metric-score {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--tracking-wide);
+}
+
+.pitch-modal__sport-metric-score--football {
+  color: rgb(3 105 161 / 1);
+}
+
+.pitch-modal__sport-metric-score--cricket {
+  color: rgb(4 120 87 / 1);
+}
+
+.pitch-modal__sport-progress {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0;
+  border-radius: 9999px;
+  height: calc(var(--spacing) * 2);
+  width: 100%;
+  overflow: hidden;
+}
+
+.pitch-modal__sport-progress::-webkit-progress-bar {
+  border-radius: 9999px;
+}
+
+.pitch-modal__sport-progress::-webkit-progress-value {
+  border-radius: 9999px;
+  transition: width 700ms ease;
+}
+
+.pitch-modal__sport-progress::-moz-progress-bar {
+  border-radius: 9999px;
+  transition: width 700ms ease;
+}
+
+.pitch-modal__sport-progress--football {
+  background-color: rgb(224 242 254 / 1);
+}
+
+.pitch-modal__sport-progress--football::-webkit-progress-bar {
+  background-color: rgb(224 242 254 / 1);
+}
+
+.pitch-modal__sport-progress--football::-webkit-progress-value {
+  background-color: var(--color-sky-600);
+}
+
+.pitch-modal__sport-progress--football::-moz-progress-bar {
+  background-color: var(--color-sky-600);
+}
+
+.pitch-modal__sport-progress--cricket {
+  background-color: var(--color-green-100);
+}
+
+.pitch-modal__sport-progress--cricket::-webkit-progress-bar {
+  background-color: var(--color-green-100);
+}
+
+.pitch-modal__sport-progress--cricket::-webkit-progress-value {
+  background-color: var(--color-green-500);
+}
+
+.pitch-modal__sport-progress--cricket::-moz-progress-bar {
+  background-color: var(--color-green-500);
 }
 
 /* Loading skeleton */

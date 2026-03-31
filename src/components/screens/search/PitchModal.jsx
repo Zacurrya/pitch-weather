@@ -1,5 +1,18 @@
 import { useState } from 'react';
-import { Footprints, Droplets, Globe, CornerUpRight } from 'lucide-react';
+import {
+    Footprints,
+    Droplets,
+    Globe,
+    CornerUpRight,
+    TriangleAlert,
+    Gauge,
+    Gamepad2,
+    ShieldPlus,
+    Wind,
+    Orbit,
+    CircleDot,
+    Rabbit,
+} from 'lucide-react';
 import { getDistanceKm, getWalkingMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
 import { conditionColor, conditionLabel, pitchVerdict } from '@utils/conditionUtils';
 import { getIconPath, wmoToCondition } from '@utils/weatherUtils';
@@ -7,6 +20,73 @@ import usePlaceDetails from '@hooks/usePlaceDetails';
 import usePitchCondition from '@hooks/usePitchCondition';
 import PhotoGallery from './PhotoGallery';
 import './PitchModal.css';
+
+const clampPercent = (value) => Math.max(0, Math.min(100, Math.round(value)));
+const clamp01 = (value) => Math.max(0, Math.min(1, value));
+
+const metricComment = (value, higherIsBetter) => {
+    if (value == null) return 'No data';
+
+    if (higherIsBetter) {
+        if (value >= 75) return 'Strong';
+        if (value >= 55) return 'Solid';
+        if (value >= 35) return 'Mixed';
+        return 'Weak';
+    }
+
+    if (value <= 25) return 'Low';
+    if (value <= 45) return 'Moderate';
+    if (value <= 65) return 'Elevated';
+    return 'High';
+};
+
+const buildSportInsights = (condition, weatherData) => {
+    if (!condition) {
+        return {
+            footballSlipRisk: null,
+            footballBallPace: null,
+            footballControlScore: null,
+            footballInjuryRisk: null,
+            cricketSwingAid: null,
+            cricketSpinGrip: null,
+            cricketBounceConsistency: null,
+            cricketOutfieldSpeed: null,
+        };
+    }
+
+    const wetness = condition.wetness ?? 0;
+    const muddiness = condition.muddiness ?? 0;
+    const humidity = weatherData?.main?.humidity ?? 55;
+    const temp = weatherData?.main?.temp ?? 15;
+    const wind = weatherData?.wind?.speed ?? 3;
+
+    const dryness = clamp01(1 - ((wetness + muddiness) / 200));
+    const firmness = clamp01(1 - (muddiness / 100));
+    const humidityFactor = clamp01((humidity - 35) / 55);
+    const windFactor = clamp01(wind / 12);
+    const warmthFactor = clamp01((temp - 5) / 20);
+
+    const footballSlipRisk = clampPercent((wetness * 0.5) + (muddiness * 0.35) + ((windFactor * 100) * 0.15));
+    const footballBallPace = clampPercent((dryness * 100 * 0.55) + (firmness * 100 * 0.25) + (warmthFactor * 100 * 0.2));
+    const footballControlScore = clampPercent((dryness * 100 * 0.45) + ((1 - windFactor) * 100 * 0.35) + ((1 - humidityFactor) * 100 * 0.2));
+    const footballInjuryRisk = clampPercent((footballSlipRisk * 0.55) + ((100 - footballControlScore) * 0.3) + ((windFactor * 100) * 0.15));
+
+    const cricketSwingAid = clampPercent((humidityFactor * 100 * 0.45) + (windFactor * 100 * 0.45) + (wetness * 0.1));
+    const cricketSpinGrip = clampPercent((dryness * 100 * 0.55) + ((1 - humidityFactor) * 100 * 0.3) + (warmthFactor * 100 * 0.15));
+    const cricketBounceConsistency = clampPercent((firmness * 100 * 0.55) + (dryness * 100 * 0.25) + ((1 - windFactor) * 100 * 0.2));
+    const cricketOutfieldSpeed = clampPercent((dryness * 100 * 0.5) + (warmthFactor * 100 * 0.3) + (firmness * 100 * 0.2));
+
+    return {
+        footballSlipRisk,
+        footballBallPace,
+        footballControlScore,
+        footballInjuryRisk,
+        cricketSwingAid,
+        cricketSpinGrip,
+        cricketBounceConsistency,
+        cricketOutfieldSpeed,
+    };
+};
 
 const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     const [photoExpanded, setPhotoExpanded] = useState(false);
@@ -37,6 +117,80 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     // Opening hours
     const isOpen = details?.isOpen ?? venue.openNow;
     const todayHours = getTodayHours(details?.periods);
+    const isFootball = venue.type === 'football';
+
+    const {
+        footballSlipRisk,
+        footballBallPace,
+        footballControlScore,
+        footballInjuryRisk,
+        cricketSwingAid,
+        cricketSpinGrip,
+        cricketBounceConsistency,
+        cricketOutfieldSpeed,
+    } = buildSportInsights(condition, weatherData);
+
+    const sportInsightItems = isFootball
+        ? [
+            {
+                key: 'football-slip-risk',
+                icon: TriangleAlert,
+                label: 'Football slip risk',
+                value: footballSlipRisk,
+                higherIsBetter: false,
+            },
+            {
+                key: 'football-ball-pace',
+                icon: Gauge,
+                label: 'Football ball pace',
+                value: footballBallPace,
+                higherIsBetter: true,
+            },
+            {
+                key: 'football-control-score',
+                icon: Gamepad2,
+                label: 'Football control score',
+                value: footballControlScore,
+                higherIsBetter: true,
+            },
+            {
+                key: 'football-injury-risk',
+                icon: ShieldPlus,
+                label: 'Football injury risk',
+                value: footballInjuryRisk,
+                higherIsBetter: false,
+            },
+        ]
+        : [
+            {
+                key: 'cricket-swing-aid',
+                icon: Wind,
+                label: 'Cricket swing aid',
+                value: cricketSwingAid,
+                higherIsBetter: true,
+            },
+            {
+                key: 'cricket-spin-grip',
+                icon: Orbit,
+                label: 'Cricket spin grip',
+                value: cricketSpinGrip,
+                higherIsBetter: true,
+            },
+            {
+                key: 'cricket-bounce-consistency',
+                icon: CircleDot,
+                label: 'Bounce consistency',
+                value: cricketBounceConsistency,
+                higherIsBetter: true,
+            },
+            {
+                key: 'cricket-outfield-speed',
+                icon: Rabbit,
+                label: 'Outfield speed',
+                value: cricketOutfieldSpeed,
+                higherIsBetter: true,
+            },
+        ];
 
     return (
         <>
@@ -171,12 +325,11 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                                                 {conditionLabel(condition.wetness, 'wetness')} ({condition.wetness}%)
                                             </span>
                                         </div>
-                                        <div className="pitch-modal__bar-track">
-                                            <div
-                                                className={`pitch-modal__bar-fill ${wColor.bar}`}
-                                                style={{ width: `${condition.wetness}%` }}
-                                            />
-                                        </div>
+                                        <progress
+                                            className={`pitch-modal__bar-progress ${wColor.bar}`}
+                                            value={condition.wetness}
+                                            max={100}
+                                        />
                                     </div>
                                 </div>
 
@@ -190,12 +343,48 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                                                 {conditionLabel(condition.muddiness, 'muddiness')} ({condition.muddiness}%)
                                             </span>
                                         </div>
-                                        <div className="pitch-modal__bar-track">
-                                            <div
-                                                className={`pitch-modal__bar-fill ${mColor.bar}`}
-                                                style={{ width: `${condition.muddiness}%` }}
-                                            />
-                                        </div>
+                                        <progress
+                                            className={`pitch-modal__bar-progress ${mColor.bar}`}
+                                            value={condition.muddiness}
+                                            max={100}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Sport-specific weather insights */}
+                                <div
+                                    className={`pitch-modal__sport-insights ${isFootball ? 'pitch-modal__sport-insights--football' : 'pitch-modal__sport-insights--cricket'}`}
+                                >
+                                    <p className="pitch-modal__sport-insights-title">Sport insights</p>
+                                    <div className="pitch-modal__sport-insights-list">
+                                        {sportInsightItems.map((item) => {
+                                            const Icon = item.icon;
+                                            return (
+                                                <div
+                                                    key={item.key}
+                                                    className={`pitch-modal__sport-metric ${isFootball ? 'pitch-modal__sport-metric--football' : 'pitch-modal__sport-metric--cricket'}`}
+                                                >
+                                                    <div className="pitch-modal__sport-metric-header">
+                                                        <p
+                                                            className={`pitch-modal__sport-metric-name ${isFootball ? 'pitch-modal__sport-metric-name--football' : 'pitch-modal__sport-metric-name--cricket'}`}
+                                                        >
+                                                            <Icon className="pitch-modal__sport-metric-icon" />
+                                                            {item.label}
+                                                        </p>
+                                                        <p
+                                                            className={`pitch-modal__sport-metric-score ${isFootball ? 'pitch-modal__sport-metric-score--football' : 'pitch-modal__sport-metric-score--cricket'}`}
+                                                        >
+                                                            {metricComment(item.value, item.higherIsBetter)} | {item.value ?? '-'}{item.value != null ? '%' : ''}
+                                                        </p>
+                                                    </div>
+                                                    <progress
+                                                        className={`pitch-modal__sport-progress ${isFootball ? 'pitch-modal__sport-progress--football' : 'pitch-modal__sport-progress--cricket'}`}
+                                                        value={item.value ?? 0}
+                                                        max={100}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </>
