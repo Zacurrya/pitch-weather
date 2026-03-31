@@ -12,7 +12,7 @@ const containerStyle = {
 // Defined outside the component so the array reference is stable across renders.
 const LIBRARIES = ['places'];
 
-const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged, selectedVenueVerticalOffsetPx = 140 }) => {
+const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged, selectedVenueVerticalOffsetPx = 200 }) => {
     const lastReportedCenter = useRef(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -105,19 +105,25 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
             )}
 
             {/* Sports venue markers */}
-            {venues.map((venue, idx) => (
-                <MarkerF
-                    key={venue.placeId || idx}
-                    position={{ lat: venue.lat, lng: venue.lng }}
-                    icon={{
-                        url: getVenueSportIcon(venue.type),
-                        scaledSize: new window.google.maps.Size(32, 32),
-                        anchor: new window.google.maps.Point(16, 16),
-                    }}
-                    title={venue.name}
-                    onClick={() => onVenueSelect?.(venue)}
-                />
-            ))}
+            {venues.map((venue, idx) => {
+                const isSelected = selectedVenue && (venue.placeId === selectedVenue.placeId);
+                const size = isSelected ? 42 : 32;
+
+                return (
+                    <MarkerF
+                        key={venue.placeId || idx}
+                        position={{ lat: venue.lat, lng: venue.lng }}
+                        icon={{
+                            url: getVenueSportIcon(venue.type),
+                            scaledSize: new window.google.maps.Size(size, size),
+                            anchor: new window.google.maps.Point(size / 2, size / 2),
+                        }}
+                        title={venue.name}
+                        onClick={() => onVenueSelect?.(venue)}
+                        zIndex={isSelected ? 1000 : 1}
+                    />
+                );
+            })}
 
             {/* Marker for a selected venue that isn't in the map-fetched venues list */}
             {selectedVenue && !venues.some((v) => v.placeId === selectedVenue.placeId) && (
@@ -126,10 +132,11 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
                     position={{ lat: selectedVenue.lat, lng: selectedVenue.lng }}
                     icon={{
                         url: getVenueSportIcon(selectedVenue.type),
-                        scaledSize: new window.google.maps.Size(32, 32),
-                        anchor: new window.google.maps.Point(16, 16),
+                        scaledSize: new window.google.maps.Size(46, 46),
+                        anchor: new window.google.maps.Point(23, 23),
                     }}
                     title={selectedVenue.name}
+                    zIndex={1000}
                 />
             )}
         </GoogleMap>

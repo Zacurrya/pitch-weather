@@ -4,16 +4,14 @@ import {
     Droplets,
     Globe,
     CornerUpRight,
-    TriangleAlert,
     Gauge,
     Gamepad2,
-    ShieldPlus,
     Wind,
     Orbit,
-    CircleDot,
-    Rabbit,
+    Bus,
+    Car,
 } from 'lucide-react';
-import { getDistanceKm, getWalkingMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
+import { getDistanceKm, getWalkingMinutes, getDrivingMinutes, getBusMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
 import { conditionColor, conditionLabel, pitchVerdict } from '@utils/conditionUtils';
 import { getIconPath, wmoToCondition } from '@utils/weatherUtils';
 import usePlaceDetails from '@hooks/usePlaceDetails';
@@ -43,14 +41,10 @@ const metricComment = (value, higherIsBetter) => {
 const buildSportInsights = (condition, weatherData) => {
     if (!condition) {
         return {
-            footballSlipRisk: null,
             footballBallPace: null,
             footballControlScore: null,
-            footballInjuryRisk: null,
             cricketSwingAid: null,
             cricketSpinGrip: null,
-            cricketBounceConsistency: null,
-            cricketOutfieldSpeed: null,
         };
     }
 
@@ -66,25 +60,17 @@ const buildSportInsights = (condition, weatherData) => {
     const windFactor = clamp01(wind / 12);
     const warmthFactor = clamp01((temp - 5) / 20);
 
-    const footballSlipRisk = clampPercent((wetness * 0.5) + (muddiness * 0.35) + ((windFactor * 100) * 0.15));
     const footballBallPace = clampPercent((dryness * 100 * 0.55) + (firmness * 100 * 0.25) + (warmthFactor * 100 * 0.2));
     const footballControlScore = clampPercent((dryness * 100 * 0.45) + ((1 - windFactor) * 100 * 0.35) + ((1 - humidityFactor) * 100 * 0.2));
-    const footballInjuryRisk = clampPercent((footballSlipRisk * 0.55) + ((100 - footballControlScore) * 0.3) + ((windFactor * 100) * 0.15));
 
     const cricketSwingAid = clampPercent((humidityFactor * 100 * 0.45) + (windFactor * 100 * 0.45) + (wetness * 0.1));
     const cricketSpinGrip = clampPercent((dryness * 100 * 0.55) + ((1 - humidityFactor) * 100 * 0.3) + (warmthFactor * 100 * 0.15));
-    const cricketBounceConsistency = clampPercent((firmness * 100 * 0.55) + (dryness * 100 * 0.25) + ((1 - windFactor) * 100 * 0.2));
-    const cricketOutfieldSpeed = clampPercent((dryness * 100 * 0.5) + (warmthFactor * 100 * 0.3) + (firmness * 100 * 0.2));
 
     return {
-        footballSlipRisk,
         footballBallPace,
         footballControlScore,
-        footballInjuryRisk,
         cricketSwingAid,
         cricketSpinGrip,
-        cricketBounceConsistency,
-        cricketOutfieldSpeed,
     };
 };
 
@@ -122,25 +108,14 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     const isFootball = venue.type === 'football';
 
     const {
-        footballSlipRisk,
         footballBallPace,
         footballControlScore,
-        footballInjuryRisk,
         cricketSwingAid,
         cricketSpinGrip,
-        cricketBounceConsistency,
-        cricketOutfieldSpeed,
     } = buildSportInsights(condition, weatherData);
 
     const sportInsightItems = isFootball
         ? [
-            {
-                key: 'football-slip-risk',
-                icon: TriangleAlert,
-                label: 'Football slip risk',
-                value: footballSlipRisk,
-                higherIsBetter: false,
-            },
             {
                 key: 'football-ball-pace',
                 icon: Gauge,
@@ -154,13 +129,6 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                 label: 'Football control score',
                 value: footballControlScore,
                 higherIsBetter: true,
-            },
-            {
-                key: 'football-injury-risk',
-                icon: ShieldPlus,
-                label: 'Football injury risk',
-                value: footballInjuryRisk,
-                higherIsBetter: false,
             },
         ]
         : [
@@ -176,20 +144,6 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                 icon: Orbit,
                 label: 'Cricket spin grip',
                 value: cricketSpinGrip,
-                higherIsBetter: true,
-            },
-            {
-                key: 'cricket-bounce-consistency',
-                icon: CircleDot,
-                label: 'Bounce consistency',
-                value: cricketBounceConsistency,
-                higherIsBetter: true,
-            },
-            {
-                key: 'cricket-outfield-speed',
-                icon: Rabbit,
-                label: 'Outfield speed',
-                value: cricketOutfieldSpeed,
                 higherIsBetter: true,
             },
         ];
