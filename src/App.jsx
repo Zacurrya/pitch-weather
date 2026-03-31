@@ -51,7 +51,7 @@ function App() {
 
         {/* Weather Screen layer (top), slides UP to reveal map */}
         <div
-          className={`absolute inset-0 z-10 transition-transform duration-[800ms] ease-[cubic-bezier(0.32,0.72,0,1)] ${showMap ? '-translate-y-full' : 'translate-y-0'}`}
+          className={`absolute inset-0 z-10 transition-transform duration-[800ms] ease-[cubic-bezier(0.32,0.72,0,1)] ${showMap ? '-translate-y-full pointer-events-none' : 'translate-y-0'}`}
         >
           <WeatherScreen weatherData={weatherData} forecastData={forecastData} airQuality={airQuality} uvIndex={uvIndex} onOpenMap={() => setShowMap(true)} />
         </div>
