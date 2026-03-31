@@ -16,29 +16,29 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
     // Fetch place details (opening hours, photos, etc.)
     useEffect(() => {
-        if (venue?.placeId && map) {
-            setDetails(null);
-            getPlaceDetails(map, venue.placeId).then(setDetails);
-        }
+        if (!venue?.placeId || !map) return;
+        getPlaceDetails(map, venue.placeId).then(setDetails);
+        return () => setDetails(null);
     }, [venue?.placeId, map]);
 
     // Fetch per-pitch weather and calculate conditions (cached by placeId)
     useEffect(() => {
         if (!venue?.placeId) return;
 
-        // Check cache first
-        if (conditionCache.has(venue.placeId)) {
-            setCondition(conditionCache.get(venue.placeId));
-            return;
-        }
-
-        // Fetch weather specific to this pitch's location
-        setCondition(null);
-        fetchPastWeather(venue.lat, venue.lng).then(({ totalRainMm, pastHourly }) => {
+        const getCondition = async () => {
+            // Return cached result immediately if available
+            if (conditionCache.has(venue.placeId)) {
+                return conditionCache.get(venue.placeId);
+            }
+            // Fetch weather specific to this pitch's location
+            const { totalRainMm, pastHourly } = await fetchPastWeather(venue.lat, venue.lng);
             const result = calcPitchCondition(weatherData, totalRainMm, pastHourly);
             conditionCache.set(venue.placeId, result);
-            setCondition(result);
-        });
+            return result;
+        };
+
+        getCondition().then(setCondition);
+        return () => setCondition(null);
     }, [venue?.placeId, venue?.lat, venue?.lng, weatherData]);
 
     if (!venue) return null;
