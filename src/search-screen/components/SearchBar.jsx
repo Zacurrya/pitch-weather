@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, X, CheckCircle, Clock, Loader } from 'lucide-react';
 import { SPORT_FILTERS } from '../../data/venues';
-import { getDistanceKm } from '../../utils/pitchUtils';
+import { getDistanceKm, getVenueSportIcon } from '../../utils/pitchUtils';
 
 const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], userLocation, onVenueSelect, searchResults = null, searchLoading = false }) => {
     const [query, setQuery] = useState('');
@@ -56,18 +56,13 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
         return result;
     }, [searchResults, venues, activeFilters, openOnly, userLocation]);
 
-    const getSportIcon = (type) => {
-        const sport = SPORT_FILTERS.find((s) => s.key === type);
-        return sport ? sport.icon : '/sports/Football.svg';
-    };
-
     const formatDistance = (km) => (km < 1 ? `${Math.round(km * 1000)}m` : `${km.toFixed(1)}km`);
 
     return (
         <>
             {/* Collapsed search bar */}
             <div
-                className={`absolute top-[clamp(8.5rem,28vw,11.5rem)] w-full px-4 flex justify-center z-10 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${expanded ? 'opacity-0 scale-95 -translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}
+                className={`absolute top-[clamp(7rem,28vw,11.5rem)] w-full px-4 flex justify-center z-10 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${expanded ? 'opacity-0 scale-95 -translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}
             >
                 <button
                     onClick={onExpand}
@@ -149,7 +144,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                                 onClick={() => onVenueSelect?.(venue)}
                                 className="w-full flex items-center gap-3 py-3 px-3 border-b border-gray-100 last:border-b-0 text-left active:bg-gray-50 transition-colors"
                             >
-                                <img src={getSportIcon(venue.type)} alt={venue.type} className="w-10 h-10 object-contain flex-shrink-0" />
+                                <img src={getVenueSportIcon(venue.type)} alt={venue.type} className="w-10 h-10 object-contain flex-shrink-0" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-black font-semibold text-[0.95rem] truncate">{venue.name}</p>
                                     <div className="flex gap-2 items-center text-sm">

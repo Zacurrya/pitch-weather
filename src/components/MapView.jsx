@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
+import { getVenueSportIcon } from '../utils/pitchUtils';
 
 const containerStyle = {
     width: '100%',
@@ -73,9 +74,7 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
                     key={venue.placeId || idx}
                     position={{ lat: venue.lat, lng: venue.lng }}
                     icon={{
-                        url: venue.type === 'football'
-                            ? '/sports/Football.svg'
-                            : '/sports/Cricket.svg',
+                        url: getVenueSportIcon(venue.type),
                         scaledSize: new window.google.maps.Size(32, 32),
                         anchor: new window.google.maps.Point(16, 16),
                     }}

@@ -4,7 +4,7 @@ const SearchAreaButton = ({ onClick, loading, show }) => {
     if (!show) return null;
 
     return (
-        <div className="absolute top-[clamp(12rem,40vw,18rem)] left-0 right-0 flex justify-center z-10 pointer-events-none transition-all duration-500">
+        <div className="absolute top-[clamp(10.5rem,40vw,18rem)] left-0 right-0 flex justify-center z-10 pointer-events-none transition-all duration-500">
             <button
                 onClick={onClick}
                 disabled={loading}

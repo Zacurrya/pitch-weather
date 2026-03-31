@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Footprints, Droplets, Globe, CornerUpRight, TreePine } from 'lucide-react';
-import { getDistanceKm, getWalkingMinutes, getTodayHours } from '../../utils/pitchUtils';
+import { Footprints, Droplets, Globe, CornerUpRight } from 'lucide-react';
+import { getDistanceKm, getWalkingMinutes, getTodayHours, getVenueSportIcon } from '../../utils/pitchUtils';
 import { getPlaceDetails } from '../../utils/placesUtils';
 import { fetchPastWeather } from '../../utils/weatherUtils';
 import { calcPitchCondition, conditionColor, conditionLabel, pitchVerdict } from '../../utils/conditionUtils';
@@ -64,8 +64,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
         details?.mapsUrl ||
         `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}&travelmode=walking`;
 
-    const sportIcon =
-        venue.type === 'football' ? '/sports/Football.svg' : '/sports/Cricket.svg';
+    const sportIcon = getVenueSportIcon(venue.type);
 
     // Opening hours
     const isOpen = details?.isOpen ?? venue.openNow;
@@ -188,7 +187,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                                 {(() => {
                                     const v = pitchVerdict(condition.wetness, condition.muddiness);
                                     return (
-                                        <div className={`flex items-center justify-center rounded-xl py-2 px-4 ${v.bg}`}>
+                                        <div className={`flex items-center justify-center w-[50%] mx-auto rounded-xl py-2 ${v.bg}`}>
                                             <span className={`font-bold text-base ${v.color}`}>{v.label}</span>
                                         </div>
                                     );
@@ -196,7 +195,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
                                 {/* Wetness */}
                                 <div className="flex items-center gap-3">
-                                    <Droplets className={`w-5 h-5 flex-shrink-0 ${wColor.text}`} strokeWidth={2.5} />
+                                    <Droplets className="w-5 h-5 flex-shrink-0 text-sky-600" strokeWidth={2.5} />
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-black font-semibold text-sm">Wetness</span>
@@ -215,7 +214,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
                                 {/* Muddiness */}
                                 <div className="flex items-center gap-3">
-                                    <TreePine className={`w-5 h-5 flex-shrink-0 ${mColor.text}`} strokeWidth={2.5} />
+                                    <Footprints className="w-5 h-5 flex-shrink-0 text-amber-700" strokeWidth={2.5} />
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-black font-semibold text-sm">Muddiness</span>

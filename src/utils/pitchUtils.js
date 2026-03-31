@@ -80,3 +80,11 @@ export const getClosingTimeStr = (periods) => {
     const hours = getTodayHours(periods);
     return hours?.closesAt || null;
 };
+
+/*
+Get the sport icon path for a venue type.
+*/
+export const getVenueSportIcon = (type) => {
+    if (type === 'cricket') return '/sports/Cricket.svg';
+    return '/sports/Football.svg';
+};
