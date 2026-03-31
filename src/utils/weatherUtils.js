@@ -315,13 +315,17 @@ export const fetchPastWeather = async (lat, lng) => {
         const temps = data.hourly?.temperature_2m || [];
         const codes = data.hourly?.weather_code || [];
 
-        const pastHourly = times.map((time, idx) => ({
+        const allHourly = times.map((time, hourIndex) => ({
             time,
-            temp: temps[idx],
-            weather_code: codes[idx]
+            temp: temps[hourIndex],
+            weather_code: codes[hourIndex]
         }));
 
-        return { totalRainMm, pastHourly };
+        const nowIso = new Date().toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
+        const pastHourly = allHourly.filter((h) => h.time < nowIso);
+        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 5);
+
+        return { totalRainMm, pastHourly, futureHourly };
     } catch (e) {
         console.error("Failed to fetch past weather from Open-Meteo:", e);
         return { totalRainMm: 0, pastHourly: [] };

@@ -4,6 +4,7 @@ import { getDistanceKm, getWalkingMinutes, getTodayHours } from '../../utils/pit
 import { getPlaceDetails } from '../../utils/placesUtils';
 import { fetchPastWeather } from '../../utils/weatherUtils';
 import { calcPitchCondition, conditionColor, conditionLabel, pitchVerdict } from '../../utils/conditionUtils';
+import { getIconPath, wmoToCondition } from '../../utils/weatherUtils';
 import PhotoGallery from './PhotoGallery';
 
 // Module-level cache: placeId -> { wetness, muddiness }
@@ -13,6 +14,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     const [details, setDetails] = useState(null);
     const [photoExpanded, setPhotoExpanded] = useState(false);
     const [condition, setCondition] = useState(null); // { wetness, muddiness } or null while loading
+    const [futureHourly, setFutureHourly] = useState([]);
 
     // Fetch place details (opening hours, photos, etc.)
     useEffect(() => {
@@ -31,14 +33,17 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                 return conditionCache.get(venue.placeId);
             }
             // Fetch weather specific to this pitch's location
-            const { totalRainMm, pastHourly } = await fetchPastWeather(venue.lat, venue.lng);
+            const { totalRainMm, pastHourly, futureHourly } = await fetchPastWeather(venue.lat, venue.lng);
             const result = calcPitchCondition(weatherData, totalRainMm, pastHourly);
-            conditionCache.set(venue.placeId, result);
-            return result;
+            conditionCache.set(venue.placeId, { ...result, futureHourly });
+            return conditionCache.get(venue.placeId);
         };
 
-        getCondition().then(setCondition);
-        return () => setCondition(null);
+        getCondition().then((cached) => {
+            setCondition(cached);
+            setFutureHourly(cached?.futureHourly ?? []);
+        });
+        return () => { setCondition(null); setFutureHourly([]); };
     }, [venue?.placeId, venue?.lat, venue?.lng, weatherData]);
 
     if (!venue) return null;
@@ -50,6 +55,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
     const wColor = condition ? conditionColor(condition.wetness) : null;
     const mColor = condition ? conditionColor(condition.muddiness) : null;
+
 
     const thumbUrl = details?.photoUrl || venue.photoUrl || null;
     const allPhotos = details?.photos?.length ? details.photos : (thumbUrl ? [thumbUrl] : []);
@@ -103,6 +109,25 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                             <span className="text-[0.7rem] font-semibold text-[#1a73e8]">Directions</span>
                         </a>
                     </div>
+
+                    {/* Next 5 hours from Open-Meteo (1-hour intervals, pitch coordinates) */}
+                    {futureHourly.length > 0 && (
+                        <div className="flex gap-1.5 mb-3">
+                            {futureHourly.map((h) => {
+                                const hour = new Date(h.time).getHours();
+                                const time = `${hour.toString().padStart(2, '0')}:00`;
+                                const icon = getIconPath(wmoToCondition(h.weather_code));
+                                const temp = Math.round(h.temp);
+                                return (
+                                    <div key={h.time} className="flex-1 flex flex-col items-center gap-1 rounded-2xl bg-sky-50/80 border border-sky-100 py-2">
+                                        <span className="text-[0.65rem] font-semibold text-black/50">{time}</span>
+                                        <img src={icon} alt={time} className="w-7 h-7 object-contain" />
+                                        <span className="text-sm font-bold text-black">{temp}°C</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
                     {/* Row 2: Status, hours, photo */}
                     <div className="flex gap-3 mb-3">
