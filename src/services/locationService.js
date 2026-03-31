@@ -1,4 +1,4 @@
-// Location service — browser geolocation wrapper.
+// Location service - browser geolocation wrapper.
 
 const FALLBACK = { lat: 51.52, lng: -0.04 }; // Mile End, London
 

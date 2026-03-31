@@ -1,5 +1,5 @@
 /**
- * Weather API service — all OpenWeatherMap and Open-Meteo network calls.
+ * Weather API service - all OpenWeatherMap and Open-Meteo network calls.
  * Pure async functions, no React dependencies.
  */
 
@@ -9,7 +9,7 @@ const MOCK_WEATHER = false;
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 const getApiKey = () => import.meta.env.VITE_OPENWEATHER_API_KEY;
 
-/* ──────────────────────── Mock data ──────────────────────── */
+/* -------- Mock data -------- */
 
 const mockWeatherResponse = () => {
     const now = Math.floor(Date.now() / 1000);
@@ -40,7 +40,7 @@ const mockWeatherResponse = () => {
     return { current, forecast, airQuality, uvIndex };
 };
 
-/* ──────────────────────── API calls ──────────────────────── */
+/* -------- API calls -------- */
 
 /**
  * Fetch current weather, 5-day forecast, air quality, and UV index for given coordinates.

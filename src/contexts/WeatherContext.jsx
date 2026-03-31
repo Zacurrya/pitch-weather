@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import { useWeather } from '@hooks/useWeather';
 
 /**
- * WeatherContext — provides weather state and refresh function to the entire component tree.
+ * WeatherContext - provides weather state and refresh function to the entire component tree.
  * Eliminates prop-drilling of weatherData, forecastData, airQuality, etc.
  */
 const WeatherContext = createContext(null);

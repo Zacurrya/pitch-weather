@@ -1,5 +1,5 @@
 /**
- * Weather display utilities — pure helper functions with no side effects or API calls.
+ * Weather display utilities - pure helper functions with no side effects or API calls.
  * API fetching lives in services/weatherService.js; geolocation in services/locationService.js.
  */
 
@@ -7,7 +7,7 @@
 export { fetchWeatherByCoords, fetchPastWeather } from '@services/weatherService';
 export { getUserLocation } from '@services/locationService';
 
-/* ──────────────────────── Icon / Background helpers ──────────────────────── */
+/* -------- Icon / Background helpers -------- */
 
 /**
  * Map a weather condition string to an SVG icon path.
@@ -63,7 +63,7 @@ export const getBackground = (weather, sys, dt) => {
     return '/backgrounds/sunny_day.png';
 };
 
-/* ──────────────────────── Display transforms ──────────────────────── */
+/* -------- Display transforms -------- */
 
 /**
  * Derive all display-ready values the WeatherScreen needs from raw API data.
@@ -98,7 +98,7 @@ export const transformWeatherForDisplay = (weatherData) => {
     };
 };
 
-/* ──────────────────────── Hourly strip builder ──────────────────────── */
+/* -------- Hourly strip builder -------- */
 
 const formatHour = (h) => `${h.toString().padStart(2, '0')}:00`;
 

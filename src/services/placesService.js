@@ -1,5 +1,5 @@
 /**
- * Places service — all Google Maps Places API interactions.
+ * Places service - all Google Maps Places API interactions.
  * Pure async functions wrapping the PlacesService, no React dependencies.
  */
 
@@ -60,7 +60,7 @@ export const searchNearbyPitches = (map, location, radius = 3000) => {
 };
 
 /**
- * Lightweight details call — only fetches opening_hours for a place.
+ * Lightweight details call - only fetches opening_hours for a place.
  */
 export const fetchOpeningHours = (map, placeId) =>
     new Promise((resolve) => {

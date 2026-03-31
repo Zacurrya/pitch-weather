@@ -19,6 +19,17 @@ Estimate walking time in minutes (approx. 5 km/h).
 export const getWalkingMinutes = (distanceKm) => Math.round((distanceKm / 5) * 60);
 
 /*
+Estimate driving time in minutes (approx. 28 km/h city average).
+*/
+export const getDrivingMinutes = (distanceKm) => Math.max(1, Math.round((distanceKm / 28) * 60));
+
+/*
+Estimate bus/public transport time in minutes (approx. 16 km/h with stops).
+*/
+export const getBusMinutes = (distanceKm) => Math.max(1, Math.round((distanceKm / 16) * 60));
+
+
+/*
 Format a Google Places time object { hours, minutes } to "h:mm am/pm".
 */
 const formatPlacesTime = (t) => {
