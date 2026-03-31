@@ -12,7 +12,7 @@
   transition-duration: .5s;
   display: flex;
   position: absolute;
-  top: clamp(10.5rem, 40vw, 18rem);
+  top: clamp(11.5rem, 28vw, 15.5rem);
 }
 
 .search-area-btn {
