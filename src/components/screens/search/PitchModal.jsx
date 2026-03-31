@@ -1,50 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Footprints, Droplets, Globe, CornerUpRight } from 'lucide-react';
-import { getDistanceKm, getWalkingMinutes, getTodayHours, getVenueSportIcon } from '../../utils/pitchUtils';
-import { getPlaceDetails } from '../../utils/placesUtils';
-import { fetchPastWeather } from '../../utils/weatherUtils';
-import { calcPitchCondition, conditionColor, conditionLabel, pitchVerdict } from '../../utils/conditionUtils';
-import { getIconPath, wmoToCondition } from '../../utils/weatherUtils';
+import { getDistanceKm, getWalkingMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
+import { conditionColor, conditionLabel, pitchVerdict } from '@utils/conditionUtils';
+import { getIconPath, wmoToCondition } from '@utils/weatherUtils';
+import usePlaceDetails from '@hooks/usePlaceDetails';
+import usePitchCondition from '@hooks/usePitchCondition';
 import PhotoGallery from './PhotoGallery';
 
-// Module-level cache: placeId -> { wetness, muddiness }
-const conditionCache = new Map();
-
 const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
-    const [details, setDetails] = useState(null);
     const [photoExpanded, setPhotoExpanded] = useState(false);
-    const [condition, setCondition] = useState(null); // { wetness, muddiness } or null while loading
-    const [futureHourly, setFutureHourly] = useState([]);
 
-    // Fetch place details (opening hours, photos, etc.)
-    useEffect(() => {
-        if (!venue?.placeId || !map) return;
-        getPlaceDetails(map, venue.placeId).then(setDetails);
-        return () => setDetails(null);
-    }, [venue?.placeId, map]);
-
-    // Fetch per-pitch weather and calculate conditions (cached by placeId)
-    useEffect(() => {
-        if (!venue?.placeId) return;
-
-        const getCondition = async () => {
-            // Return cached result immediately if available
-            if (conditionCache.has(venue.placeId)) {
-                return conditionCache.get(venue.placeId);
-            }
-            // Fetch weather specific to this pitch's location
-            const { totalRainMm, pastHourly, futureHourly } = await fetchPastWeather(venue.lat, venue.lng);
-            const result = calcPitchCondition(weatherData, totalRainMm, pastHourly);
-            conditionCache.set(venue.placeId, { ...result, futureHourly });
-            return conditionCache.get(venue.placeId);
-        };
-
-        getCondition().then((cached) => {
-            setCondition(cached);
-            setFutureHourly(cached?.futureHourly ?? []);
-        });
-        return () => { setCondition(null); setFutureHourly([]); };
-    }, [venue?.placeId, venue?.lat, venue?.lng, weatherData]);
+    // Hooks handle all data fetching
+    const details = usePlaceDetails(map, venue?.placeId);
+    const { condition, futureHourly } = usePitchCondition(venue, weatherData);
 
     if (!venue) return null;
 
@@ -55,7 +23,6 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
     const wColor = condition ? conditionColor(condition.wetness) : null;
     const mColor = condition ? conditionColor(condition.muddiness) : null;
-
 
     const thumbUrl = details?.photoUrl || venue.photoUrl || null;
     const allPhotos = details?.photos?.length ? details.photos : (thumbUrl ? [thumbUrl] : []);

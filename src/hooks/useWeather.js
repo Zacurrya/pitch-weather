@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { fetchWeatherByCoords, getUserLocation, fetchPastWeather } from '../utils/weatherUtils';
+import { fetchWeatherByCoords, fetchPastWeather } from '@services/weatherService';
+import { getUserLocation } from '@services/locationService';
 
 /* Round to ~1 km grid cell for caching. */
 const gridKey = (lat, lng) =>

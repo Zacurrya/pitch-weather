@@ -1,7 +1,7 @@
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
-import { getVenueSportIcon } from '../../utils/pitchUtils';
-import { panToTargetWithOffset } from '../../utils/mapUtils';
+import { getVenueSportIcon } from '@utils/pitchUtils';
+import { panToTargetWithOffset } from '@utils/mapUtils';
 
 const containerStyle = {
     width: '100%',
@@ -9,7 +9,6 @@ const containerStyle = {
 };
 
 // Defined outside the component so the array reference is stable across renders.
-// If defined inside, useJsApiLoader would see a new reference each render and reload the Maps API.
 const LIBRARIES = ['places'];
 
 const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged, selectedVenueVerticalOffsetPx = 140 }) => {

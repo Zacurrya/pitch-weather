@@ -1,15 +1,19 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import MapView from './components/MapView';
-import WeatherBar from './components/WeatherBar';
-import SearchBar from './components/SearchBar';
-import PitchModal from './components/PitchModal';
-import SearchAreaButton from './components/SearchAreaButton';
-import LocateUserButton from './components/LocateUserButton';
-import usePitches from '../hooks/usePitches';
-import { searchPitchesByText } from '../utils/placesUtils';
-import { panToTargetWithOffset } from '../utils/mapUtils';
+import MapView from '@components/screens/search/MapView';
+import WeatherBar from '@components/screens/search/WeatherBar';
+import SearchBar from '@components/screens/search/SearchBar';
+import PitchModal from '@components/screens/search/PitchModal';
+import SearchAreaButton from '@components/screens/search/SearchAreaButton';
+import LocateUserButton from '@components/screens/search/LocateUserButton';
+import { useWeatherContext } from '@contexts/WeatherContext';
+import usePitches from '@hooks/usePitches';
+import useTextSearch from '@hooks/useTextSearch';
+import useMapWeatherSync from '@hooks/useMapWeatherSync';
+import { panToTargetWithOffset } from '@utils/mapUtils';
 
-const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refreshWeather, onOpenWeather }) => {
+const SearchScreen = ({ onOpenWeather }) => {
+  const { location, weatherData, forecastData, pastHourly, refreshWeather } = useWeatherContext();
+
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [mapInstance, setMapInstance] = useState(null);
@@ -21,7 +25,6 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
   // A ref rather than state so toggling it does not trigger a re-render or cause
   // the auto-search effect to fire twice in React Strict Mode's double-invoke.
   const initialSearchDone = useRef(false);
-  const weatherDebounceRef = useRef(null);
 
   // Set initial map center from user location (once)
   useEffect(() => {
@@ -30,39 +33,11 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
     }
   }, [location, mapCenter]);
 
-  // Refresh weather when the map pans to a new area (debounced 600ms).
-  // The delay avoids firing a weather fetch on every intermediate position during a pan gesture.
-  useEffect(() => {
-    if (!visibleCenter || !refreshWeather) return;
-    clearTimeout(weatherDebounceRef.current);
-    weatherDebounceRef.current = setTimeout(() => {
-      refreshWeather(visibleCenter.lat, visibleCenter.lng);
-    }, 600);
-    return () => clearTimeout(weatherDebounceRef.current);
-  }, [visibleCenter, refreshWeather]);
+  // Debounced weather refresh when map pans
+  useMapWeatherSync(visibleCenter, refreshWeather);
 
   const { venues, loading, searchArea, isAreaSearched } = usePitches(mapInstance);
-
-  const [textSearchResults, setTextSearchResults] = useState(null);
-  const [textSearchLoading, setTextSearchLoading] = useState(false);
-
-  const handleSearch = useCallback(async (query) => {
-    if (!query) {
-      setTextSearchResults(null);
-      return;
-    }
-    if (!mapInstance || !location) return;
-    setTextSearchLoading(true);
-    try {
-      const results = await searchPitchesByText(mapInstance, query, location);
-      setTextSearchResults(results);
-    } catch (err) {
-      console.error('Text search failed:', err);
-      setTextSearchResults([]);
-    } finally {
-      setTextSearchLoading(false);
-    }
-  }, [mapInstance, location]);
+  const { textSearchResults, textSearchLoading, handleSearch, clearResults } = useTextSearch(mapInstance, location);
 
   // Auto-search around user location on first load
   useEffect(() => {
@@ -117,7 +92,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
         onSearch={handleSearch}
         expanded={searchExpanded}
         onExpand={() => setSearchExpanded(true)}
-        onCollapse={() => { setSearchExpanded(false); setTextSearchResults(null); }}
+        onCollapse={() => { setSearchExpanded(false); clearResults(); }}
         venues={venues}
         userLocation={location}
         onVenueSelect={handleVenueSelect}

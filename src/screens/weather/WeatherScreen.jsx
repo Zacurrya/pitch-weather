@@ -1,9 +1,12 @@
 import { Eye, Navigation, ChevronUp, Droplets, TreePine, Sun } from 'lucide-react';
-import { getBackground, transformWeatherForDisplay } from '../utils/weatherUtils';
-import useRainLikelihood from '../hooks/useRainLikelihood';
-import useAirQuality from '../hooks/useAirQuality';
+import { getBackground, transformWeatherForDisplay } from '@utils/weatherUtils';
+import { useWeatherContext } from '@contexts/WeatherContext';
+import useRainLikelihood from '@hooks/useRainLikelihood';
+import useAirQuality from '@hooks/useAirQuality';
 
-const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenMap }) => {
+const WeatherScreen = ({ onOpenMap }) => {
+    const { weatherData, forecastData, airQuality, uvIndex } = useWeatherContext();
+
     const {
         temp,
         feelsLike,

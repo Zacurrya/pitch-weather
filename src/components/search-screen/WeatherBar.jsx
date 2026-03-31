@@ -1,4 +1,4 @@
-import { buildHourlyItems } from '../../utils/weatherUtils';
+import { buildHourlyItems } from '@utils/weatherUtils';
 
 const WeatherBar = ({ weatherData, forecastData, pastHourly, onCurrentClick, hidden }) => {
     if (!weatherData) return null;

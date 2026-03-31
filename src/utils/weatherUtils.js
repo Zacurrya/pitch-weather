@@ -1,38 +1,17 @@
-// Set to true to skip OpenWeatherMap API calls and generate random data.
-const MOCK_WEATHER = false;
+/**
+ * Weather display utilities — pure helper functions with no side effects or API calls.
+ * API fetching lives in services/weatherService.js; geolocation in services/locationService.js.
+ */
 
-const mockWeatherResponse = () => {
-    const now = Math.floor(Date.now() / 1000);
-    const current = {
-        name: 'London',
-        dt: now,
-        sys: { sunrise: now - 3600 * 4, sunset: now + 3600 * 6, country: 'GB' },
-        main: { temp: 14, feels_like: 12, humidity: 72, pressure: 1012 },
-        weather: [{ id: 801, main: 'Clouds', description: 'partly cloudy', icon: '02d' }],
-        wind: { speed: 4.5, deg: 220 },
-        visibility: 10000,
-    };
+// Re-export service functions so existing imports keep working
+export { fetchWeatherByCoords, fetchPastWeather } from '../services/weatherService';
+export { getUserLocation } from '../services/locationService';
 
-    const forecast = {
-        list: Array.from({ length: 40 }, (_, i) => ({
-            dt: now + i * 10800,
-            main: { temp: 13 + Math.round(Math.sin(i) * 3), feels_like: 11, humidity: 70 },
-            weather: [{ id: 801, main: 'Clouds', description: 'partly cloudy', icon: '02d' }],
-            wind: { speed: 4, deg: 210 },
-            pop: 0.1,
-            dt_txt: new Date((now + i * 10800) * 1000).toISOString(),
-        })),
-    };
+/* ──────────────────────── Icon / Background helpers ──────────────────────── */
 
-    const airQuality = { list: [{ main: { aqi: 2 } }] };
-    const uvIndex = 2;
-
-    return { current, forecast, airQuality, uvIndex };
-};
-
-/*
-Mapping of weather conditions to SVG icon paths.
-*/
+/**
+ * Map a weather condition string to an SVG icon path.
+ */
 export const getIconPath = (condition) => {
     switch (condition?.toLowerCase()) {
         case 'clear':
@@ -51,9 +30,9 @@ export const getIconPath = (condition) => {
     }
 };
 
-/*
-Maps Open-Meteo WMO weather codes to our condition strings.
-*/
+/**
+ * Map Open-Meteo WMO weather codes to our condition strings.
+ */
 export const wmoToCondition = (code) => {
     if (code === 0) return 'clear';
     if ([1, 2, 3, 45, 48].includes(code)) return 'clouds';
@@ -63,10 +42,9 @@ export const wmoToCondition = (code) => {
     return 'clouds';
 };
 
-/*
-Get an appropriate background image path based on time and weather.
-Images are stored locally in /backgrounds/.
-*/
+/**
+ * Get an appropriate background image path based on time-of-day and weather condition.
+ */
 export const getBackground = (weather, sys, dt) => {
     const isNight = dt < sys.sunrise || dt > sys.sunset;
     const condition = weather[0]?.main?.toLowerCase() || '';
@@ -85,9 +63,11 @@ export const getBackground = (weather, sys, dt) => {
     return '/backgrounds/sunny_day.png';
 };
 
-/*
-Derive all display-ready values the WeatherScreen needs from raw API data.
-*/
+/* ──────────────────────── Display transforms ──────────────────────── */
+
+/**
+ * Derive all display-ready values the WeatherScreen needs from raw API data.
+ */
 export const transformWeatherForDisplay = (weatherData) => {
     const temp = Math.round(weatherData.main.temp);
     const feelsLike = Math.round(weatherData.main.feels_like);
@@ -118,33 +98,33 @@ export const transformWeatherForDisplay = (weatherData) => {
     };
 };
 
+/* ──────────────────────── Hourly strip builder ──────────────────────── */
+
 const formatHour = (h) => `${h.toString().padStart(2, '0')}:00`;
 
-/*
-Build the 5-item hourly strip shown in the WeatherBar.
-When forecast data is available the two "after" slots use real forecast entries;
-the two "before" slots use real past open-meteo entries where weather changed.
-*/
+/**
+ * Build the 5-item hourly strip shown in the WeatherBar.
+ * Two "before" slots use real past open-meteo entries where weather changed;
+ * two "after" slots use real forecast entries.
+ */
 export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
     const currentTemp = Math.round(weatherData.main.temp);
     const currentCondition = weatherData.weather[0]?.main;
     const currentHour = new Date().getHours();
 
-    // Placeholder values for the two past slots - always overwritten by real pastHourly data below.
+    // Placeholder values for the two past slots
     let before1 = { time: formatHour((currentHour - 2 + 24) % 24), icon: getIconPath('clear'), temp: currentTemp + 2 };
     let before2 = { time: formatHour((currentHour - 1 + 24) % 24), icon: getIconPath('snow'), temp: currentTemp - 1 };
     const current = { time: formatHour(currentHour), icon: getIconPath(currentCondition), temp: currentTemp, isCurrent: true };
 
     if (pastHourly && pastHourly.length > 0) {
         const nowMs = Date.now();
-        // Keep past hours that are strictly before the current hour block roughly
-        const validPast = pastHourly.filter((p) => new Date(p.time).getTime() < nowMs - 1800000); // at least 30 mins ago
+        const validPast = pastHourly.filter((p) => new Date(p.time).getTime() < nowMs - 1800000);
 
         if (validPast.length > 0) {
             let pastSlots = [];
             let lastCond = currentCondition?.toLowerCase() || '';
 
-            // Scan backward to find changes
             for (let i = validPast.length - 1; i >= 0; i--) {
                 const mapCond = wmoToCondition(validPast[i].weather_code);
                 if (mapCond !== lastCond) {
@@ -154,7 +134,6 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
                 if (pastSlots.length === 2) break;
             }
 
-            // Fill blindly if not enough changes found
             for (let i = validPast.length - 1; i >= 0; i--) {
                 if (pastSlots.length === 2) break;
                 if (!pastSlots.some((s) => s.time === validPast[i].time)) {
@@ -162,19 +141,18 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
                 }
             }
 
-            // Ensure chronological order
             pastSlots.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
             if (pastSlots.length >= 2) {
                 before1 = {
                     time: formatHour(new Date(pastSlots[0].time).getHours()),
                     icon: getIconPath(wmoToCondition(pastSlots[0].weather_code)),
-                    temp: Math.round(pastSlots[0].temp)
+                    temp: Math.round(pastSlots[0].temp),
                 };
                 before2 = {
                     time: formatHour(new Date(pastSlots[1].time).getHours()),
                     icon: getIconPath(wmoToCondition(pastSlots[1].weather_code)),
-                    temp: Math.round(pastSlots[1].temp)
+                    temp: Math.round(pastSlots[1].temp),
                 };
             }
         }
@@ -184,7 +162,6 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
         let futureSlots = [];
         let lastCondition = currentCondition;
 
-        // Find the next forecasts where the weather condition changes
         for (const f of forecastData.list) {
             const condition = f.weather[0].main;
             if (condition !== lastCondition) {
@@ -194,7 +171,6 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
             if (futureSlots.length === 2) break;
         }
 
-        // Fast-forward fill if there aren't enough changes in the forecast
         for (const f of forecastData.list) {
             if (futureSlots.length === 2) break;
             if (!futureSlots.some((slot) => slot.dt === f.dt)) {
@@ -202,7 +178,6 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
             }
         }
 
-        // Sort chronologically just in case the fill grabbed earlier items
         futureSlots.sort((a, b) => a.dt - b.dt);
 
         const f1 = futureSlots[0];
@@ -229,105 +204,4 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
         { time: formatHour((currentHour + 1) % 24), icon: getIconPath('rain'), temp: currentTemp },
         { time: formatHour((currentHour + 2) % 24), icon: getIconPath('clouds'), temp: currentTemp + 1 },
     ];
-};
-
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
-
-const getApiKey = () => import.meta.env.VITE_OPENWEATHER_API_KEY;
-
-/*
-Fetch current weather, 5-day forecast, and air quality for given coordinates.
-Returns { current, forecast, airQuality } or throws on failure.
-*/
-export const fetchWeatherByCoords = async (lat, lng) => {
-    if (MOCK_WEATHER) return mockWeatherResponse();
-
-    const apiKey = getApiKey();
-
-    const [currentRes, forecastRes, airRes, uviRes] = await Promise.all([
-        fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`),
-        fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lng}&units=metric&appid=${apiKey}`),
-        fetch(`${BASE_URL}/air_pollution?lat=${lat}&lon=${lng}&appid=${apiKey}`),
-        fetch(`${BASE_URL}/uvi?lat=${lat}&lon=${lng}&appid=${apiKey}`),
-    ]);
-
-    const currentData = await currentRes.json();
-    const forecastData = await forecastRes.json();
-    const airData = airRes.ok ? await airRes.json() : null;
-    const uviData = uviRes.ok ? await uviRes.json() : null;
-
-    if (!currentRes.ok || !forecastRes.ok) {
-        throw new Error('Failed to fetch weather data');
-    }
-
-    return {
-        current: currentData,
-        forecast: forecastData,
-        airQuality: airData,
-        uvIndex: uviData?.value ?? null
-    };
-};
-
-/*
-Get the user's geolocation, falling back to Mile End, London.
-Returns { lat, lng }.
-*/
-export const getUserLocation = () => {
-    const FALLBACK = { lat: 51.52, lng: -0.04 }; // Mile End
-
-    return new Promise((resolve) => {
-        if (!navigator.geolocation) {
-            resolve(FALLBACK);
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (position) =>
-                resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
-            () => resolve(FALLBACK),
-            { timeout: 5000, maximumAge: 60000, enableHighAccuracy: false }
-        );
-    });
-};
-
-/*
-Fetch total rainfall (in mm) over the past 48 hours and past hourly data using the free Open-Meteo API.
-This takes no API key.
-*/
-export const fetchPastWeather = async (lat, lng) => {
-    try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum&hourly=temperature_2m,weather_code&past_days=2&forecast_days=1&timezone=auto`;
-        const res = await fetch(url);
-        if (!res.ok) return { totalRainMm: 0, pastHourly: [] };
-
-        const data = await res.json();
-        // data.daily.precipitation_sum usually has [dayBeforeYesterday, yesterday, today]
-        // We sum up the past days' rainfall
-        const precipArray = data.daily?.precipitation_sum || [];
-
-        // Sum up the first two elements (past 2 days) if they exist
-        let totalRainMm = 0;
-        if (precipArray.length >= 1) totalRainMm += (precipArray[0] || 0);
-        if (precipArray.length >= 2) totalRainMm += (precipArray[1] || 0);
-
-        // Build pastHourly array
-        const times = data.hourly?.time || [];
-        const temps = data.hourly?.temperature_2m || [];
-        const codes = data.hourly?.weather_code || [];
-
-        const allHourly = times.map((time, hourIndex) => ({
-            time,
-            temp: temps[hourIndex],
-            weather_code: codes[hourIndex]
-        }));
-
-        const nowIso = new Date().toISOString().slice(0, 16); // "YYYY-MM-DDTHH:MM"
-        const pastHourly = allHourly.filter((h) => h.time < nowIso);
-        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 5);
-
-        return { totalRainMm, pastHourly, futureHourly };
-    } catch (e) {
-        console.error("Failed to fetch past weather from Open-Meteo:", e);
-        return { totalRainMm: 0, pastHourly: [] };
-    }
 };

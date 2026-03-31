@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
-import { searchNearbyPitches, fetchOpeningHours } from '../utils/placesUtils';
-import { isClosingSoon, getClosingTimeStr } from '../utils/pitchUtils';
+import { searchNearbyPitches, fetchOpeningHours } from '@services/placesService';
+import { isClosingSoon, getClosingTimeStr } from '@utils/pitchUtils';
 
 
 /*

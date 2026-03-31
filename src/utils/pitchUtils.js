@@ -88,3 +88,11 @@ export const getVenueSportIcon = (type) => {
     if (type === 'cricket') return '/sports/Cricket.svg';
     return '/sports/Football.svg';
 };
+
+/*
+Filter options used in SearchBar.
+*/
+export const SPORT_FILTERS = [
+    { key: 'football', label: 'Football', icon: '/sports/Football.svg' },
+    { key: 'cricket', label: 'Cricket', icon: '/sports/Cricket.svg' },
+];

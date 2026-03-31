@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, X, CheckCircle, Clock, Loader } from 'lucide-react';
-import { SPORT_FILTERS } from '../../data/venues';
-import { getDistanceKm, getVenueSportIcon } from '../../utils/pitchUtils';
+import { getDistanceKm, getVenueSportIcon, SPORT_FILTERS } from '@utils/pitchUtils';
 
 const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], userLocation, onVenueSelect, searchResults = null, searchLoading = false }) => {
     const [query, setQuery] = useState('');
