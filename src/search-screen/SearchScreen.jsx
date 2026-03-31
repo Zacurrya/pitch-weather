@@ -7,6 +7,7 @@ import SearchAreaButton from './components/SearchAreaButton';
 import LocateUserButton from './components/LocateUserButton';
 import usePitches from '../hooks/usePitches';
 import { searchPitchesByText } from '../utils/placesUtils';
+import { panToTargetWithOffset } from '../utils/mapUtils';
 
 const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refreshWeather, onOpenWeather }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -95,7 +96,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
 
   const snapToLocation = useCallback(() => {
     if (mapInstance && location) {
-      mapInstance.panTo({ lat: location.lat, lng: location.lng });
+      panToTargetWithOffset(mapInstance, location);
       mapInstance.setZoom(13);
     }
   }, [mapInstance, location]);

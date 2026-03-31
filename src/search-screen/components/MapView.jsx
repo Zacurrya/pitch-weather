@@ -1,6 +1,7 @@
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { getVenueSportIcon } from '../../utils/pitchUtils';
+import { panToTargetWithOffset } from '../../utils/mapUtils';
 
 const containerStyle = {
     width: '100%',
@@ -24,8 +25,8 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
     useEffect(() => {
         if (!map || !selectedVenue) return;
 
-        map.panTo({ lat: selectedVenue.lat, lng: selectedVenue.lng });
-        // Apply a pixel nudge so the selected pin sits above visual centre regardless of zoom.
+        panToTargetWithOffset(map, selectedVenue);
+
         requestAnimationFrame(() => {
             map.panBy(0, selectedVenueVerticalOffsetPx);
         });
