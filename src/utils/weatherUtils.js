@@ -1,5 +1,5 @@
 // Set to true to skip OpenWeatherMap API calls and generate random data.
-const MOCK_WEATHER = true;
+const MOCK_WEATHER = false;
 
 const mockWeatherResponse = () => {
     const now = Math.floor(Date.now() / 1000);
@@ -285,7 +285,7 @@ export const getUserLocation = () => {
             (position) =>
                 resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
             () => resolve(FALLBACK),
-            { timeout: 5000, maximumAge: 60000 }
+            { timeout: 5000, maximumAge: 60000, enableHighAccuracy: false }
         );
     });
 };
