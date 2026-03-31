@@ -37,6 +37,8 @@ VITE_GOOGLE_MAPS_API_KEY=your_google_maps_key_here
 
 Replace `your_openweathermap_key_here` and `your_google_maps_key_here` with your actual API keys.
 
+`.env.example` has been setup for easier setup.
+
 ---
 
 ## Running the App
