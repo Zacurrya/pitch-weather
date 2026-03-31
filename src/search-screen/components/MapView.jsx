@@ -10,7 +10,7 @@ const containerStyle = {
 // If defined inside, useJsApiLoader would see a new reference each render and reload the Maps API.
 const LIBRARIES = ['places'];
 
-const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged }) => {
+const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged }) => {
     const lastReportedCenter = useRef(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -109,6 +109,22 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
                     onClick={() => onVenueSelect?.(venue)}
                 />
             ))}
+
+            {/* Marker for a selected venue that isn't in the map-fetched venues list */}
+            {selectedVenue && !venues.some((v) => v.placeId === selectedVenue.placeId) && (
+                <MarkerF
+                    key={selectedVenue.placeId}
+                    position={{ lat: selectedVenue.lat, lng: selectedVenue.lng }}
+                    icon={{
+                        url: selectedVenue.type === 'football'
+                            ? '/sports/Football.svg'
+                            : '/sports/Cricket.svg',
+                        scaledSize: new window.google.maps.Size(32, 32),
+                        anchor: new window.google.maps.Point(16, 16),
+                    }}
+                    title={selectedVenue.name}
+                />
+            )}
         </GoogleMap>
     );
 };

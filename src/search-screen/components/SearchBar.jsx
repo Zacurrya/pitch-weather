@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { Search, X, CheckCircle, Clock } from 'lucide-react';
+import { Search, X, CheckCircle, Clock, Loader } from 'lucide-react';
 import { SPORT_FILTERS } from '../../data/venues';
 import { getDistanceKm } from '../../utils/pitchUtils';
 
-const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], userLocation, onVenueSelect }) => {
+const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], userLocation, onVenueSelect, searchResults = null, searchLoading = false }) => {
     const [query, setQuery] = useState('');
     const [activeFilters, setActiveFilters] = useState(['football', 'cricket']);
     const [openOnly, setOpenOnly] = useState(false);
     const inputRef = useRef(null);
+    const debounceRef = useRef(null);
 
     useEffect(() => {
         if (expanded && inputRef.current) {
@@ -15,12 +16,18 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
         }
     }, [expanded]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (onSearch && query.trim()) {
-            onSearch(query);
+    // Debounce live search: fire onSearch 300ms after the user stops typing
+    useEffect(() => {
+        clearTimeout(debounceRef.current);
+        if (query.trim()) {
+            debounceRef.current = setTimeout(() => {
+                onSearch?.(query.trim());
+            }, 300);
+        } else {
+            onSearch?.(null);
         }
-    };
+        return () => clearTimeout(debounceRef.current);
+    }, [query, onSearch]);
 
     const toggleFilter = (key) => {
         setActiveFilters(prev =>
@@ -28,17 +35,14 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
         );
     };
 
-    // Filter venues by sport type, open status, and optional text query, sorted by distance
+    // When a live search is active, show those results; otherwise filter the map-fetched venues
     const filteredVenues = useMemo(() => {
-        let result = venues.filter((v) => activeFilters.includes(v.type));
+        let result = searchResults !== null
+            ? searchResults
+            : venues.filter((v) => activeFilters.includes(v.type));
 
         if (openOnly) {
             result = result.filter((v) => v.openNow === true);
-        }
-
-        if (query.trim()) {
-            const q = query.toLowerCase();
-            result = result.filter((v) => v.name.toLowerCase().includes(q));
         }
 
         if (userLocation) {
@@ -50,7 +54,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
         }
 
         return result;
-    }, [venues, activeFilters, openOnly, query, userLocation]);
+    }, [searchResults, venues, activeFilters, openOnly, userLocation]);
 
     const getSportIcon = (type) => {
         const sport = SPORT_FILTERS.find((s) => s.key === type);
@@ -81,7 +85,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                 <div className="bg-white rounded-3xl shadow-xl border border-gray-100 flex flex-col max-h-[75dvh] overflow-hidden">
                     {/* Search input */}
                     <div className="px-4 pt-4 pb-2 flex-shrink-0">
-                        <form onSubmit={handleSubmit} className="flex items-center px-1">
+                        <div className="flex items-center px-1">
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -90,10 +94,13 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                                 onChange={(e) => setQuery(e.target.value)}
                                 className="flex-1 bg-transparent border-none outline-none text-gray-800 text-lg placeholder-gray-400 font-medium pl-2"
                             />
-                            <button type="button" onClick={onCollapse} className="p-1">
+                            {searchLoading && (
+                                <Loader className="w-5 h-5 text-gray-400 animate-spin mr-2" />
+                            )}
+                            <button type="button" onClick={() => { setQuery(''); onCollapse(); }} className="p-1">
                                 <X className="w-6 h-6 text-gray-400 stroke-[2.5]" />
                             </button>
-                        </form>
+                        </div>
                         <div className="mt-2 border-b border-gray-100" />
                     </div>
 

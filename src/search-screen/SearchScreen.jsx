@@ -6,6 +6,7 @@ import PitchModal from './components/PitchModal';
 import SearchAreaButton from './components/SearchAreaButton';
 import LocateUserButton from './components/LocateUserButton';
 import usePitches from '../hooks/usePitches';
+import { searchPitchesByText } from '../utils/placesUtils';
 
 const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refreshWeather, onOpenWeather }) => {
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -40,6 +41,27 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
   }, [visibleCenter, refreshWeather]);
 
   const { venues, loading, searchArea, isAreaSearched } = usePitches(mapInstance);
+
+  const [textSearchResults, setTextSearchResults] = useState(null);
+  const [textSearchLoading, setTextSearchLoading] = useState(false);
+
+  const handleSearch = useCallback(async (query) => {
+    if (!query) {
+      setTextSearchResults(null);
+      return;
+    }
+    if (!mapInstance || !location) return;
+    setTextSearchLoading(true);
+    try {
+      const results = await searchPitchesByText(mapInstance, query, location);
+      setTextSearchResults(results);
+    } catch (err) {
+      console.error('Text search failed:', err);
+      setTextSearchResults([]);
+    } finally {
+      setTextSearchLoading(false);
+    }
+  }, [mapInstance, location]);
 
   // Auto-search around user location on first load
   useEffect(() => {
@@ -91,13 +113,15 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
 
       {/* Search bar / modal */}
       <SearchBar
-        onSearch={(q) => console.log('Searching', q)}
+        onSearch={handleSearch}
         expanded={searchExpanded}
         onExpand={() => setSearchExpanded(true)}
-        onCollapse={() => setSearchExpanded(false)}
+        onCollapse={() => { setSearchExpanded(false); setTextSearchResults(null); }}
         venues={venues}
         userLocation={location}
         onVenueSelect={handleVenueSelect}
+        searchResults={textSearchResults}
+        searchLoading={textSearchLoading}
       />
 
       {/* "Search this area" - sits just below the collapsed search bar */}
@@ -112,6 +136,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
         center={mapCenter}
         userLocation={location}
         venues={venues}
+        selectedVenue={selectedVenue}
         zoom={12}
         onVenueSelect={handleVenueSelect}
         onMapReady={setMapInstance}

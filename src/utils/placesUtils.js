@@ -77,6 +77,57 @@ export const fetchOpeningHours = (map, placeId) =>
     });
 
 /*
+Text search for pitches by name query, biased toward the user's location.
+Uses a 12km radius so results stay within the same city.
+Returns venues in the same shape as searchNearbyPitches.
+*/
+export const searchPitchesByText = (map, query, location) => {
+    const service = new window.google.maps.places.PlacesService(map);
+
+    const search = (fullQuery, sportType) =>
+        new Promise((resolve) => {
+            const request = {
+                query: fullQuery,
+                location,
+                radius: 12000,
+            };
+            service.textSearch(request, (results, status) => {
+                if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+                    resolve(
+                        results
+                            .filter((r) => !(r.types || []).includes('stadium'))
+                            .map((r) => ({
+                                name: r.name,
+                                type: sportType,
+                                placeId: r.place_id,
+                                lat: r.geometry.location.lat(),
+                                lng: r.geometry.location.lng(),
+                                address: r.vicinity || r.formatted_address || '',
+                                rating: r.rating ?? null,
+                                openNow: r.opening_hours?.open_now ?? null,
+                                photoUrl: r.photos?.[0]?.getUrl({ maxWidth: 400 }) || null,
+                            }))
+                    );
+                } else {
+                    resolve([]);
+                }
+            });
+        });
+
+    return Promise.all([
+        search(`${query} football pitch`, 'football'),
+        search(`${query} cricket pitch`, 'cricket'),
+    ]).then((batches) => {
+        const seen = new Set();
+        return batches.flat().filter((v) => {
+            if (seen.has(v.placeId)) return false;
+            seen.add(v.placeId);
+            return true;
+        });
+    });
+};
+
+/*
 Fetch detailed Place info (website, formatted phone, opening hours).
 */
 export const getPlaceDetails = (map, placeId) =>
