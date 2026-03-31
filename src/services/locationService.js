@@ -1,14 +1,8 @@
-/**
- * Location service — browser geolocation wrapper.
- * Pure async function, no React dependencies.
- */
+// Location service — browser geolocation wrapper.
 
 const FALLBACK = { lat: 51.52, lng: -0.04 }; // Mile End, London
 
-/**
- * Get the user's geolocation, falling back to Mile End, London.
- * @returns {Promise<{ lat: number, lng: number }>}
- */
+// Get the user's geolocation 
 export const getUserLocation = () =>
     new Promise((resolve) => {
         if (!navigator.geolocation) {

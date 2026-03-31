@@ -4,8 +4,8 @@
  */
 
 // Re-export service functions so existing imports keep working
-export { fetchWeatherByCoords, fetchPastWeather } from '../services/weatherService';
-export { getUserLocation } from '../services/locationService';
+export { fetchWeatherByCoords, fetchPastWeather } from '@services/weatherService';
+export { getUserLocation } from '@services/locationService';
 
 /* ──────────────────────── Icon / Background helpers ──────────────────────── */
 
