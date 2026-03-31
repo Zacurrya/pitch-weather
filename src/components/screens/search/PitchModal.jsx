@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Footprints, Droplets, Globe, CornerUpRight } from 'lucide-react';
-import { getDistanceKm, getWalkingMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
+import { Footprints, Droplets, Globe, CornerUpRight, Car, Bus } from 'lucide-react';
+import { getDistanceKm, getWalkingMinutes, getDrivingMinutes, getBusMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
 import { conditionColor, conditionLabel, pitchVerdict } from '@utils/conditionUtils';
 import { getIconPath, wmoToCondition } from '@utils/weatherUtils';
 import usePlaceDetails from '@hooks/usePlaceDetails';
@@ -21,6 +21,8 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
         ? getDistanceKm(userLocation.lat, userLocation.lng, venue.lat, venue.lng)
         : null;
     const walkMins = distKm != null ? getWalkingMinutes(distKm) : null;
+    const driveMins = distKm != null ? getDrivingMinutes(distKm) : null;
+    const busMins = distKm != null ? getBusMinutes(distKm) : null;
 
     const wColor = condition ? conditionColor(condition.wetness) : null;
     const mColor = condition ? conditionColor(condition.muddiness) : null;
@@ -96,7 +98,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                         </div>
                     )}
 
-                    {/* Row 2: Status, hours, photo */}
+                    {/* Row 2: Status, hours, photo, and distance */}
                     <div className="pitch-modal__info-row">
                         <div className="pitch-modal__info-left">
                             {isOpen != null && (
@@ -119,6 +121,28 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                             {venue.address && (
                                 <p className="pitch-modal__address">{venue.address}</p>
                             )}
+
+                            {distKm != null && (
+                                <div className="pitch-modal__distance-inline">
+                                    <span className="pitch-modal__distance">
+                                        {distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`}
+                                    </span>
+                                    <div className="pitch-modal__transit-options">
+                                        <div className="pitch-modal__transit-item">
+                                            <Footprints className="pitch-modal__transit-icon" strokeWidth={2} />
+                                            <span className="pitch-modal__transit-time">{walkMins}m</span>
+                                        </div>
+                                        <div className="pitch-modal__transit-item">
+                                            <Bus className="pitch-modal__transit-icon" strokeWidth={2} />
+                                            <span className="pitch-modal__transit-time">{busMins}m</span>
+                                        </div>
+                                        <div className="pitch-modal__transit-item">
+                                            <Car className="pitch-modal__transit-icon" strokeWidth={2} />
+                                            <span className="pitch-modal__transit-time">{driveMins}m</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         {thumbUrl && (
                             <button
@@ -133,19 +157,6 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                             </button>
                         )}
                     </div>
-
-                    {/* Row 3: Distance and walking time */}
-                    {distKm != null && (
-                        <div className="pitch-modal__distance-row">
-                            <span className="pitch-modal__distance">
-                                {distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`}
-                            </span>
-                            <div className="pitch-modal__walk">
-                                <Footprints className="pitch-modal__walk-icon" strokeWidth={2} />
-                                <span className="pitch-modal__walk-time">{walkMins} mins</span>
-                            </div>
-                        </div>
-                    )}
 
                     {/* Row 4: Pitch condition bars */}
                     <div className="pitch-modal__conditions">

@@ -63,34 +63,7 @@ export const getTodayHours = (periods) => {
     };
 };
 
-/*
-Check if a venue is closing within the next 90 minutes.
-*/
-export const isClosingSoon = (periods) => {
-    if (!periods || periods.length === 0) return false;
-    if (periods.length === 1 && !periods[0].close) return false; // 24/7
 
-    const now = new Date();
-    const today = now.getDay();
-    const todayPeriod = periods.find((p) => p.open?.day === today);
-    if (!todayPeriod?.close) return false;
-
-    const closeH = todayPeriod.close.hours ?? 0;
-    const closeM = todayPeriod.close.minutes ?? 0;
-    const closeDate = new Date();
-    closeDate.setHours(closeH, closeM, 0, 0);
-
-    const diffMin = (closeDate - now) / (1000 * 60);
-    return diffMin > 0 && diffMin <= 90;
-};
-
-/*
-Get a readable closing time string from periods.
-*/
-export const getClosingTimeStr = (periods) => {
-    const hours = getTodayHours(periods);
-    return hours?.closesAt || null;
-};
 
 /*
 Get the sport icon path for a venue type.

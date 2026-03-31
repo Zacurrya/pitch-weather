@@ -59,26 +59,7 @@ export const searchNearbyPitches = (map, location, radius = 3000) => {
     });
 };
 
-/**
- * Lightweight details call - only fetches opening_hours for a place.
- */
-export const fetchOpeningHours = (map, placeId) =>
-    new Promise((resolve) => {
-        const service = new window.google.maps.places.PlacesService(map);
-        service.getDetails(
-            { placeId, fields: ['opening_hours'] },
-            (place, status) => {
-                if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
-                    resolve({
-                        isOpen: place.opening_hours?.isOpen?.() ?? null,
-                        periods: place.opening_hours?.periods || [],
-                    });
-                } else {
-                    resolve(null);
-                }
-            },
-        );
-    });
+
 
 /**
  * Text search for pitches by name query, biased toward the user's location.

@@ -73,7 +73,7 @@ const SearchScreen = ({ onOpenWeather }) => {
   const snapToLocation = useCallback(() => {
     if (mapInstance && location) {
       panToTargetWithOffset(mapInstance, location);
-      mapInstance.setZoom(13);
+      mapInstance.setZoom(15);
     }
   }, [mapInstance, location]);
 
@@ -114,7 +114,7 @@ const SearchScreen = ({ onOpenWeather }) => {
         userLocation={location}
         venues={venues}
         selectedVenue={selectedVenue}
-        zoom={12}
+        zoom={15}
         onVenueSelect={handleVenueSelect}
         onMapReady={setMapInstance}
         onCenterChanged={setVisibleCenter}

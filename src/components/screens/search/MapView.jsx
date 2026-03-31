@@ -32,6 +32,7 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
         });
     }, [map, selectedVenue, selectedVenueVerticalOffsetPx]);
 
+    // Centers the map to the user's location (defaults to Mile End if no permissions given)
     const onLoad = useCallback((mapInstance) => {
         setMap(mapInstance);
         if (onMapReady) onMapReady(mapInstance);

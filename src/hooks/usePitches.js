@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { searchNearbyPitches, fetchOpeningHours } from '@services/placesService';
-import { isClosingSoon, getClosingTimeStr } from '@utils/pitchUtils';
+import { searchNearbyPitches } from '@services/placesService';
 
 
 /*
@@ -39,27 +38,6 @@ const usePitches = (map) => {
     const [searchedCircles, setSearchedCircles] = useState([]);
     const knownIdsRef = useRef(new Set());
 
-    const enrichVenues = useCallback(async (raw) => {
-        if (!map) return raw;
-        return Promise.all(
-            raw.map(async (v) => {
-                try {
-                    const hours = await fetchOpeningHours(map, v.placeId);
-                    if (!hours) return v;
-                    return {
-                        ...v,
-                        openNow: hours.isOpen ?? v.openNow,
-                        periods: hours.periods,
-                        closingSoon: hours.isOpen && isClosingSoon(hours.periods),
-                        closesAt: getClosingTimeStr(hours.periods),
-                    };
-                } catch {
-                    return v;
-                }
-            })
-        );
-    }, [map]);
-
     const searchArea = useCallback(async (center, radius = 3000) => {
         if (!map || !center) return;
 
@@ -79,22 +57,12 @@ const usePitches = (map) => {
 
             fresh.forEach((v) => knownIdsRef.current.add(v.placeId));
             setVenues((prev) => [...prev, ...fresh]);
-
-            // Enrich in background
-            const enriched = await enrichVenues(fresh);
-            setVenues((prev) => {
-                const enrichedIds = new Set(enriched.map((v) => v.placeId));
-                return [
-                    ...prev.filter((v) => !enrichedIds.has(v.placeId)),
-                    ...enriched,
-                ];
-            });
         } catch (err) {
             console.error('Places search failed:', err);
         } finally {
             setLoading(false);
         }
-    }, [map, enrichVenues]);
+    }, [map]);
 
     /*
     Is the current viewport fully covered by previously-searched circles?
