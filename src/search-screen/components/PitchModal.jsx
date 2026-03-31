@@ -6,7 +6,7 @@ import { fetchPastWeather } from '../../utils/weatherUtils';
 import { calcPitchCondition, conditionColor, conditionLabel, pitchVerdict } from '../../utils/conditionUtils';
 import PhotoGallery from './PhotoGallery';
 
-// Module-level cache: placeId → { wetness, muddiness }
+// Module-level cache: placeId -> { wetness, muddiness }
 const conditionCache = new Map();
 
 const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
@@ -74,7 +74,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
             <div className="absolute bottom-0 left-0 right-0 z-30 animate-[slideUp_0.4s_ease-out]">
                 <div className="bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.15)] px-5 pt-5 pb-6 max-h-[65dvh] overflow-y-auto">
 
-                    {/* ── Row 1: Name + Website + Directions ── */}
+                    {/* Row 1: Name, website, directions */}
                     <div className="flex items-center gap-3 mb-3">
                         <img src={sportIcon} alt={venue.type} className="w-10 h-10 object-contain flex-shrink-0" />
                         <div className="flex-1 min-w-0">
@@ -104,7 +104,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                         </a>
                     </div>
 
-                    {/* ── Row 2: Status + Hours + Photo ── */}
+                    {/* Row 2: Status, hours, photo */}
                     <div className="flex gap-3 mb-3">
                         <div className="flex-1 flex flex-col justify-center gap-1">
                             {isOpen != null && (
@@ -142,7 +142,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                         )}
                     </div>
 
-                    {/* ── Row 3: Distance + Walking time ── */}
+                    {/* Row 3: Distance and walking time */}
                     {distKm != null && (
                         <div className="flex items-center gap-4 mb-4 py-2 border-t border-gray-100">
                             <span className="text-black font-bold text-base">
@@ -155,7 +155,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                         </div>
                     )}
 
-                    {/* ── Row 4: Pitch conditions (percentage bars) ── */}
+                    {/* Row 4: Pitch condition bars */}
                     <div className="flex flex-col gap-3 mb-3">
                         {condition ? (
                             <>

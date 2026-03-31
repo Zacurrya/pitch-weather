@@ -11,16 +11,16 @@ const UV_THRESHOLDS = [
 ];
 
 /**
- * Derive AQI and UV display values from raw API data.
- *
- * @param {object|null} airQuality  OWM air_pollution response
- * @param {number|null} uvIndex     Raw UV index value
- * @returns {{ aqiLabel: string|null, aqiColor: string, uvLabel: string, uvColor: string }}
- */
+Derive AQI and UV display values from raw API data.
+
+@param airQuality  OWM air_pollution response
+@param uvIndex     Raw UV index value
+@returns { aqiLabel, aqiColor, uvLabel, uvColor }
+*/
 const useAirQuality = (airQuality, uvIndex) => {
     return useMemo(() => {
         // AQI
-        const aqiIndex = airQuality?.list?.[0]?.main?.aqi; // 1–5
+        const aqiIndex = airQuality?.list?.[0]?.main?.aqi; // 1-5
         const aqiLabel = aqiIndex ? AQI_LABELS[aqiIndex - 1] : null;
         const aqiColor = aqiIndex ? AQI_COLORS[aqiIndex - 1] : 'text-gray-500';
 

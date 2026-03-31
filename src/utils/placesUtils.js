@@ -1,13 +1,13 @@
 /**
- * Search for nearby sports pitches using the Google Maps Places API.
- * Runs multiple keyword permutations per sport to maximise results
- * (the API hard-caps each nearbySearch call at 20 results).
- * Returns a flat, deduplicated array of venue objects.
- *
- * @param {google.maps.Map} map
- * @param {{ lat: number, lng: number }} location
- * @param {number} [radius=3000] Search radius in metres (clamped to 100–10000)
- */
+Search for nearby sports pitches using the Google Maps Places API.
+Runs multiple keyword permutations per sport to maximise results
+(the API hard-caps each nearbySearch call at 20 results).
+Returns a flat, deduplicated array of venue objects.
+
+@param map      google.maps.Map instance
+@param location { lat, lng }
+@param radius   Search radius in metres (clamped to 100-10000)
+*/
 export const searchNearbyPitches = (map, location, radius = 3000) => {
     const service = new window.google.maps.places.PlacesService(map);
     const clampedRadius = Math.max(100, Math.min(10000, Math.round(radius)));
@@ -55,9 +55,9 @@ export const searchNearbyPitches = (map, location, radius = 3000) => {
     });
 };
 
-/**
- * Lightweight details call — only fetches opening_hours for a place.
- */
+/*
+Lightweight details call - only fetches opening_hours for a place.
+*/
 export const fetchOpeningHours = (map, placeId) =>
     new Promise((resolve) => {
         const service = new window.google.maps.places.PlacesService(map);
@@ -76,9 +76,9 @@ export const fetchOpeningHours = (map, placeId) =>
         );
     });
 
-/**
- * Fetch detailed Place info (website, formatted phone, opening hours).
- */
+/*
+Fetch detailed Place info (website, formatted phone, opening hours).
+*/
 export const getPlaceDetails = (map, placeId) =>
     new Promise((resolve) => {
         const service = new window.google.maps.places.PlacesService(map);

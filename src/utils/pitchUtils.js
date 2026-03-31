@@ -1,6 +1,6 @@
-/**
- * Calculate Haversine distance in km between two lat/lng points.
- */
+/*
+Calculate Haversine distance in km between two lat/lng points.
+*/
 export const getDistanceKm = (lat1, lng1, lat2, lng2) => {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -13,14 +13,14 @@ export const getDistanceKm = (lat1, lng1, lat2, lng2) => {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-/**
- * Estimate walking time in minutes (≈ 5 km/h).
- */
+/*
+Estimate walking time in minutes (approx. 5 km/h).
+*/
 export const getWalkingMinutes = (distanceKm) => Math.round((distanceKm / 5) * 60);
 
-/**
- * Format a Google Places time object { hours, minutes } to "h:mm am/pm".
- */
+/*
+Format a Google Places time object { hours, minutes } to "h:mm am/pm".
+*/
 const formatPlacesTime = (t) => {
     if (!t) return null;
     const h = t.hours;
@@ -30,10 +30,10 @@ const formatPlacesTime = (t) => {
     return m === 0 ? `${displayH}${suffix}` : `${displayH}:${m.toString().padStart(2, '0')}${suffix}`;
 };
 
-/**
- * Extract today's opening/closing times from Google Places periods.
- * Returns { opensAt, closesAt } or null.
- */
+/*
+Extract today's opening/closing times from Google Places periods.
+Returns { opensAt, closesAt } or null.
+*/
 export const getTodayHours = (periods) => {
     if (!periods || periods.length === 0) return null;
 
@@ -52,9 +52,9 @@ export const getTodayHours = (periods) => {
     };
 };
 
-/**
- * Check if a venue is closing within the next 90 minutes.
- */
+/*
+Check if a venue is closing within the next 90 minutes.
+*/
 export const isClosingSoon = (periods) => {
     if (!periods || periods.length === 0) return false;
     if (periods.length === 1 && !periods[0].close) return false; // 24/7
@@ -73,11 +73,10 @@ export const isClosingSoon = (periods) => {
     return diffMin > 0 && diffMin <= 90;
 };
 
-/**
- * Get a readable closing time string from periods.
- */
+/*
+Get a readable closing time string from periods.
+*/
 export const getClosingTimeStr = (periods) => {
     const hours = getTodayHours(periods);
     return hours?.closesAt || null;
 };
-

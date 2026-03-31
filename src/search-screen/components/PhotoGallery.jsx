@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-/**
- * Full-screen photo gallery lightbox.
- * Displays one photo at a time with prev/next navigation and a dot indicator.
- *
- * @param {{ photos: string[], alt?: string, title?: string, onClose: () => void }} props
- */
+/*
+Full-screen photo gallery lightbox.
+Displays one photo at a time with prev/next navigation and a dot indicator.
+
+@param props { photos, alt, title, onClose }
+*/
 const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
     const [index, setIndex] = useState(0);
 

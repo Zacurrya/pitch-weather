@@ -74,7 +74,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                 </button>
             </div>
 
-            {/* Expanded search modal — floating card */}
+            {/* Expanded search modal - floating card */}
             <div
                 className={`absolute top-0 left-0 right-0 z-30 px-3 pt-3 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${expanded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6 pointer-events-none'}`}
             >

@@ -6,6 +6,8 @@ const containerStyle = {
     height: '100%',
 };
 
+// Defined outside the component so the array reference is stable across renders.
+// If defined inside, useJsApiLoader would see a new reference each render and reload the Maps API.
 const LIBRARIES = ['places'];
 
 const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged }) => {
@@ -29,6 +31,8 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
 
     const mapCenter = center || { lat: 51.5074, lng: -0.1278 };
 
+    // clickableIcons: false prevents Google Maps' built-in POI popups from appearing,
+    // which would conflict with our own venue selection flow.
     const defaultOptions = {
         disableDefaultUI: true,
         zoomControl: false,
@@ -59,13 +63,15 @@ const MapView = ({ center, userLocation, venues = [], zoom = 14, options = {}, o
                 if (!bounds) return;
 
                 const ne = bounds.getNorthEast();
-                // Distance from centre to NE corner ≈ viewport "radius"
+                // The diagonal from the centre to the NE corner (converted to metres) gives
+                // a single radius value representing the visible area of the map.
                 const dLat = (ne.lat() - c.lat()) * 111320;
                 const dLng = (ne.lng() - c.lng()) * 111320 * Math.cos((c.lat() * Math.PI) / 180);
                 const visibleRadius = Math.sqrt(dLat * dLat + dLng * dLng);
 
                 const pos = { lat: c.lat(), lng: c.lng(), visibleRadius };
                 const last = lastReportedCenter.current;
+                // Suppress updates for sub-~55m movements to avoid triggering callbacks on floating-point drift.
                 if (last && Math.abs(last.lat - pos.lat) < 0.0005 && Math.abs(last.lng - pos.lng) < 0.0005) return;
                 lastReportedCenter.current = pos;
                 onCenterChanged(pos);

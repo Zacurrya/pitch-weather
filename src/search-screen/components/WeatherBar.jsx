@@ -21,12 +21,12 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, onCurrentClick, hid
                                 : 'h-[clamp(4.5rem,18vw,6rem)] mx-0.5 opacity-80 cursor-default'
                             }`}
                     >
-                        {/* Time — pinned to top */}
+                        {/* Time - pinned to top */}
                         <span className={`pt-2 text-black font-medium ${isMid ? 'text-[clamp(0.65rem,2.8vw,0.85rem)]' : 'text-[clamp(0.6rem,2.2vw,0.75rem)]'}`}>
                             {item.time}
                         </span>
 
-                        {/* Icon — centered in remaining space */}
+                        {/* Icon - centered in remaining space */}
                         <div className="flex-1 flex items-center justify-center">
                             <img
                                 src={item.icon}
@@ -35,7 +35,7 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, onCurrentClick, hid
                             />
                         </div>
 
-                        {/* Temperature — pinned to bottom */}
+                        {/* Temperature - pinned to bottom */}
                         <span className={`pb-2 text-black font-semibold ${isMid ? 'text-[clamp(0.75rem,2.8vw,0.95rem)]' : 'text-[clamp(0.65rem,2.2vw,0.8rem)]'}`}>
                             {item.temp}°C
                         </span>

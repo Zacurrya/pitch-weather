@@ -1,4 +1,4 @@
-// Set to true to skip OpenWeatherMap API calls 
+// Set to true to skip OpenWeatherMap API calls and generate random data.
 const MOCK_WEATHER = true;
 
 const mockWeatherResponse = () => {
@@ -30,9 +30,9 @@ const mockWeatherResponse = () => {
     return { current, forecast, airQuality, uvIndex };
 };
 
-/**
- * Mapping of weather conditions to SVG icon paths.
- */
+/*
+Mapping of weather conditions to SVG icon paths.
+*/
 export const getIconPath = (condition) => {
     switch (condition?.toLowerCase()) {
         case 'clear':
@@ -51,9 +51,9 @@ export const getIconPath = (condition) => {
     }
 };
 
-/**
- * Maps Open-Meteo WMO weather codes to our condition strings.
- */
+/*
+Maps Open-Meteo WMO weather codes to our condition strings.
+*/
 export const wmoToCondition = (code) => {
     if (code === 0) return 'clear';
     if ([1, 2, 3, 45, 48].includes(code)) return 'clouds';
@@ -63,10 +63,10 @@ export const wmoToCondition = (code) => {
     return 'clouds';
 };
 
-/**
- * Get an appropriate background image path based on time and weather.
- * Images are stored locally in /backgrounds/.
- */
+/*
+Get an appropriate background image path based on time and weather.
+Images are stored locally in /backgrounds/.
+*/
 export const getBackground = (weather, sys, dt) => {
     const isNight = dt < sys.sunrise || dt > sys.sunset;
     const condition = weather[0]?.main?.toLowerCase() || '';
@@ -85,9 +85,9 @@ export const getBackground = (weather, sys, dt) => {
     return '/backgrounds/sunny_day.png';
 };
 
-/**
- * Derive all display-ready values the WeatherScreen needs from raw API data.
- */
+/*
+Derive all display-ready values the WeatherScreen needs from raw API data.
+*/
 export const transformWeatherForDisplay = (weatherData) => {
     const temp = Math.round(weatherData.main.temp);
     const feelsLike = Math.round(weatherData.main.feels_like);
@@ -120,16 +120,17 @@ export const transformWeatherForDisplay = (weatherData) => {
 
 const formatHour = (h) => `${h.toString().padStart(2, '0')}:00`;
 
-/**
- * Build the 5-item hourly strip shown in the WeatherBar.
- * When forecast data is available the two "after" slots use real forecast entries;
- * the two "before" slots use real past open-meteo entries where weather changed.
- */
+/*
+Build the 5-item hourly strip shown in the WeatherBar.
+When forecast data is available the two "after" slots use real forecast entries;
+the two "before" slots use real past open-meteo entries where weather changed.
+*/
 export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
     const currentTemp = Math.round(weatherData.main.temp);
     const currentCondition = weatherData.weather[0]?.main;
     const currentHour = new Date().getHours();
 
+    // Placeholder values for the two past slots - always overwritten by real pastHourly data below.
     let before1 = { time: formatHour((currentHour - 2 + 24) % 24), icon: getIconPath('clear'), temp: currentTemp + 2 };
     let before2 = { time: formatHour((currentHour - 1 + 24) % 24), icon: getIconPath('snow'), temp: currentTemp - 1 };
     const current = { time: formatHour(currentHour), icon: getIconPath(currentCondition), temp: currentTemp, isCurrent: true };
@@ -234,10 +235,10 @@ const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 const getApiKey = () => import.meta.env.VITE_OPENWEATHER_API_KEY;
 
-/**
- * Fetch current weather, 5-day forecast, and air quality for given coordinates.
- * Returns { current, forecast, airQuality } or throws on failure.
- */
+/*
+Fetch current weather, 5-day forecast, and air quality for given coordinates.
+Returns { current, forecast, airQuality } or throws on failure.
+*/
 export const fetchWeatherByCoords = async (lat, lng) => {
     if (MOCK_WEATHER) return mockWeatherResponse();
 
@@ -267,10 +268,10 @@ export const fetchWeatherByCoords = async (lat, lng) => {
     };
 };
 
-/**
- * Get the user's geolocation, falling back to Mile End, London.
- * Returns { lat, lng }.
- */
+/*
+Get the user's geolocation, falling back to Mile End, London.
+Returns { lat, lng }.
+*/
 export const getUserLocation = () => {
     const FALLBACK = { lat: 51.52, lng: -0.04 }; // Mile End
 
@@ -289,10 +290,10 @@ export const getUserLocation = () => {
     });
 };
 
-/**
- * Fetch total rainfall (in mm) over the past 48 hours and past hourly data using the free Open-Meteo API.
- * This takes no API key.
- */
+/*
+Fetch total rainfall (in mm) over the past 48 hours and past hourly data using the free Open-Meteo API.
+This takes no API key.
+*/
 export const fetchPastWeather = async (lat, lng) => {
     try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum&hourly=temperature_2m,weather_code&past_days=2&forecast_days=1&timezone=auto`;

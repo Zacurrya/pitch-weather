@@ -3,9 +3,9 @@ import { searchNearbyPitches, fetchOpeningHours } from '../utils/placesUtils';
 import { isClosingSoon, getClosingTimeStr } from '../utils/pitchUtils';
 
 
-/**
- * Haversine distance in metres.
- */
+/*
+Haversine distance in metres.
+*/
 const haversineM = (lat1, lng1, lat2, lng2) => {
     const R = 6371000;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -18,21 +18,21 @@ const haversineM = (lat1, lng1, lat2, lng2) => {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-/** Does `point` fall inside any of the `circles`? */
+/* Does `point` fall inside any of the `circles`? */
 const isPointCovered = (lat, lng, circles) =>
     circles.some((c) => haversineM(lat, lng, c.lat, c.lng) <= c.radius);
 
-/** Offset a lat/lng by `dist` metres at `bearing` radians (0 = north, π/2 = east). */
+/* Offset a lat/lng by `dist` metres at `bearing` radians (0 = north, pi/2 = east). */
 const offsetPoint = (lat, lng, dist, bearing) => ({
     lat: lat + (dist * Math.cos(bearing)) / 111320,
     lng: lng + (dist * Math.sin(bearing)) / (111320 * Math.cos((lat * Math.PI) / 180)),
 });
 
-/**
- * Hook to fetch and manage pitches.
- * Call `searchArea({ lat, lng })` to search around a point.
- * Call `isAreaSearched({ lat, lng, visibleRadius })` to check viewport coverage.
- */
+/*
+Hook to fetch and manage pitches.
+Call`searchArea({ lat, lng })` to search around a point.
+Call `isAreaSearched({ lat, lng, visibleRadius })` to check viewport coverage.
+*/
 const usePitches = (map) => {
     const [venues, setVenues] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -96,10 +96,10 @@ const usePitches = (map) => {
         }
     }, [map, enrichVenues]);
 
-    /**
-     * Is the current viewport fully covered by previously-searched circles?
-     * Samples centre + 8 boundary points of the visible area.
-     */
+    /*
+    Is the current viewport fully covered by previously-searched circles?
+    Samples centre + 8 boundary points of the visible area.
+    */
     const isAreaSearched = useCallback(
         (visibleInfo) => {
             if (!visibleInfo || searchedCircles.length === 0) return false;

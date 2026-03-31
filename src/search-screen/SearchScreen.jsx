@@ -16,6 +16,8 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
   // The visible centre reported by the map after the user pans
   const [visibleCenter, setVisibleCenter] = useState(null);
 
+  // A ref rather than state so toggling it does not trigger a re-render or cause
+  // the auto-search effect to fire twice in React Strict Mode's double-invoke.
   const initialSearchDone = useRef(false);
   const weatherDebounceRef = useRef(null);
 
@@ -26,7 +28,8 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
     }
   }, [location]);
 
-  // Refresh weather when the map pans to a new area (debounced 600ms)
+  // Refresh weather when the map pans to a new area (debounced 600ms).
+  // The delay avoids firing a weather fetch on every intermediate position during a pan gesture.
   useEffect(() => {
     if (!visibleCenter || !refreshWeather) return;
     clearTimeout(weatherDebounceRef.current);
@@ -61,7 +64,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
   const handleVenueSelect = useCallback((venue) => {
     setSelectedVenue(venue);
     setSearchExpanded(false);
-    setMapCenter({ lat: venue.lat - 0.003, lng: venue.lng });
+    setMapCenter({ lat: venue.lat - 0.003, lng: venue.lng }); // offset nudges the pin above the bottom-sheet modal
   }, []);
 
   const handleCloseModal = useCallback(() => {
@@ -77,7 +80,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
 
   return (
     <div className="w-full h-full relative">
-      {/* Weather bar — hides when search is expanded */}
+      {/* Weather bar - hides when search is expanded */}
       <WeatherBar
         weatherData={weatherData}
         forecastData={forecastData}
@@ -97,7 +100,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
         onVenueSelect={handleVenueSelect}
       />
 
-      {/* "Search this area" — sits just below the collapsed search bar */}
+      {/* "Search this area" - sits just below the collapsed search bar */}
       <SearchAreaButton
         show={showSearchButton}
         loading={loading}
@@ -121,7 +124,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
         onClick={snapToLocation}
       />
 
-      {/* Pitch modal — bottom sheet */}
+      {/* Pitch modal - bottom sheet */}
       {selectedVenue && (
         <PitchModal
           venue={selectedVenue}

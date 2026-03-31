@@ -35,10 +35,10 @@ const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenM
             {/* Semi-transparent overlay for readability */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/15 pointer-events-none" />
 
-            {/* Content wrapper — safe area aware */}
+            {/* Content wrapper - safe area aware */}
             <div className="relative z-10 flex flex-col items-center justify-between w-full h-full pt-[max(env(safe-area-inset-top,0px),2rem)] pb-[max(env(safe-area-inset-bottom,0px),0.5rem)] px-5">
 
-                {/* ── Top: City & condition ── */}
+                {/* Top: City and condition */}
                 <div className="text-center flex-shrink-0 mt-2">
                     <h1 className="text-[clamp(2rem,9vw,2.75rem)] font-semibold text-white tracking-wide drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]">
                         {cityName}
@@ -48,7 +48,7 @@ const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenM
                     </p>
                 </div>
 
-                {/* ── Center: Main weather card ── */}
+                {/* Center: Main weather card */}
                 <div className="w-[85%] max-w-[20rem] rounded-[2rem] bg-white/40 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/30 p-[clamp(1rem,4vw,1.5rem)] flex flex-col items-center gap-1">
                     <p className="text-black/80 font-medium text-[clamp(0.8rem,3.2vw,1.05rem)] tracking-wide">
                         {isRaining ? 'Currently Raining' : rainPct != null ? `${rainLabel} (${rainPct}%)` : ''}
@@ -68,7 +68,7 @@ const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenM
                     </p>
                 </div>
 
-                {/* ── Info cards: Air Quality, UV, Humidity ── */}
+                {/* Info cards: Air Quality, UV, Humidity */}
                 <div className="flex gap-2 w-full max-w-[24rem] flex-shrink-0">
                     {/* Air Quality */}
                     <div className="flex-1 rounded-[1.25rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 py-3 px-2 flex flex-col items-center gap-1">
@@ -101,7 +101,7 @@ const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenM
                     </div>
                 </div>
 
-                {/* ── Detail cards row: Visibility & Wind ── */}
+                {/* Detail cards: Visibility and Wind */}
                 <div className="flex gap-3 w-[75%] max-w-[18rem] justify-center flex-shrink-0">
                     {/* Visibility */}
                     <div className="flex-1 aspect-square rounded-[1.5rem] bg-white/40 backdrop-blur-2xl shadow-sm border border-white/25 p-4 flex flex-col items-center justify-center gap-2">
@@ -128,7 +128,7 @@ const WeatherScreen = ({ weatherData, forecastData, airQuality, uvIndex, onOpenM
                     </div>
                 </div>
 
-                {/* ── Bottom chevron ── */}
+                {/* Bottom chevron - tap to open map */}
                 <button
                     onClick={onOpenMap}
                     className="flex-shrink-0 w-14 h-8 flex items-center justify-center active:opacity-70 transition-all mb-1"

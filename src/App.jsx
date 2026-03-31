@@ -37,7 +37,7 @@ function App() {
         <link rel="icon" type="image/png" href="/weather_icons/SunnyCloudy.svg" />
       </head>
       <div className="relative w-full h-[100dvh] overflow-hidden bg-white font-sans">
-        {/* Map layer (bottom) — always mounted */}
+        {/* Map layer (bottom) - always mounted */}
         <div className="absolute inset-0 z-0">
           <SearchScreen
             location={location}

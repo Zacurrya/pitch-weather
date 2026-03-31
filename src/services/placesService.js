@@ -1,7 +1,7 @@
-/**
- * Search for nearby sports pitches using the Google Maps Places API.
- * Returns a flat array of venue objects.
- */
+/*
+Search for nearby sports pitches using the Google Maps Places API.
+Returns a flat array of venue objects.
+*/
 export const searchNearbyPitches = (map, location) => {
     const service = new window.google.maps.places.PlacesService(map);
 
@@ -48,9 +48,9 @@ export const searchNearbyPitches = (map, location) => {
     });
 };
 
-/**
- * Fetch opening hours for a Place
- */
+/*
+Fetch opening hours for a Place.
+*/
 export const fetchOpeningHours = (map, placeId) =>
     new Promise((resolve) => {
         const service = new window.google.maps.places.PlacesService(map);
@@ -69,9 +69,9 @@ export const fetchOpeningHours = (map, placeId) =>
         );
     });
 
-/**
- * Fetch detailed Place info (website, formatted phone, opening hours).
- */
+/*
+Fetch detailed Place info (website, formatted phone, opening hours).
+*/
 export const getPlaceDetails = (map, placeId) =>
     new Promise((resolve) => {
         const service = new window.google.maps.places.PlacesService(map);
