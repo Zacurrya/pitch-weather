@@ -27,7 +27,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
     if (location && !mapCenter) {
       setMapCenter({ lat: location.lat, lng: location.lng });
     }
-  }, [location]);
+  }, [location, mapCenter]);
 
   // Refresh weather when the map pans to a new area (debounced 600ms).
   // The delay avoids firing a weather fetch on every intermediate position during a pan gesture.
@@ -86,7 +86,7 @@ const SearchScreen = ({ location, weatherData, forecastData, pastHourly, refresh
   const handleVenueSelect = useCallback((venue) => {
     setSelectedVenue(venue);
     setSearchExpanded(false);
-    setMapCenter({ lat: venue.lat - 0.003, lng: venue.lng }); // offset nudges the pin above the bottom-sheet modal
+    setMapCenter({ lat: venue.lat, lng: venue.lng });
   }, []);
 
   const handleCloseModal = useCallback(() => {

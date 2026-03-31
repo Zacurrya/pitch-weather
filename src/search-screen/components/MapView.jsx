@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF } from '@react-google-maps/api';
 import { getVenueSportIcon } from '../../utils/pitchUtils';
 
@@ -11,7 +11,7 @@ const containerStyle = {
 // If defined inside, useJsApiLoader would see a new reference each render and reload the Maps API.
 const LIBRARIES = ['places'];
 
-const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged }) => {
+const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged, selectedVenueVerticalOffsetPx = 140 }) => {
     const lastReportedCenter = useRef(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
@@ -20,6 +20,16 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
     });
 
     const [map, setMap] = useState(null);
+
+    useEffect(() => {
+        if (!map || !selectedVenue) return;
+
+        map.panTo({ lat: selectedVenue.lat, lng: selectedVenue.lng });
+        // Apply a pixel nudge so the selected pin sits above visual centre regardless of zoom.
+        requestAnimationFrame(() => {
+            map.panBy(0, selectedVenueVerticalOffsetPx);
+        });
+    }, [map, selectedVenue, selectedVenueVerticalOffsetPx]);
 
     const onLoad = useCallback((mapInstance) => {
         setMap(mapInstance);
@@ -30,10 +40,8 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
         setMap(null);
     }, []);
 
-    const mapCenter = center || { lat: 51.5074, lng: -0.1278 };
+    const mapCenter = center || { lat: 51.5074, lng: -2.1278 };
 
-    // clickableIcons: false prevents Google Maps' built-in POI popups from appearing,
-    // which would conflict with our own venue selection flow.
     const defaultOptions = {
         disableDefaultUI: true,
         zoomControl: false,
