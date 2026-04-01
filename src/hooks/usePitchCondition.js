@@ -25,8 +25,6 @@ const usePitchCondition = (venue, weatherData) => {
     useEffect(() => {
         if (!venue?.placeId) return undefined;
 
-        let isActive = true;
-
         const getCondition = async () => {
             // Return cached result immediately if available
             if (conditionCache.has(venue.placeId)) {

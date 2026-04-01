@@ -1,6 +1,6 @@
 import { Eye, Navigation, ChevronUp, Droplets, TreePine, Sun } from 'lucide-react';
 import { getBackground, transformWeatherForDisplay } from '@utils/weatherUtils';
-import { useWeatherContext } from '@contexts/WeatherContext';
+import useWeatherContext from '@hooks/useWeatherContext';
 import useRainLikelihood from '@hooks/useRainLikelihood';
 import useAirQuality from '@hooks/useAirQuality';
 import './WeatherScreen.css';

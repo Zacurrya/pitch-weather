@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext } from 'react';
 import { useWeather } from '@hooks/useWeather';
 
 /**
@@ -15,18 +15,6 @@ export const WeatherProvider = ({ children }) => {
             {children}
         </WeatherContext.Provider>
     );
-};
-
-/**
- * Hook to consume weather data from the nearest WeatherProvider.
- * @returns {{ location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, error, refreshWeather }}
- */
-export const useWeatherContext = () => {
-    const ctx = useContext(WeatherContext);
-    if (!ctx) {
-        throw new Error('useWeatherContext must be used within a WeatherProvider');
-    }
-    return ctx;
 };
 
 export default WeatherContext;

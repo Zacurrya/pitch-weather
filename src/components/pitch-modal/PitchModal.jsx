@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { getDistanceKm, getWalkingMinutes, getDrivingMinutes, getBusMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
-import { conditionColor, conditionLabel, pitchVerdict } from '@utils/conditionUtils';
+import { conditionColor, pitchVerdict } from '@utils/conditionUtils';
 import usePlaceDetails from '@hooks/usePlaceDetails';
 import usePitchCondition from '@hooks/usePitchCondition';
 

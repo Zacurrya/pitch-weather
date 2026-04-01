@@ -1,6 +1,3 @@
-export { fetchWeatherByCoords, fetchPastWeather } from '@services/weatherService';
-export { getUserLocation } from '@services/locationService';
-
 /* -------- Icon / Background helpers -------- */
 
 
@@ -396,8 +393,7 @@ export const injectSunEvents = (hourlyItems, sunrises = [], sunsets = []) => {
                 iconClass: getSunIconClass(event.type, cond),
                 temp: prevItem.temp,
                 isSunEvent: true,
-                type: event.type,
-                time_iso: event.time // for consistent sorting/comparison
+                type: event.type
             });
         }
     });

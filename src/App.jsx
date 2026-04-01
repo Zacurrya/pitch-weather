@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { WeatherProvider, useWeatherContext } from './contexts/WeatherContext';
+import { WeatherProvider } from './contexts/WeatherContext';
+import useWeatherContext from '@hooks/useWeatherContext';
 import WeatherScreen from '@screens/weather/WeatherScreen';
 import SearchScreen from '@screens/search/SearchScreen';
 import './App.css';

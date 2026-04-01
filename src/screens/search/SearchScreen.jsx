@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import MapView from '@components/screens/search/MapView';
-import WeatherBar from '@components/screens/search/WeatherBar';
-import SearchBar from '@components/screens/search/SearchBar';
+import MapView from './components/MapView';
+import WeatherBar from './components/WeatherBar';
+import SearchBar from './components/SearchBar';
 import PitchModal from '@components/pitch-modal/PitchModal';
-import SearchAreaButton from '@components/screens/search/SearchAreaButton';
-import LocateUserButton from '@components/screens/search/LocateUserButton';
-import { useWeatherContext } from '@contexts/WeatherContext';
+import SearchAreaButton from './components/SearchAreaButton';
+import LocateUserButton from './components/LocateUserButton';
+import useWeatherContext from '@hooks/useWeatherContext';
 import usePitches from '@hooks/usePitches';
 import useTextSearch from '@hooks/useTextSearch';
 import useMapWeatherSync from '@hooks/useMapWeatherSync';
@@ -26,12 +26,7 @@ const SearchScreen = ({ onOpenWeather }) => {
   // A ref rather than state so toggling it does not trigger a re-render or cause
   const initialSearchDone = useRef(false);
 
-  // Set initial map center from user location (once)
-  useEffect(() => {
-    if (location && !mapCenter) {
-      setMapCenter({ lat: location.lat, lng: location.lng });
-    }
-  }, [location, mapCenter]);
+  const resolvedMapCenter = mapCenter || (location ? { lat: location.lat, lng: location.lng } : null);
 
   // Debounced weather refresh when map pans
   useMapWeatherSync(visibleCenter, refreshWeather);
@@ -111,7 +106,7 @@ const SearchScreen = ({ onOpenWeather }) => {
 
       {/* Map */}
       <MapView
-        center={mapCenter}
+        center={resolvedMapCenter}
         userLocation={location}
         venues={venues}
         selectedVenue={selectedVenue}

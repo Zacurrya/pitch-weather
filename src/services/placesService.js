@@ -5,7 +5,7 @@
 
 /**
  * Search for nearby sports pitches using the Google Maps Places API.
- * Runs multiple keyword permutations per sport to maximise results
+ * Runs multiple keyword permutations to maximise results
  * (the API hard-caps each nearbySearch call at 20 results).
  * Returns a flat, deduplicated array of venue objects.
  *

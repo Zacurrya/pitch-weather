@@ -10,7 +10,7 @@ Built with **React + Vite**, **Google Maps JavaScript API**, **OpenWeatherMap**,
 
 Before running the app, you will need:
 
-- **Node.js** (v18 or later) - download from [nodejs.org](https://nodejs.org)
+- **Node.js** (v20 or later) - download from [nodejs.org](https://nodejs.org)
 - An **OpenWeatherMap API key** - register for free at [openweathermap.org](https://openweathermap.org/api)
 - A **Google Maps JavaScript API key** with the **Places library** enabled - create one at [console.cloud.google.com](https://console.cloud.google.com)
 
@@ -57,17 +57,17 @@ The app will ask for your location on load. If you deny permission or location i
 
 ## Features
 
-| Feature | Description |
-|---|---|
+| Feature                     | Description                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Weather Dashboard** | Full-screen weather view with condition-matched backgrounds, air quality, UV index, humidity, visibility, wind compass, and live forecast rain likelihood |
-| **Map-Aware Weather** | Weather data updates dynamically when panning the map, using ~1km coordinate bucketing for instant cache hits |
-| **Hourly Strip** | 5-slot weather bar showing past to future conditions using Open-Meteo history and OWM forecast |
-| **Pitch Finder** | Google Maps with sport-icon markers (football / cricket). Search expands into a filterable list sorted by distance |
-| **Search This Area** | Zoom-aware search button - radius scales with map zoom level |
-| **Pitch Details** | Bottom-sheet with opening hours, photos, walking distance, website, and Google Maps directions |
-| **Photo Gallery** | Full-screen lightbox with pre-cached images and navigation |
-| **Pitch Conditions** | Per-pitch wetness and muddiness algorithm (see below) |
-| **Locate Me** | One-tap snap-to-location button |
+| **Map-Aware Weather** | Weather data updates dynamically when panning the map, using ~1km coordinate bucketing for instant cache hits                                             |
+| **Hourly Strip**      | 5-slot weather bar showing past to future conditions using Open-Meteo history and OWM forecast                                                            |
+| **Pitch Finder**      | Google Maps with sport-icon markers (football / cricket). Search expands into a filterable list sorted by distance                                        |
+| **Search This Area**  | Zoom-aware search button - radius scales with map zoom level                                                                                              |
+| **Pitch Details**     | Bottom-sheet with opening hours, photos, walking distance, website, and Google Maps directions                                                            |
+| **Photo Gallery**     | Full-screen lightbox with pre-cached images and navigation                                                                                                |
+| **Pitch Conditions**  | Per-pitch wetness and muddiness algorithm (see below)                                                                                                     |
+| **Locate Me**         | One-tap snap-to-location button                                                                                                                           |
 
 ---
 
@@ -77,31 +77,31 @@ When you tap a pitch, the app fetches **48 hours of hourly weather history speci
 
 ### Wetness (how likely the surface is wet)
 
-| Factor | Weight | How it's calculated |
-|---|---|---|
-| Currently raining | 40% | `1.0` if the OWM condition is rain/drizzle/thunderstorm, else `0` |
-| Recent rainfall | 35% | Total precipitation (mm) over 48h, capped at 15mm, linear 0-1 |
-| Humidity | 15% | Current humidity mapped from 50-100% to linear 0-1 |
-| Time since last rain | 10% | Hours since the most recent rainy hour, inverted over a 12h drying window |
+| Factor               | Weight | How it's calculated                                                       |
+| -------------------- | ------ | ------------------------------------------------------------------------- |
+| Currently raining    | 40%    | `1.0` if the OWM condition is rain/drizzle/thunderstorm, else `0`     |
+| Recent rainfall      | 35%    | Total precipitation (mm) over 48h, capped at 15mm, linear 0-1             |
+| Humidity             | 15%    | Current humidity mapped from 50-100% to linear 0-1                        |
+| Time since last rain | 10%    | Hours since the most recent rainy hour, inverted over a 12h drying window |
 
 ### Muddiness (how likely the ground is soft/muddy)
 
-| Factor | Weight | How it's calculated |
-|---|---|---|
-| 48h rainfall total | 45% | Total precipitation capped at 20mm, linear 0-1 |
-| Sustained rain hours | 25% | Count of rainy hours divided by total hours in the window |
-| Temperature effect | 15% | Colder temps slow evaporation: mapped from 15C to 0C, linear 0-1 |
-| Humidity | 15% | Same as wetness humidity factor |
+| Factor               | Weight | How it's calculated                                              |
+| -------------------- | ------ | ---------------------------------------------------------------- |
+| 48h rainfall total   | 45%    | Total precipitation capped at 20mm, linear 0-1                   |
+| Sustained rain hours | 25%    | Count of rainy hours divided by total hours in the window        |
+| Temperature effect   | 15%    | Colder temps slow evaporation: mapped from 15C to 0C, linear 0-1 |
+| Humidity             | 15%    | Same as wetness humidity factor                                  |
 
 ### Human-readable labels
 
-| Percentage | Wetness Label | Muddiness Label |
-|---|---|---|
-| 0-14% | Bone Dry | Firm Ground |
-| 15-29% | Probably Fine | Probably Fine |
-| 30-49% | Possibly Damp | Possibly Muddy |
-| 50-69% | Likely Wet | Likely Muddy |
-| 70-100% | Definitely Wet | Definitely Muddy |
+| Percentage | Wetness Label  | Muddiness Label  |
+| ---------- | -------------- | ---------------- |
+| 0-14%      | Bone Dry       | Firm Ground      |
+| 15-29%     | Probably Fine  | Probably Fine    |
+| 30-49%     | Possibly Damp  | Possibly Muddy   |
+| 50-69%     | Likely Wet     | Likely Muddy     |
+| 70-100%    | Definitely Wet | Definitely Muddy |
 
 Results are cached by place ID so re-opening a pitch you have already viewed is instant with no re-fetch.
 
@@ -109,7 +109,7 @@ Results are cached by place ID so re-opening a pitch you have already viewed is 
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_OPENWEATHER_API_KEY` | Yes | OpenWeatherMap API key |
-| `VITE_GOOGLE_MAPS_API_KEY` | Yes | Google Maps JavaScript API key (Places library must be enabled) |
+| Variable                     | Required | Description                                                     |
+| ---------------------------- | -------- | --------------------------------------------------------------- |
+| `VITE_OPENWEATHER_API_KEY` | Yes      | OpenWeatherMap API key                                          |
+| `VITE_GOOGLE_MAPS_API_KEY` | Yes      | Google Maps JavaScript API key (Places library must be enabled) |
