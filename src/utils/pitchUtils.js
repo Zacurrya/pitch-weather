@@ -11,6 +11,9 @@ export const getDistanceKm = (lat1, lng1, lat2, lng2) => {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
+// Format a distance in km to a human-readable string.
+export const formatDistance = (km) => (km < 1 ? `${Math.round(km * 1000)}m` : `${km.toFixed(1)}km`);
+
 // Estimate walking time in minutes (approx. 5 km/h).
 export const getWalkingMinutes = (distanceKm) => Math.round((distanceKm / 5) * 60);
 

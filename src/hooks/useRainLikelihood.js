@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { isRainyCondition } from '@utils/conditionUtils';
 
 /**
 Derive rain likelihood from current weather conditions and forecast data.
@@ -11,8 +12,7 @@ const useRainLikelihood = (weatherData, forecastData) => {
     return useMemo(() => {
         if (!weatherData) return { isRaining: false, rainPct: null, rainLabel: null };
 
-        const condition = weatherData.weather?.[0]?.main?.toLowerCase() || '';
-        const isRaining = ['rain', 'drizzle', 'thunderstorm'].some((c) => condition.includes(c));
+        const isRaining = isRainyCondition(weatherData.weather?.[0]?.main);
 
         const pop = forecastData?.list?.[0]?.pop; // 0-1
         const rainPct = pop != null ? Math.round(pop * 100) : null;

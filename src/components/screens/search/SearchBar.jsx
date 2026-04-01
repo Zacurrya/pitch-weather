@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Search, X, CheckCircle, Clock, Loader } from 'lucide-react';
-import { getDistanceKm, getVenueSportIcon, SPORT_FILTERS } from '@utils/pitchUtils';
+import { getDistanceKm, getVenueSportIcon, SPORT_FILTERS, formatDistance } from '@utils/pitchUtils';
 import './SearchBar.css';
 
 const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], userLocation, onVenueSelect, searchResults = null, searchLoading = false }) => {
@@ -55,8 +55,6 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
 
         return result;
     }, [searchResults, venues, activeFilters, openOnly, userLocation]);
-
-    const formatDistance = (km) => (km < 1 ? `${Math.round(km * 1000)}m` : `${km.toFixed(1)}km`);
 
     return (
         <>

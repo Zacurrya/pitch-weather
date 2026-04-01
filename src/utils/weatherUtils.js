@@ -1,6 +1,3 @@
-export { fetchWeatherByCoords, fetchPastWeather } from '@services/weatherService';
-export { getUserLocation } from '@services/locationService';
-
 /* -------- Icon / Background helpers -------- */
 
 

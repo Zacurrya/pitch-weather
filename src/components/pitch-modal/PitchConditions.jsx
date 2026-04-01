@@ -1,9 +1,8 @@
 import { Droplets, Footprints, Gauge, Gamepad2, Wind, Orbit } from 'lucide-react';
-import { conditionLabel } from '@utils/conditionUtils';
+import { conditionLabel, clamp01 } from '@utils/conditionUtils';
 import './PitchConditions.css';
 
 const clampPercent = (value) => Math.max(0, Math.min(100, Math.round(value)));
-const clamp01 = (value) => Math.max(0, Math.min(1, value));
 
 const metricComment = (value, higherIsBetter) => {
     if (value == null) return 'No data';
