@@ -8,7 +8,7 @@ Displays one photo at a time with prev/next navigation and a dot indicator.
 
 @param props { photos, alt, title, onClose }
 */
-const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
+export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClose }) {
     const [index, setIndex] = useState(0);
 
     if (photos.length === 0) return null;
@@ -93,5 +93,3 @@ const PhotoGallery = ({ photos = [], alt = 'Photo', title, onClose }) => {
         </div>
     );
 };
-
-export default PhotoGallery;

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import MapView from '@components/screens/search/MapView';
 import WeatherBar from '@components/screens/search/WeatherBar';
 import SearchBar from '@components/screens/search/SearchBar';
-import PitchModal from '@components/screens/search/PitchModal';
+import PitchModal from '@components/pitch-modal/PitchModal';
 import SearchAreaButton from '@components/screens/search/SearchAreaButton';
 import LocateUserButton from '@components/screens/search/LocateUserButton';
 import { useWeatherContext } from '@contexts/WeatherContext';

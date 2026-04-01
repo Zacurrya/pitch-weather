@@ -1,0 +1,74 @@
+.pitch-modal__header {
+  margin-bottom: calc(var(--spacing) * 3);
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  display: flex;
+}
+
+.pitch-modal__sport-icon {
+  height: calc(var(--spacing) * 10);
+  width: calc(var(--spacing) * 10);
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pitch-modal__name-wrap {
+  min-width: calc(var(--spacing) * 0);
+  flex: 1;
+}
+
+.pitch-modal__name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+  overflow: hidden;
+}
+
+.pitch-modal__link {
+  align-items: center;
+  gap: calc(var(--spacing) * .5);
+  flex-direction: column;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.pitch-modal__link:active {
+  opacity: .7;
+}
+
+.pitch-modal__link-icon {
+  height: calc(var(--spacing) * 6);
+  width: calc(var(--spacing) * 6);
+  color: var(--color-black);
+}
+
+.pitch-modal__link-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-black);
+  font-size: 0.7rem;
+}
+
+.pitch-modal__directions-circle {
+  height: calc(var(--spacing) * 6);
+  width: calc(var(--spacing) * 6);
+  border-radius: 9999px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background: #1a73e8;
+}
+
+.pitch-modal__directions-arrow {
+  height: calc(var(--spacing) * 3.5);
+  width: calc(var(--spacing) * 3.5);
+  color: var(--color-white);
+}
+
+.pitch-modal__directions-label {
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.7rem;
+  color: #1a73e8;
+}

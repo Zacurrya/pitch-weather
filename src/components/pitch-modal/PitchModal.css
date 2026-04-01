@@ -1,0 +1,29 @@
+/* PitchModal - wrapper and backdrop */
+
+.pitch-modal__backdrop {
+  inset: calc(var(--spacing) * 0);
+  z-index: 20;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.pitch-modal__sheet-wrapper {
+  right: calc(var(--spacing) * 0);
+  bottom: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  z-index: 30;
+  position: absolute;
+  animation: slideUp 0.4s ease-out;
+}
+
+.pitch-modal__sheet {
+  border-top-left-radius: var(--radius-3xl);
+  border-top-right-radius: var(--radius-3xl);
+  background-color: var(--color-white);
+  padding-inline: calc(var(--spacing) * 5);
+  padding-top: calc(var(--spacing) * 5);
+  padding-bottom: calc(var(--spacing) * 6);
+  overflow-y: auto;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
+  max-height: 65dvh;
+}

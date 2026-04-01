@@ -1,0 +1,47 @@
+.pitch-modal__forecast {
+  margin-bottom: calc(var(--spacing) * 3);
+  gap: calc(var(--spacing) * 1.5);
+  display: flex;
+}
+
+.pitch-modal__forecast-item {
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  border-radius: var(--radius-2xl);
+  border-style: solid;
+  padding-block: calc(var(--spacing) * 2);
+  border-width: 1px;
+  flex-direction: column;
+  flex: 1;
+  display: flex;
+  background: rgb(56 189 248 / 0.08);
+  border-color: rgb(186 230 253 / 1);
+}
+
+.pitch-modal__forecast-time {
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.65rem;
+  color: rgb(0 0 0 / 0.5);
+}
+
+.pitch-modal__forecast-icon {
+  font-size: 1.15rem;
+  color: var(--color-black);
+  margin-block: calc(var(--spacing) * 1);
+}
+
+.pitch-modal__forecast-temp {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-black);
+}
+
+.pitch-modal__forecast-item--sun {
+  background: rgb(251 191 36 / 0.15);
+  border-color: rgb(251 191 36 / 0.4);
+}
+
+.pitch-modal__forecast-item--sun .pitch-modal__forecast-temp {
+  color: #b45309;
+}
