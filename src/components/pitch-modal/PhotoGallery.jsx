@@ -30,6 +30,7 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
             <button
                 onClick={onClose}
                 className="gallery__close"
+                aria-label="Close photo gallery"
             >
                 <X className="gallery__close-icon" strokeWidth={2.5} />
             </button>
@@ -43,6 +44,7 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
                     <button
                         onClick={prev}
                         className="gallery__arrow gallery__arrow--prev"
+                        aria-label="Previous photo"
                     >
                         <ChevronLeft className="gallery__arrow-icon" strokeWidth={2.5} />
                     </button>
@@ -63,6 +65,7 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
                     <button
                         onClick={next}
                         className="gallery__arrow gallery__arrow--next"
+                        aria-label="Next photo"
                     >
                         <ChevronRight className="gallery__arrow-icon" strokeWidth={2.5} />
                     </button>
@@ -77,6 +80,8 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
                             key={i}
                             onClick={() => setIndex(i)}
                             className={`gallery__dot ${i === index ? 'gallery__dot--active' : ''}`}
+                            aria-label={`Go to photo ${i + 1}`}
+                            aria-current={i === index ? 'true' : undefined}
                         />
                     ))}
                 </div>

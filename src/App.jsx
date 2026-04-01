@@ -5,7 +5,7 @@ import SearchScreen from '@screens/search/SearchScreen';
 import './App.css';
 
 const AppContent = () => {
-    const { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, error, refreshWeather } = useWeatherContext();
+    const { location, weatherData, loading, error } = useWeatherContext();
     const [showMap, setShowMap] = useState(false);
 
     if (loading) {
@@ -31,28 +31,21 @@ const AppContent = () => {
     }
 
     return (
-        <>
-            <head>
-                <title>Pitch Weather</title>
-                <meta name="description" content="Pitch Weather" />
-                <link rel="icon" type="image/png" href="/weather_icons/SunnyCloudy.svg" />
-            </head>
-            <div className="app__shell">
-                {/* Map layer (bottom) - always mounted */}
-                <div className="app__map-layer">
-                    <SearchScreen
-                        onOpenWeather={() => setShowMap(false)}
-                    />
-                </div>
-
-                {/* Weather Screen layer (top), slides UP to reveal map */}
-                <div
-                    className={`app__weather-layer ${showMap ? 'app__weather-layer--hidden' : ''}`}
-                >
-                    <WeatherScreen onOpenMap={() => setShowMap(true)} />
-                </div>
+        <div className="app__shell">
+            {/* Map layer */}
+            <div className="app__map-layer">
+                <SearchScreen
+                    onOpenWeather={() => setShowMap(false)}
+                />
             </div>
-        </>
+
+            {/* Weather screen layer */}
+            <div
+                className={`app__weather-layer ${showMap ? 'app__weather-layer--hidden' : ''}`}
+            >
+                <WeatherScreen onOpenMap={() => setShowMap(true)} />
+            </div>
+        </div>
     );
 };
 

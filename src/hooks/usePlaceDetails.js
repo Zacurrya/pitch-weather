@@ -9,17 +9,32 @@ import { getPlaceDetails } from '@services/placesService';
  * @returns {object | null} Place details or null while loading
  */
 const usePlaceDetails = (map, placeId) => {
-    const [details, setDetails] = useState(null);
+    const [detailsState, setDetailsState] = useState({ placeId: null, data: null });
 
     useEffect(() => {
-        if (!placeId || !map) return;
+        if (!placeId || !map) return undefined;
 
-        getPlaceDetails(map, placeId).then(setDetails);
+        let isActive = true;
 
-        return () => setDetails(null);
+        getPlaceDetails(map, placeId)
+            .then((nextDetails) => {
+                if (isActive) {
+                    setDetailsState({ placeId, data: nextDetails });
+                }
+            })
+            .catch(() => {
+                if (isActive) {
+                    setDetailsState({ placeId, data: null });
+                }
+            });
+
+        return () => {
+            isActive = false;
+        };
     }, [placeId, map]);
 
-    return details;
+    if (!placeId || detailsState.placeId !== placeId) return null;
+    return detailsState.data;
 };
 
 export default usePlaceDetails;

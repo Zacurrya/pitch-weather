@@ -12,8 +12,8 @@ const containerStyle = {
 // Defined outside the component so the array reference is stable across renders.
 const LIBRARIES = ['places'];
 
-const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, oncenterChanged, selectedVenueVerticalOffsetPx = 200 }) => {
-    const lastReportedcenter = useRef(null);
+const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged, selectedVenueVerticalOffsetPx = 200 }) => {
+    const lastReportedCenter = useRef(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -68,8 +68,8 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
             onUnmount={onUnmount}
             options={defaultOptions}
             onIdle={() => {
-                if (!map || !oncenterChanged) return;
-                const c = map.getcenter();
+                if (!map || !onCenterChanged) return;
+                const c = map.getCenter();
                 const bounds = map.getBounds();
                 if (!bounds) return;
 
@@ -81,11 +81,11 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
                 const visibleRadius = Math.sqrt(dLat * dLat + dLng * dLng);
 
                 const pos = { lat: c.lat(), lng: c.lng(), visibleRadius };
-                const last = lastReportedcenter.current;
+                const last = lastReportedCenter.current;
                 // Suppress updates for sub-~55m movements to avoid triggering callbacks on floating-point drift.
                 if (last && Math.abs(last.lat - pos.lat) < 0.0005 && Math.abs(last.lng - pos.lng) < 0.0005) return;
-                lastReportedcenter.current = pos;
-                oncenterChanged(pos);
+                lastReportedCenter.current = pos;
+                onCenterChanged(pos);
             }}
         >
             {/* User location marker */}

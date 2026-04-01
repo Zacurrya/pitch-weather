@@ -38,15 +38,15 @@ const usePitches = (map) => {
     const searchArea = useCallback(async (center, radius = 3000) => {
         if (!map || !center) return;
 
-        // Record this circle immediately so the button hides
-        setSearchedCircles((prev) => [
-            ...prev,
-            { lat: center.lat, lng: center.lng, radius },
-        ]);
-
         setLoading(true);
         try {
             const raw = await searchNearbyPitches(map, center, radius);
+
+            // Record only successful searches as covered.
+            setSearchedCircles((prev) => [
+                ...prev,
+                { lat: center.lat, lng: center.lng, radius },
+            ]);
 
             // Only get new venues
             const fresh = raw.filter((v) => !knownIdsRef.current.has(v.placeId));

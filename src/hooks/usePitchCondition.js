@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { fetchPastWeather } from '@services/weatherService';
 import { calcPitchCondition } from '@utils/conditionUtils';
 
-// Module-level cache: placeId -> { wetness, muddiness, futureHourly }
-const conditionCache = new Map();
+// Module-level cache for API-heavy location weather data.
+const placeWeatherCache = new Map();
+const CACHE_TTL_MS = 15 * 60 * 1000;
 
 /**
  * Fetch and calculate pitch surface conditions for a given venue.
@@ -14,43 +15,80 @@ const conditionCache = new Map();
  * @returns {{ condition: { wetness, muddiness } | null, futureHourly: Array }}
  */
 const usePitchCondition = (venue, weatherData) => {
-    const [condition, setCondition] = useState(null);
-    const [futureHourly, setFutureHourly] = useState([]);
-    const [sunrise, setSunrise] = useState(null);
-    const [sunset, setSunset] = useState(null);
+    const [conditionState, setConditionState] = useState({
+        placeId: null,
+        condition: null,
+        futureHourly: [],
+        sunrise: null,
+        sunset: null,
+    });
 
     useEffect(() => {
-        if (!venue?.placeId) return;
+        if (!venue?.placeId) return undefined;
 
-        const getCondition = async () => {
-            // Return cached result immediately if available
-            if (conditionCache.has(venue.placeId)) {
-                return conditionCache.get(venue.placeId);
-            }
+        let isActive = true;
 
-            // Fetch weather specific to this pitch's location
-            const { totalRainMm, pastHourly, futureHourly: fh, sunrise: sr, sunset: ss } = await fetchPastWeather(venue.lat, venue.lng);
-            const result = calcPitchCondition(weatherData, totalRainMm, pastHourly);
-            conditionCache.set(venue.placeId, { ...result, futureHourly: fh, sunrise: sr, sunset: ss });
-            return conditionCache.get(venue.placeId);
+        const getOrFetchPlaceWeather = async () => {
+            const cached = placeWeatherCache.get(venue.placeId);
+            const isFresh = cached && (Date.now() - cached.fetchedAt < CACHE_TTL_MS);
+            if (isFresh) return cached;
+
+            const fetched = await fetchPastWeather(venue.lat, venue.lng);
+            const entry = {
+                totalRainMm: fetched.totalRainMm,
+                pastHourly: fetched.pastHourly,
+                futureHourly: fetched.futureHourly,
+                sunrise: fetched.sunrise,
+                sunset: fetched.sunset,
+                fetchedAt: Date.now(),
+            };
+            placeWeatherCache.set(venue.placeId, entry);
+            return entry;
         };
 
-        getCondition().then((cached) => {
-            setCondition(cached);
-            setFutureHourly(cached?.futureHourly ?? []);
-            setSunrise(cached?.sunrise ?? null);
-            setSunset(cached?.sunset ?? null);
-        });
+        getOrFetchPlaceWeather()
+            .then((entry) => {
+                if (!isActive) return;
+
+                const computed = calcPitchCondition(
+                    weatherData,
+                    entry?.totalRainMm ?? 0,
+                    entry?.pastHourly ?? [],
+                );
+                setConditionState({
+                    placeId: venue.placeId,
+                    condition: computed,
+                    futureHourly: entry?.futureHourly ?? [],
+                    sunrise: entry?.sunrise ?? null,
+                    sunset: entry?.sunset ?? null,
+                });
+            })
+            .catch(() => {
+                if (!isActive) return;
+                setConditionState({
+                    placeId: venue.placeId,
+                    condition: null,
+                    futureHourly: [],
+                    sunrise: null,
+                    sunset: null,
+                });
+            });
 
         return () => {
-            setCondition(null);
-            setFutureHourly([]);
-            setSunrise(null);
-            setSunset(null);
+            isActive = false;
         };
     }, [venue?.placeId, venue?.lat, venue?.lng, weatherData]);
 
-    return { condition, futureHourly, sunrise, sunset };
+    if (!venue?.placeId || conditionState.placeId !== venue.placeId) {
+        return { condition: null, futureHourly: [], sunrise: null, sunset: null };
+    }
+
+    return {
+        condition: conditionState.condition,
+        futureHourly: conditionState.futureHourly,
+        sunrise: conditionState.sunrise,
+        sunset: conditionState.sunset,
+    };
 };
 
 export default usePitchCondition;

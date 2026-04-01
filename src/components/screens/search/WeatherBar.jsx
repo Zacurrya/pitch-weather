@@ -10,15 +10,12 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, sunrise, sunset, on
         <div
             className={`weather-bar ${hidden ? 'weather-bar--hidden' : ''}`}
         >
-            {items.map((item, idx) => {
+            {items.map((item, itemIndex) => {
                 const isMid = item.isCurrent;
                 const isSun = item.isSunEvent;
-                return (
-                    <button
-                        key={idx}
-                        onClick={isMid ? onCurrentClick : undefined}
-                        className={`weather-bar__item ${isMid ? 'weather-bar__item--current' : ''} ${isSun ? 'weather-bar__item--sun' : ''}`}
-                    >
+                const itemClassName = `weather-bar__item ${isMid ? 'weather-bar__item--current' : ''} ${isSun ? 'weather-bar__item--sun' : ''}`;
+                const content = (
+                    <>
                         {/* Time */}
                         <span className={`weather-bar__time ${isMid ? 'weather-bar__time--current' : ''}`}>
                             {item.time}
@@ -36,6 +33,26 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, sunrise, sunset, on
                         <span className={`weather-bar__temp ${isMid ? 'weather-bar__temp--current' : ''} ${isSun ? 'weather-bar__temp--sun' : ''}`}>
                             {isSun ? (item.type === 'sunrise' ? 'Rise' : 'Set') : `${item.temp}°C`}
                         </span>
+                    </>
+                );
+
+                if (!isMid) {
+                    return (
+                        <div key={itemIndex} className={itemClassName}>
+                            {content}
+                        </div>
+                    );
+                }
+
+                return (
+                    <button
+                        key={itemIndex}
+                        type="button"
+                        onClick={onCurrentClick}
+                        className={itemClassName}
+                        aria-label="Open current weather details"
+                    >
+                        {content}
                     </button>
                 );
             })}

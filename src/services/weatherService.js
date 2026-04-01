@@ -82,7 +82,7 @@ export const fetchWeatherByCoords = async (lat, lng) => {
  */
 export const fetchPastWeather = async (lat, lng) => {
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,sunrise,sunset&hourly=temperature_2m,weather_code&past_days=2&forecast_days=2&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,sunrise,sunset&hourly=temperature_2m,weather_code&past_days=2&forecast_days=2&timezone=auto&timeformat=unixtime`;
         const res = await fetch(url);
         if (!res.ok) return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrise: null, sunset: null };
 
@@ -98,23 +98,62 @@ export const fetchPastWeather = async (lat, lng) => {
         const temps = data.hourly?.temperature_2m || [];
         const codes = data.hourly?.weather_code || [];
 
-        const allHourly = times.map((time, hourIndex) => ({
-            time,
-            temp: temps[hourIndex],
-            weather_code: codes[hourIndex],
-        }));
+        const allHourly = times
+            .map((time, hourIndex) => {
+                const unixSeconds = Number(time);
+                if (!Number.isFinite(unixSeconds)) return null;
+                const timestamp = unixSeconds * 1000;
+                return {
+                    time: new Date(timestamp).toISOString(),
+                    timestamp,
+                    temp: temps[hourIndex],
+                    weather_code: codes[hourIndex],
+                };
+            })
+            .filter(Boolean);
 
-        const nowIso = new Date().toISOString().slice(0, 16);
-        const pastHourly = allHourly.filter((h) => h.time < nowIso);
+        const nowMs = Date.now();
+        const pastHourly = allHourly
+            .filter((h) => h.timestamp < nowMs)
+            .map((h) => ({
+                time: h.time,
+                temp: h.temp,
+                weather_code: h.weather_code,
+            }));
         // We want at least 12 hours of future data to be safe for 6h display + any sun event insertions
-        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 12);
+        const futureHourly = allHourly
+            .filter((h) => h.timestamp >= nowMs)
+            .slice(0, 12)
+            .map((h) => ({
+                time: h.time,
+                temp: h.temp,
+                weather_code: h.weather_code,
+            }));
 
-        // The 'daily' array will have 4 entries (2 past days, 1 current, 1 forecast day)
-        // We want the current day's sunrise/sunset.
-        // Usually index 2 is the current day if we have past_days=2.
-        const currentDayIndex = 2;
-        const sunrise = data.daily?.sunrise?.[currentDayIndex] || null;
-        const sunset = data.daily?.sunset?.[currentDayIndex] || null;
+        const dailyTimes = data.daily?.time || [];
+        const offsetSeconds = data.utc_offset_seconds ?? 0;
+        const dayBucket = (unixSeconds) => Math.floor((unixSeconds + offsetSeconds) / 86400);
+        const nowBucket = dayBucket(Math.floor(nowMs / 1000));
+        const matchingIndex = dailyTimes.findIndex((t) => dayBucket(Number(t)) === nowBucket);
+        const fallbackIndex = dailyTimes.length
+            ? dailyTimes.reduce((bestIdx, t, idx) => {
+                const bestUnix = Number(dailyTimes[bestIdx]);
+                const unix = Number(t);
+                if (!Number.isFinite(unix)) return bestIdx;
+                if (!Number.isFinite(bestUnix)) return idx;
+                const bestDelta = Math.abs((bestUnix * 1000) - nowMs);
+                const delta = Math.abs((unix * 1000) - nowMs);
+                return delta < bestDelta ? idx : bestIdx;
+            }, 0)
+            : -1;
+        const currentDayIndex = matchingIndex !== -1 ? matchingIndex : fallbackIndex;
+
+        const toIsoOrNull = (unixSeconds) => {
+            const n = Number(unixSeconds);
+            return Number.isFinite(n) ? new Date(n * 1000).toISOString() : null;
+        };
+        const sunrise = currentDayIndex >= 0 ? toIsoOrNull(data.daily?.sunrise?.[currentDayIndex]) : null;
+        const sunset = currentDayIndex >= 0 ? toIsoOrNull(data.daily?.sunset?.[currentDayIndex]) : null;
 
         return { totalRainMm, pastHourly, futureHourly, sunrise, sunset };
     } catch (e) {
