@@ -108,9 +108,7 @@ export const searchPitchesByText = (map, query, location) => {
     });
 };
 
-/**
- * Fetch detailed Place info (website, formatted phone, opening hours).
- */
+// Fetch detailed place info (website, formatted phone, opening hours).
 export const getPlaceDetails = (map, placeId) =>
     new Promise((resolve) => {
         const service = new window.google.maps.places.PlacesService(map);

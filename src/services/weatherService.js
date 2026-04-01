@@ -82,7 +82,7 @@ export const fetchWeatherByCoords = async (lat, lng) => {
  */
 export const fetchPastWeather = async (lat, lng) => {
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,sunrise,sunset&hourly=temperature_2m,weather_code&past_days=2&forecast_days=2&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,sunrise,sunset&hourly=temperature_2m,weather_code&past_days=2&forecast_days=2&timezone=auto&timeformat=unixtime`;
         const res = await fetch(url);
         if (!res.ok) return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrises: [], sunsets: [] };
 

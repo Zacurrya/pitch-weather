@@ -1,5 +1,3 @@
-/* App - top-level layout and loading/error states */
-
 .app__loading {
   background-color: var(--color-gray-900);
   justify-content: center;

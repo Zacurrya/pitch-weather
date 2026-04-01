@@ -1,5 +1,3 @@
-/* WeatherBar - horizontal hourly strip at top of map */
-
 .weather-bar {
   top: calc(var(--spacing) * 1.5);
   right: 0;
@@ -99,14 +97,4 @@
 
 .weather-bar__item--sunrise .weather-bar__temp {
   color: #b45309;
-}
-
-.weather-bar__item--sunset {
-  opacity: 1;
-  background: #fff5f2;
-  border-color: #feb2b2;
-}
-
-.weather-bar__item--sunset .weather-bar__temp {
-  color: #c53030;
 }

@@ -1,36 +1,93 @@
 /* Shared condition, verdict, AQI and UV colour classes */
 
-/* Condition bar fills */
-.condition-bar--green { background-color: var(--color-green-500); }
-.condition-bar--amber { background-color: var(--color-amber-400); }
-.condition-bar--red   { background-color: var(--color-red-500); }
+.condition-bar--green {
+    background-color: var(--color-green-500);
+}
 
-/* Condition text labels */
-.condition-text--green { color: var(--color-green-600); }
-.condition-text--amber { color: var(--color-amber-600); }
-.condition-text--red   { color: var(--color-red-600); }
+.condition-bar--amber {
+    background-color: var(--color-amber-400);
+}
 
-/* Pitch verdict backgrounds */
-.verdict-bg--green { background-color: var(--color-green-100); }
-.verdict-bg--amber { background-color: var(--color-amber-100); }
-.verdict-bg--red   { background-color: var(--color-red-100); }
+.condition-bar--red {
+    background-color: var(--color-red-500);
+}
 
-/* Pitch verdict text */
-.verdict-text--green { color: var(--color-green-700); }
-.verdict-text--amber { color: var(--color-amber-700); }
-.verdict-text--red   { color: var(--color-red-700); }
+.condition-text--green {
+    color: var(--color-green-600);
+}
 
-/* AQI colours */
-.aqi--good      { color: var(--color-green-600); }
-.aqi--fair      { color: var(--color-lime-600); }
-.aqi--moderate  { color: var(--color-amber-600); }
-.aqi--poor      { color: var(--color-orange-600); }
-.aqi--very-poor { color: var(--color-red-600); }
+.condition-text--amber {
+    color: var(--color-amber-600);
+}
 
-/* UV colours */
-.uv--low       { color: var(--color-green-600); }
-.uv--moderate  { color: var(--color-amber-600); }
-.uv--high      { color: var(--color-orange-600); }
-.uv--very-high { color: var(--color-red-600); }
-.uv--extreme   { color: var(--color-purple-600); }
-.uv--default   { color: var(--color-gray-500); }
+.condition-text--red {
+    color: var(--color-red-600);
+}
+
+.verdict-bg--green {
+    background-color: var(--color-green-100);
+}
+
+.verdict-bg--amber {
+    background-color: var(--color-amber-100);
+}
+
+.verdict-bg--red {
+    background-color: var(--color-red-100);
+}
+
+.verdict-text--green {
+    color: var(--color-green-700);
+}
+
+.verdict-text--amber {
+    color: var(--color-amber-700);
+}
+
+.verdict-text--red {
+    color: var(--color-red-700);
+}
+
+.aqi--good {
+    color: var(--color-green-600);
+}
+
+.aqi--fair {
+    color: var(--color-lime-600);
+}
+
+.aqi--moderate {
+    color: var(--color-amber-600);
+}
+
+.aqi--poor {
+    color: var(--color-orange-600);
+}
+
+.aqi--very-poor {
+    color: var(--color-red-600);
+}
+
+.uv--low {
+    color: var(--color-green-600);
+}
+
+.uv--moderate {
+    color: var(--color-amber-600);
+}
+
+.uv--high {
+    color: var(--color-orange-600);
+}
+
+.uv--very-high {
+    color: var(--color-red-600);
+}
+
+.uv--extreme {
+    color: var(--color-purple-600);
+}
+
+.uv--default {
+    color: var(--color-gray-500);
+}

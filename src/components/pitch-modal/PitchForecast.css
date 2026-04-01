@@ -45,12 +45,3 @@
 .pitch-modal__forecast-item--sunrise .pitch-modal__forecast-temp {
   color: #b45309;
 }
-
-.pitch-modal__forecast-item--sunset {
-  background: #fff5f2;
-  border-color: #feb2b2;
-}
-
-.pitch-modal__forecast-item--sunset .pitch-modal__forecast-temp {
-  color: #c53030;
-}

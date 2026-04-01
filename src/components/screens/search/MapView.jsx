@@ -32,7 +32,7 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
         });
     }, [map, selectedVenue, selectedVenueVerticalOffsetPx]);
 
-    // Centers the map to the user's location (defaults to Mile End if no permissions given)
+    // centers the map to the user's location (defaults to Mile End if no permissions given)
     const onLoad = useCallback((mapInstance) => {
         setMap(mapInstance);
         if (onMapReady) onMapReady(mapInstance);
@@ -42,7 +42,7 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
         setMap(null);
     }, []);
 
-    const mapCenter = center || { lat: 51.5074, lng: -2.1278 };
+    const mapcenter = center || { lat: 51.5074, lng: -2.1278 };
 
     const defaultOptions = {
         disableDefaultUI: true,
@@ -62,7 +62,7 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
     return (
         <GoogleMap
             mapContainerStyle={containerStyle}
-            center={mapCenter}
+            center={mapcenter}
             zoom={zoom}
             onLoad={onLoad}
             onUnmount={onUnmount}
@@ -74,7 +74,7 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
                 if (!bounds) return;
 
                 const ne = bounds.getNorthEast();
-                // The diagonal from the centre to the NE corner (converted to metres) gives
+                // The diagonal from the center to the NE corner (converted to metres) gives
                 // a single radius value representing the visible area of the map.
                 const dLat = (ne.lat() - c.lat()) * 111320;
                 const dLng = (ne.lng() - c.lng()) * 111320 * Math.cos((c.lat() * Math.PI) / 180);

@@ -1,5 +1,3 @@
-/* WeatherScreen - full-screen weather card with dynamic background */
-
 .weather-screen {
   background-color: var(--color-sky-200);
   flex-direction: column;
@@ -39,7 +37,7 @@
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem);
 }
 
-/* Top: City and condition */
+/* City and condition */
 .weather-screen__header {
   margin-top: calc(var(--spacing) * 2);
   text-align: center;
@@ -61,7 +59,7 @@
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Center: Main weather card */
+/* Main weather card */
 .weather-screen__card {
   align-items: center;
   gap: calc(var(--spacing) * 1);
@@ -187,7 +185,7 @@
   color: var(--color-blue-600);
 }
 
-/* Detail cards: Visibility and Wind */
+/* Detail cards */
 .weather-screen__detail-row {
   justify-content: center;
   gap: calc(var(--spacing) * 3);

@@ -1,6 +1,4 @@
-/*
-Calculate Haversine distance in km between two lat/lng points.
-*/
+// Calculate Haversine distance in km between two lat/lng points.
 export const getDistanceKm = (lat1, lng1, lat2, lng2) => {
     const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -13,25 +11,18 @@ export const getDistanceKm = (lat1, lng1, lat2, lng2) => {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-/*
-Estimate walking time in minutes (approx. 5 km/h).
-*/
+// Estimate walking time in minutes (approx. 5 km/h).
 export const getWalkingMinutes = (distanceKm) => Math.round((distanceKm / 5) * 60);
 
-/*
-Estimate driving time in minutes (approx. 28 km/h city average).
-*/
+// Estimate driving time in minutes (approx. 28 km/h city average).
 export const getDrivingMinutes = (distanceKm) => Math.max(1, Math.round((distanceKm / 28) * 60));
 
-/*
-Estimate bus/public transport time in minutes (approx. 16 km/h with stops).
-*/
+// Estimate bus/public transport time in minutes (approx. 16 km/h with stops).
 export const getBusMinutes = (distanceKm) => Math.max(1, Math.round((distanceKm / 16) * 60));
 
 
-/*
-Format a Google Places time object { hours, minutes } to "h:mm am/pm".
-*/
+
+//Format a Google Places time object { hours, minutes } to "h:mm am/pm".
 const formatPlacesTime = (t) => {
     if (!t) return null;
     const h = t.hours;
@@ -48,7 +39,7 @@ Returns { opensAt, closesAt } or null.
 export const getTodayHours = (periods) => {
     if (!periods || periods.length === 0) return null;
 
-    // If there's only one period with no close, it's open 24/7
+    // open 24/7
     if (periods.length === 1 && !periods[0].close) {
         return { opensAt: 'Open 24hrs', closesAt: null };
     }
@@ -65,17 +56,15 @@ export const getTodayHours = (periods) => {
 
 
 
-/*
-Get the sport icon path for a venue type.
-*/
+// Get the sport icon path for a venue type.
+
 export const getVenueSportIcon = (type) => {
     if (type === 'cricket') return '/sports/Cricket.svg';
     return '/sports/Football.svg';
 };
 
-/*
-Filter options used in SearchBar.
-*/
+// Filter options used in SearchBar.
+
 export const SPORT_FILTERS = [
     { key: 'football', label: 'Football', icon: '/sports/Football.svg' },
     { key: 'cricket', label: 'Cricket', icon: '/sports/Cricket.svg' },

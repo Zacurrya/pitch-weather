@@ -9,7 +9,7 @@ const conditionCache = new Map();
 const CONDITION_CACHE_TTL_MS = 10 * 60 * 1000;
 
 /**
- * Custom hook to fetch and calculate pitch surface conditions for a given venue.
+ * Fetch and calculate pitch surface conditions for a given venue.
  * Caches results by placeId to avoid redundant API calls.
  *
  * @param {object | null} venue - Venue with placeId, lat, lng
@@ -23,7 +23,9 @@ const usePitchCondition = (venue, weatherData) => {
     const [sunsets, setSunsets] = useState([]);
 
     useEffect(() => {
-        if (!venue?.placeId) return;
+        if (!venue?.placeId) return undefined;
+
+        let isActive = true;
 
         const getCondition = async () => {
             // Return cached result immediately if available

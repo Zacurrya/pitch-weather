@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { searchPitchesByText } from '@services/placesService';
 
 /**
- * Custom hook for text-based pitch search.
+ * Text-based pitch search hook.
  * Encapsulates the loading state and error handling around the Places text search.
  *
  * @param {google.maps.Map | null} mapInstance

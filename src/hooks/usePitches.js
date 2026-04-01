@@ -1,10 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { searchNearbyPitches } from '@services/placesService';
 
-
-/*
-Haversine distance in metres.
-*/
+// Haversine distance in metres.
 const haversineM = (lat1, lng1, lat2, lng2) => {
     const R = 6371000;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -17,11 +14,11 @@ const haversineM = (lat1, lng1, lat2, lng2) => {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-/* Does `point` fall inside any of the `circles`? */
+// Does point fall inside any of the circles?
 const isPointCovered = (lat, lng, circles) =>
     circles.some((c) => haversineM(lat, lng, c.lat, c.lng) <= c.radius);
 
-/* Offset a lat/lng by `dist` metres at `bearing` radians (0 = north, pi/2 = east). */
+// Offset a lat/lng by dist metres at bearing radians (0 = north, pi/2 = east).
 const offsetPoint = (lat, lng, dist, bearing) => ({
     lat: lat + (dist * Math.cos(bearing)) / 111320,
     lng: lng + (dist * Math.sin(bearing)) / (111320 * Math.cos((lat * Math.PI) / 180)),
@@ -29,8 +26,8 @@ const offsetPoint = (lat, lng, dist, bearing) => ({
 
 /*
 Hook to fetch and manage pitches.
-Call`searchArea({ lat, lng })` to search around a point.
-Call `isAreaSearched({ lat, lng, visibleRadius })` to check viewport coverage.
+Call searchArea({ lat, lng }) to search around a point.
+Call isAreaSearched({ lat, lng, visibleRadius }) to check viewport coverage.
 */
 const usePitches = (map) => {
     const [venues, setVenues] = useState([]);
@@ -41,17 +38,17 @@ const usePitches = (map) => {
     const searchArea = useCallback(async (center, radius = 3000) => {
         if (!map || !center) return;
 
-        // Record this circle immediately so the button hides
-        setSearchedCircles((prev) => [
-            ...prev,
-            { lat: center.lat, lng: center.lng, radius },
-        ]);
-
         setLoading(true);
         try {
             const raw = await searchNearbyPitches(map, center, radius);
 
-            // Dedupe against existing venues
+            // Record only successful searches as covered.
+            setSearchedCircles((prev) => [
+                ...prev,
+                { lat: center.lat, lng: center.lng, radius },
+            ]);
+
+            // Only get new venues
             const fresh = raw.filter((v) => !knownIdsRef.current.has(v.placeId));
             if (fresh.length === 0) return;
 
@@ -64,17 +61,14 @@ const usePitches = (map) => {
         }
     }, [map]);
 
-    /*
-    Is the current viewport fully covered by previously-searched circles?
-    Samples centre + 8 boundary points of the visible area.
-    */
+    //Is the current viewport fully covered by previously-searched circles?
     const isAreaSearched = useCallback(
         (visibleInfo) => {
             if (!visibleInfo || searchedCircles.length === 0) return false;
             const { lat, lng, visibleRadius } = visibleInfo;
             if (visibleRadius == null) return false;
 
-            // Build sample points: centre + 8 evenly-spaced boundary points
+            // Build sample points: center + 8 evenly-spaced boundary points
             const points = [{ lat, lng }];
             for (let i = 0; i < 8; i++) {
                 const bearing = (i * Math.PI) / 4;
