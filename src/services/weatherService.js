@@ -90,7 +90,12 @@ export const fetchPastWeather = async (lat, lng) => {
         const offsetSeconds = Number.isFinite(data.utc_offset_seconds) ? data.utc_offset_seconds : 0;
 
         const toUtcIso = (localTime) => {
-            if (!localTime) return null;
+            if (localTime == null) return null;
+
+            if (typeof localTime === 'number') {
+                const ms = localTime < 1000000000000 ? localTime * 1000 : localTime;
+                return new Date(ms).toISOString();
+            }
 
             const withZone = /[zZ]|[+-]\d{2}:\d{2}$/.test(localTime);
             if (withZone) {
@@ -112,7 +117,7 @@ export const fetchPastWeather = async (lat, lng) => {
                 return new Date(utcMs).toISOString();
             }
 
-            const [datePart, timePart] = localTime.split('T');
+            const [datePart, timePart] = String(localTime).split('T');
             if (!datePart || !timePart) {
                 const fallback = new Date(localTime);
                 return Number.isNaN(fallback.getTime()) ? null : fallback.toISOString();
@@ -152,17 +157,27 @@ export const fetchPastWeather = async (lat, lng) => {
         const dailySunrises = data.daily?.sunrise || [];
         const dailySunsets = data.daily?.sunset || [];
 
-        const todayLocalDate = new Date(Date.now() + offsetSeconds * 1000)
-            .toISOString()
-            .slice(0, 10);
+        const toLocalDateKey = (value) => {
+            if (typeof value === 'string') {
+                const m = value.match(/^\d{4}-\d{2}-\d{2}/);
+                if (m) return m[0];
+            }
 
-        let todayIdx = dailyDates.indexOf(todayLocalDate);
-        if (todayIdx === -1) {
-            todayIdx = Math.max(0, dailyDates.length - 2);
-        }
+            const iso = toUtcIso(value);
+            if (!iso) return null;
 
-        const selectedIndices = [todayIdx, todayIdx + 1]
-            .filter((idx) => idx >= 0 && idx < Math.max(dailySunrises.length, dailySunsets.length));
+            return new Date(new Date(iso).getTime() + offsetSeconds * 1000)
+                .toISOString()
+                .slice(0, 10);
+        };
+
+        const todayLocalDate = new Date(Date.now() + offsetSeconds * 1000).toISOString().slice(0, 10);
+        const tomorrowLocalDate = new Date(Date.now() + offsetSeconds * 1000 + 86400000).toISOString().slice(0, 10);
+
+        const selectedIndices = dailyDates
+            .map((d, idx) => ({ idx, key: toLocalDateKey(d) }))
+            .filter(({ key }) => key === todayLocalDate || key === tomorrowLocalDate)
+            .map(({ idx }) => idx);
 
         const fallbackLength = Math.min(2, Math.max(dailySunrises.length, dailySunsets.length));
         const fallbackIndices = Array.from({ length: fallbackLength }, (_, idx) => idx);
