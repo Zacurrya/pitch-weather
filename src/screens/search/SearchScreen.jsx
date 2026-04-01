@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import MapView from './components/MapView';
 import WeatherBar from './components/WeatherBar';
 import SearchBar from './components/SearchBar';
@@ -26,7 +26,10 @@ const SearchScreen = ({ onOpenWeather }) => {
   // A ref rather than state so toggling it does not trigger a re-render or cause
   const initialSearchDone = useRef(false);
 
-  const resolvedMapCenter = mapCenter || (location ? { lat: location.lat, lng: location.lng } : null);
+  const resolvedMapCenter = useMemo(
+    () => mapCenter || (location ? { lat: location.lat, lng: location.lng } : null),
+    [mapCenter, location]
+  );
 
   // Debounced weather refresh when map pans
   useMapWeatherSync(visibleCenter, refreshWeather);
