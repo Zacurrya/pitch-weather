@@ -2,17 +2,19 @@ import { buildHourlyItems } from '@utils/weatherUtils';
 import './WeatherBar.css';
 
 const WeatherSlot = ({ item, isMid, onCurrentClick }) => {
+    const isSun = item.isSunEvent;
+    const sunClass = isSun ? `weather-bar__item--${item.type}` : '';
+
     return (
         <button
             onClick={isMid ? onCurrentClick : undefined}
-            className={`weather-bar__item ${isMid ? 'weather-bar__item--current' : ''}`}
+            className={`weather-bar__item ${isMid ? 'weather-bar__item--current' : ''} ${sunClass}`}
+            aria-label={isSun ? (item.type === 'sunrise' ? `Sunrise at ${item.time}` : `Sunset at ${item.time}`) : undefined}
         >
-            {/* Time - pinned to top */}
-            <span className={`weather-bar__time ${isMid ? 'weather-bar__time--current' : ''} flex items-center justify-center gap-1`}>
+            <span className={`weather-bar__time ${isMid ? 'weather-bar__time--current' : ''}`}>
                 {item.time}
             </span>
 
-            {/* Icon - centered in remaining space */}
             <div className="weather-bar__icon-wrap">
                 <i
                     className={`wi ${item.iconClass} weather-bar__icon ${isMid ? 'weather-bar__icon--current' : ''}`}
@@ -20,9 +22,8 @@ const WeatherSlot = ({ item, isMid, onCurrentClick }) => {
                 />
             </div>
 
-            {/* Temperature or Event name - pinned to bottom */}
             <span className={`weather-bar__temp ${isMid ? 'weather-bar__temp--current' : ''}`}>
-                {`${item.temp}°C`}
+                {isSun ? (item.type === 'sunrise' ? 'Rise' : 'Set') : `${item.temp}°C`}
             </span>
         </button>
     );
@@ -31,8 +32,9 @@ const WeatherSlot = ({ item, isMid, onCurrentClick }) => {
 const WeatherBar = ({ weatherData, forecastData, pastHourly, sunrises = [], sunsets = [], onCurrentClick, hidden }) => {
     if (!weatherData) return null;
 
+    const nowIso = new Date().toISOString();
     const items = buildHourlyItems(weatherData, forecastData, pastHourly, sunrises, sunsets)
-        .filter((item) => !item.isSunEvent);
+        .filter((item) => !item.isSunEvent || item.time_iso > nowIso);
 
     return (
         <div className={`weather-bar ${hidden ? 'weather-bar--hidden' : ''}`}>
