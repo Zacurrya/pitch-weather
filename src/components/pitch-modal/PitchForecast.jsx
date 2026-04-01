@@ -6,10 +6,11 @@ const PitchForecast = ({ futureHourly, sunrise, sunset }) => {
 
     // Standardise each hour as much as buildHourlyItems does
     const items = futureHourly.map(fh => ({
-        time: fh.time, // raw ISO
+        time: fh.time,
+        time_iso: fh.time,
         displayTime: `${new Date(fh.time).getHours().toString().padStart(2, '0')}:00`,
         condition: wmoToCondition(fh.weather_code),
-        temp: Math.round(fh.temp)
+        temp: Math.round(fh.temp),
     }));
 
     const timeline = injectSunEvents(items, sunrise, sunset);

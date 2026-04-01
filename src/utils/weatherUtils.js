@@ -268,15 +268,18 @@ export const injectSunEvents = (hourlyItems, sunrise, sunset) => {
     if (sunrise) events.push({ time: sunrise, type: 'sunrise' });
     if (sunset) events.push({ time: sunset, type: 'sunset' });
 
+    // Sort chronologically so earlier insertions don't displace later search indices
+    events.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
     events.forEach(event => {
         const eventTime = new Date(event.time);
         const eventMs = eventTime.getTime();
 
-        // Find where to insert
         let insertIdx = -1;
         for (let i = 0; i < result.length - 1; i++) {
-            const t1 = new Date(result[i].time_iso || result[i].time).getTime();
-            const t2 = new Date(result[i + 1].time_iso || result[i + 1].time).getTime();
+            // time_iso holds the full ISO string; previously-inserted sun events include it too
+            const t1 = new Date(result[i].time_iso).getTime();
+            const t2 = new Date(result[i + 1].time_iso).getTime();
 
             if (eventMs > t1 && eventMs < t2) {
                 insertIdx = i + 1;
@@ -289,10 +292,11 @@ export const injectSunEvents = (hourlyItems, sunrise, sunset) => {
             const cond = prevItem.condition || wmoToCondition(prevItem.weather_code) || 'clear';
             result.splice(insertIdx, 0, {
                 time: `${eventTime.getHours().toString().padStart(2, '0')}:${eventTime.getMinutes().toString().padStart(2, '0')}`,
+                time_iso: event.time,
                 iconClass: getSunIconClass(event.type, cond),
                 temp: prevItem.temp,
                 isSunEvent: true,
-                type: event.type
+                type: event.type,
             });
         }
     });
