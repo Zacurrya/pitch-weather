@@ -26,21 +26,16 @@ const WeatherScreen = ({ onOpenMap }) => {
 
     return (
         <div className="weather-screen">
-            {/* Background image */}
             <div
                 className="weather-screen__bg"
                 style={{
                     backgroundImage: `url('${backgroundImage}')`,
                 }}
             />
-
-            {/* Semi-transparent overlay for readability */}
             <div className="weather-screen__overlay" />
-
-            {/* Content wrapper - safe area aware */}
             <div className="weather-screen__content">
 
-                {/* Top: City and condition */}
+                {/* City and condition */}
                 <div className="weather-screen__header">
                     <h1 className="weather-screen__city">
                         {cityName}
@@ -50,7 +45,7 @@ const WeatherScreen = ({ onOpenMap }) => {
                     </p>
                 </div>
 
-                {/* Center: Main weather card */}
+                {/* Main weather card */}
                 <div className="weather-screen__card">
                     <p className="weather-screen__rain-label">
                         {isRaining ? 'Currently Raining' : rainPct != null ? `${rainLabel} (${rainPct}%)` : ''}
@@ -69,7 +64,7 @@ const WeatherScreen = ({ onOpenMap }) => {
                     </p>
                 </div>
 
-                {/* Info cards: Air Quality, UV, Humidity */}
+                {/* Info cards */}
                 <div className="weather-screen__info-row">
                     {/* Air Quality */}
                     <div className="weather-screen__info-card">
@@ -102,7 +97,7 @@ const WeatherScreen = ({ onOpenMap }) => {
                     </div>
                 </div>
 
-                {/* Detail cards: Visibility and Wind */}
+                {/* Detail cards */}
                 <div className="weather-screen__detail-row">
                     {/* Visibility */}
                     <div className="weather-screen__detail-card">
@@ -129,7 +124,7 @@ const WeatherScreen = ({ onOpenMap }) => {
                     </div>
                 </div>
 
-                {/* Bottom chevron - tap to open map */}
+                {/* Bottom button to open map */}
                 <button
                     onClick={onOpenMap}
                     className="weather-screen__chevron-btn"

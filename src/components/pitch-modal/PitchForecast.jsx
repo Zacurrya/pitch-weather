@@ -4,7 +4,7 @@ import './PitchForecast.css';
 const PitchForecast = ({ futureHourly, sunrise, sunset }) => {
     if (!futureHourly || futureHourly.length === 0) return null;
 
-    // Standardize each hour as much as buildHourlyItems does
+    // Standardise each hour as much as buildHourlyItems does
     const items = futureHourly.map(fh => ({
         time: fh.time, // raw ISO
         displayTime: `${new Date(fh.time).getHours().toString().padStart(2, '0')}:00`,
@@ -17,7 +17,7 @@ const PitchForecast = ({ futureHourly, sunrise, sunset }) => {
     return (
         <div className="pitch-modal__forecast">
             {timeline.slice(0, 6).map((item, idx) => {
-                const iconClass = item.isSunEvent 
+                const iconClass = item.isSunEvent
                     ? item.iconClass // injectSunEvents already sets this
                     : getHourlyIconClass(item.condition, item.time, sunrise, sunset);
 

@@ -107,7 +107,7 @@ export const fetchPastWeather = async (lat, lng) => {
         const nowIso = new Date().toISOString().slice(0, 16);
         const pastHourly = allHourly.filter((h) => h.time < nowIso);
         // We want at least 12 hours of future data to be safe for 6h display + any sun event insertions
-        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 12); 
+        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 12);
 
         // The 'daily' array will have 4 entries (2 past days, 1 current, 1 forecast day)
         // We want the current day's sunrise/sunset.

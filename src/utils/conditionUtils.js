@@ -1,11 +1,10 @@
 import { wmoToCondition } from './weatherUtils';
 
-/* WMO codes that indicate rain/drizzle/thunderstorm */
+// WMO codes that indicate rain/drizzle/thunderstorm
 const RAIN_CONDITIONS = new Set(['rain', 'thunderstorm']);
 
-/*
-Count how many of the past hourly entries had rain.
-*/
+
+// Count how many of the past hourly entries had rain.
 const countRainHours = (pastHourly) => {
     if (!pastHourly?.length) return 0;
     return pastHourly.filter((h) => RAIN_CONDITIONS.has(wmoToCondition(h.weather_code))).length;
@@ -29,18 +28,15 @@ const hoursSinceLastRain = (pastHourly) => {
     return Infinity;
 };
 
-/*
-Average temperature across the pastHourly entries (degrees C).
-*/
+
+// Average temperature across the pastHourly entries (degrees C).
 const avgTemp = (pastHourly) => {
     if (!pastHourly?.length) return 15;
     const sum = pastHourly.reduce((acc, h) => acc + (h.temp ?? 15), 0);
     return sum / pastHourly.length;
 };
 
-/*
-Clamp a value between 0 and 1.
-*/
+// Clamp a value between 0 and 1.
 const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
 /**
@@ -106,9 +102,9 @@ Derive an overall playability verdict from wetness and muddiness scores.
 */
 export const pitchVerdict = (wetness, muddiness) => {
     const worst = Math.max(wetness, muddiness);
-    if (worst < 30) return { label: 'Playable',     color: 'verdict-text--green', bg: 'verdict-bg--green' };
-    if (worst < 60) return { label: 'High Risk',    color: 'verdict-text--amber', bg: 'verdict-bg--amber' };
-    return            { label: 'Not Suitable', color: 'verdict-text--red',   bg: 'verdict-bg--red'   };
+    if (worst < 30) return { label: 'Playable', color: 'verdict-text--green', bg: 'verdict-bg--green' };
+    if (worst < 60) return { label: 'High Risk', color: 'verdict-text--amber', bg: 'verdict-bg--amber' };
+    return { label: 'Not Suitable', color: 'verdict-text--red', bg: 'verdict-bg--red' };
 };
 
 /**

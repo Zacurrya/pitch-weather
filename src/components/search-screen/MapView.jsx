@@ -12,8 +12,8 @@ const containerStyle = {
 // If defined inside, useJsApiLoader would see a new reference each render and reload the Maps API.
 const LIBRARIES = ['places'];
 
-const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, onCenterChanged, selectedVenueVerticalOffsetPx = 140 }) => {
-    const lastReportedCenter = useRef(null);
+const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom = 14, options = {}, onVenueSelect, onMapReady, oncenterChanged, selectedVenueVerticalOffsetPx = 140 }) => {
+    const lastReportedcenter = useRef(null);
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -41,7 +41,7 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
         setMap(null);
     }, []);
 
-    const mapCenter = center || { lat: 51.5074, lng: -2.1278 };
+    const mapcenter = center || { lat: 51.5074, lng: -2.1278 };
 
     const defaultOptions = {
         disableDefaultUI: true,
@@ -61,30 +61,30 @@ const MapView = ({ center, userLocation, venues = [], selectedVenue = null, zoom
     return (
         <GoogleMap
             mapContainerStyle={containerStyle}
-            center={mapCenter}
+            center={mapcenter}
             zoom={zoom}
             onLoad={onLoad}
             onUnmount={onUnmount}
             options={defaultOptions}
             onIdle={() => {
-                if (!map || !onCenterChanged) return;
-                const c = map.getCenter();
+                if (!map || !oncenterChanged) return;
+                const c = map.getcenter();
                 const bounds = map.getBounds();
                 if (!bounds) return;
 
                 const ne = bounds.getNorthEast();
-                // The diagonal from the centre to the NE corner (converted to metres) gives
+                // The diagonal from the center to the NE corner (converted to metres) gives
                 // a single radius value representing the visible area of the map.
                 const dLat = (ne.lat() - c.lat()) * 111320;
                 const dLng = (ne.lng() - c.lng()) * 111320 * Math.cos((c.lat() * Math.PI) / 180);
                 const visibleRadius = Math.sqrt(dLat * dLat + dLng * dLng);
 
                 const pos = { lat: c.lat(), lng: c.lng(), visibleRadius };
-                const last = lastReportedCenter.current;
+                const last = lastReportedcenter.current;
                 // Suppress updates for sub-~55m movements to avoid triggering callbacks on floating-point drift.
                 if (last && Math.abs(last.lat - pos.lat) < 0.0005 && Math.abs(last.lng - pos.lng) < 0.0005) return;
-                lastReportedCenter.current = pos;
-                onCenterChanged(pos);
+                lastReportedcenter.current = pos;
+                oncenterChanged(pos);
             }}
         >
             {/* User location marker */}

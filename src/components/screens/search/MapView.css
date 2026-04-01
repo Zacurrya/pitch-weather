@@ -1,5 +1,3 @@
-/* MapView - Google Maps wrapper with loading state */
-
 .map-view__loading {
   background-color: var(--color-gray-50);
   justify-content: center;

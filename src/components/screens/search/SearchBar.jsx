@@ -16,7 +16,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
         }
     }, [expanded]);
 
-    // Debounce live search: fire onSearch 300ms after the user stops typing
+    // Debounce live search, fire onSearch 300ms after the user stops typing
     useEffect(() => {
         clearTimeout(debounceRef.current);
         if (query.trim()) {
@@ -73,7 +73,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                 </button>
             </div>
 
-            {/* Expanded search modal - floating card */}
+            {/* Expanded search modal */}
             <div
                 className={`search-bar__expanded ${expanded ? '' : 'search-bar__expanded--hidden'}`}
             >
@@ -99,7 +99,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                         <div className="search-bar__divider" />
                     </div>
 
-                    {/* Sport filter chips + Open Now toggle */}
+                    {/* Sport filter chips + open now toggle */}
                     <div className="search-bar__filters">
                         {SPORT_FILTERS.map((sport) => {
                             const isActive = activeFilters.includes(sport.key);
@@ -120,7 +120,7 @@ const SearchBar = ({ onSearch, expanded, onExpand, onCollapse, venues = [], user
                         {/* Spacer */}
                         <div className="search-bar__spacer" />
 
-                        {/* Open Now toggle */}
+                        {/* Open now toggle */}
                         <button
                             onClick={() => setOpenOnly((v) => !v)}
                             className={`search-bar__open-toggle ${openOnly ? 'search-bar__open-toggle--active' : ''}`}

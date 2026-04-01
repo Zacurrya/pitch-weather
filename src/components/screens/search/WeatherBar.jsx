@@ -19,7 +19,7 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, sunrise, sunset, on
                         onClick={isMid ? onCurrentClick : undefined}
                         className={`weather-bar__item ${isMid ? 'weather-bar__item--current' : ''} ${isSun ? 'weather-bar__item--sun' : ''}`}
                     >
-                        {/* Time - pinned to top */}
+                        {/* Time */}
                         <span className={`weather-bar__time ${isMid ? 'weather-bar__time--current' : ''}`}>
                             {item.time}
                         </span>
@@ -32,7 +32,7 @@ const WeatherBar = ({ weatherData, forecastData, pastHourly, sunrise, sunset, on
                             />
                         </div>
 
-                        {/* Temperature or Event name - pinned to bottom */}
+                        {/* Temperature or event name */}
                         <span className={`weather-bar__temp ${isMid ? 'weather-bar__temp--current' : ''} ${isSun ? 'weather-bar__temp--sun' : ''}`}>
                             {isSun ? (item.type === 'sunrise' ? 'Rise' : 'Set') : `${item.temp}°C`}
                         </span>

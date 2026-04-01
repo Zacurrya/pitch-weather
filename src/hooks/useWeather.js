@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { fetchWeatherByCoords, fetchPastWeather } from '@services/weatherService';
 import { getUserLocation } from '@services/locationService';
 
-/* Round to ~1 km grid cell for caching. */
+// Round to ~1 km grid cell
 const gridKey = (lat, lng) =>
     `${Math.round(lat * 100) / 100},${Math.round(lng * 100) / 100}`;
 
-/* Module-level weather cache: gridKey -> { weatherData, forecastData, airQuality, uvIndex, pastHourly } */
+// Module-level weather cache: gridKey -> { weatherData, forecastData, airQuality, uvIndex, pastHourly }
 const weatherCache = new Map();
 
 export const useWeather = () => {
@@ -24,7 +24,7 @@ export const useWeather = () => {
     // Keep the original user city name so it never changes on pan
     const cityNameRef = useRef(null);
 
-    /* Fetch + cache weather for any coordinate (bucketed to ~1 km). */
+    // Fetch + cache weather for any coordinate
     const fetchAndCache = useCallback(async (lat, lng) => {
         const key = gridKey(lat, lng);
         if (weatherCache.has(key)) {
@@ -50,7 +50,7 @@ export const useWeather = () => {
         return entry;
     }, []);
 
-    /* Apply a cache entry to state, preserving the original city name. */
+    // Apply a cache entry to state, preserving the original city name.
     const applyWeather = useCallback((entry) => {
         const patched = { ...entry.weatherData };
         if (cityNameRef.current) {
@@ -85,10 +85,7 @@ export const useWeather = () => {
         init();
     }, [fetchAndCache, applyWeather]);
 
-    /*
-    Refresh weather for a new map center.
-    Only triggers a real API call if the grid cell hasn't been fetched before.
-    */
+    // Refresh weather for a new map center.
     const refreshWeather = useCallback(
         async (lat, lng) => {
             try {

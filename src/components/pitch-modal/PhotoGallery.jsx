@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import './PhotoGallery.css';
 
-/*
+/**
 Full-screen photo gallery lightbox.
 Displays one photo at a time with prev/next navigation and a dot indicator.
 
@@ -21,14 +21,12 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
             className="gallery"
             onClick={onClose}
         >
-            {/* Title */}
             {title && (
                 <h2 className="gallery__title">
                     {title}
                 </h2>
             )}
 
-            {/* Close button */}
             <button
                 onClick={onClose}
                 className="gallery__close"
@@ -41,7 +39,6 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
                 className="gallery__viewport"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Prev arrow */}
                 {photos.length > 1 && (
                     <button
                         onClick={prev}
@@ -62,7 +59,6 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
                     />
                 ))}
 
-                {/* Next arrow */}
                 {photos.length > 1 && (
                     <button
                         onClick={next}
@@ -86,7 +82,6 @@ export default function PhotoGallery({ photos = [], alt = 'Photo', title, onClos
                 </div>
             )}
 
-            {/* Counter */}
             <p className="gallery__counter">
                 {index + 1} / {photos.length}
             </p>

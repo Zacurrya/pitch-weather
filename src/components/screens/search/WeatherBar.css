@@ -1,5 +1,3 @@
-/* WeatherBar - horizontal hourly strip at top of map */
-
 .weather-bar {
   top: calc(var(--spacing) * 1.5);
   right: 0;

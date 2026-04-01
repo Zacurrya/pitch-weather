@@ -1,5 +1,3 @@
-/* SearchAreaButton - conditional button to trigger Places search */
-
 .search-area-btn__wrapper {
   pointer-events: none;
   right: calc(var(--spacing) * 0);

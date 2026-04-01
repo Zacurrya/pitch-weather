@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react';
 import { fetchPastWeather } from '@services/weatherService';
 import { calcPitchCondition } from '@utils/conditionUtils';
 
-/**
- * Module-level cache: placeId -> { wetness, muddiness, futureHourly }
- */
+// Module-level cache: placeId -> { wetness, muddiness, futureHourly }
 const conditionCache = new Map();
 
 /**
- * Custom hook to fetch and calculate pitch surface conditions for a given venue.
+ * Fetch and calculate pitch surface conditions for a given venue.
  * Caches results by placeId to avoid redundant API calls.
  *
  * @param {object | null} venue - Venue with placeId, lat, lng

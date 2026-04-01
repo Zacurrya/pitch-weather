@@ -20,11 +20,10 @@ const SearchScreen = ({ onOpenWeather }) => {
   const [mapInstance, setMapInstance] = useState(null);
   const [mapCenter, setMapCenter] = useState(null);
 
-  // The visible centre reported by the map after the user pans
+  // The visible center reported by the map after the user pans
   const [visibleCenter, setVisibleCenter] = useState(null);
 
   // A ref rather than state so toggling it does not trigger a re-render or cause
-  // the auto-search effect to fire twice in React Strict Mode's double-invoke.
   const initialSearchDone = useRef(false);
 
   // Set initial map center from user location (once)
@@ -79,7 +78,7 @@ const SearchScreen = ({ onOpenWeather }) => {
 
   return (
     <div className="search-screen">
-      {/* Weather bar - hides when search is expanded */}
+      {/* Weather bar */}
       <WeatherBar
         weatherData={weatherData}
         forecastData={forecastData}
@@ -103,7 +102,7 @@ const SearchScreen = ({ onOpenWeather }) => {
         searchLoading={textSearchLoading}
       />
 
-      {/* "Search this area" - sits just below the collapsed search bar */}
+      {/* "Search this area" button - sits just below the collapsed search bar */}
       <SearchAreaButton
         show={showSearchButton}
         loading={loading}
@@ -122,13 +121,13 @@ const SearchScreen = ({ onOpenWeather }) => {
         onCenterChanged={setVisibleCenter}
       />
 
-      {/* Snap to Location Button */}
+      {/* Snap to location button */}
       <LocateUserButton
         show={!selectedVenue && location}
         onClick={snapToLocation}
       />
 
-      {/* Pitch modal - bottom sheet */}
+      {/* Pitch modal */}
       {selectedVenue && (
         <PitchModal
           venue={selectedVenue}

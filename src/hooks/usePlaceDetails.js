@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getPlaceDetails } from '@services/placesService';
 
 /**
- * Custom hook to fetch detailed Place info (website, phone, opening hours, photos).
+ * Fetch detailed place info (website, phone, opening hours, photos).
  *
  * @param {google.maps.Map | null} map
  * @param {string | null} placeId

@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Custom hook that debounces weather refreshes when the map centre changes.
+ * Debounces weather refreshes when the map center changes.
  * Avoids firing a weather fetch on every intermediate position during a pan gesture.
  *
- * @param {{ lat: number, lng: number } | null} visibleCenter - Current visible map centre
+ * @param {{ lat: number, lng: number } | null} visibleCenter - Current visible map center
  * @param {((lat: number, lng: number) => Promise<void>) | null} refreshWeather - Weather refresh function
  * @param {number} delay - Debounce delay in ms (default 600)
  */
