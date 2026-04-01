@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { fetchPastWeather } from '@services/weatherService';
 import { calcPitchCondition } from '@utils/conditionUtils';
 
-// Module-level cache for API-heavy location weather data.
-const placeWeatherCache = new Map();
-const CACHE_TTL_MS = 15 * 60 * 1000;
+/**
+ * Module-level cache: placeId -> { wetness, muddiness, futureHourly }
+ */
+const conditionCache = new Map();
+const CONDITION_CACHE_TTL_MS = 10 * 60 * 1000;
 
 /**
  * Fetch and calculate pitch surface conditions for a given venue.
@@ -15,80 +17,54 @@ const CACHE_TTL_MS = 15 * 60 * 1000;
  * @returns {{ condition: { wetness, muddiness } | null, futureHourly: Array }}
  */
 const usePitchCondition = (venue, weatherData) => {
-    const [conditionState, setConditionState] = useState({
-        placeId: null,
-        condition: null,
-        futureHourly: [],
-        sunrise: null,
-        sunset: null,
-    });
+    const [condition, setCondition] = useState(null);
+    const [futureHourly, setFutureHourly] = useState([]);
+    const [sunrises, setSunrises] = useState([]);
+    const [sunsets, setSunsets] = useState([]);
 
     useEffect(() => {
         if (!venue?.placeId) return undefined;
 
         let isActive = true;
 
-        const getOrFetchPlaceWeather = async () => {
-            const cached = placeWeatherCache.get(venue.placeId);
-            const isFresh = cached && (Date.now() - cached.fetchedAt < CACHE_TTL_MS);
-            if (isFresh) return cached;
+        const getCondition = async () => {
+            // Return cached result immediately if available
+            if (conditionCache.has(venue.placeId)) {
+                const cached = conditionCache.get(venue.placeId);
+                if (cached?.fetchedAt && Date.now() - cached.fetchedAt < CONDITION_CACHE_TTL_MS) {
+                    return cached;
+                }
+            }
 
-            const fetched = await fetchPastWeather(venue.lat, venue.lng);
-            const entry = {
-                totalRainMm: fetched.totalRainMm,
-                pastHourly: fetched.pastHourly,
-                futureHourly: fetched.futureHourly,
-                sunrise: fetched.sunrise,
-                sunset: fetched.sunset,
+            // Fetch weather specific to this pitch's location
+            const { totalRainMm, pastHourly, futureHourly: fh, sunrises: sr, sunsets: ss } = await fetchPastWeather(venue.lat, venue.lng);
+            const result = calcPitchCondition(weatherData, totalRainMm, pastHourly);
+            conditionCache.set(venue.placeId, {
+                ...result,
+                futureHourly: fh,
+                sunrises: sr || [],
+                sunsets: ss || [],
                 fetchedAt: Date.now(),
-            };
-            placeWeatherCache.set(venue.placeId, entry);
-            return entry;
+            });
+            return conditionCache.get(venue.placeId);
         };
 
-        getOrFetchPlaceWeather()
-            .then((entry) => {
-                if (!isActive) return;
-
-                const computed = calcPitchCondition(
-                    weatherData,
-                    entry?.totalRainMm ?? 0,
-                    entry?.pastHourly ?? [],
-                );
-                setConditionState({
-                    placeId: venue.placeId,
-                    condition: computed,
-                    futureHourly: entry?.futureHourly ?? [],
-                    sunrise: entry?.sunrise ?? null,
-                    sunset: entry?.sunset ?? null,
-                });
-            })
-            .catch(() => {
-                if (!isActive) return;
-                setConditionState({
-                    placeId: venue.placeId,
-                    condition: null,
-                    futureHourly: [],
-                    sunrise: null,
-                    sunset: null,
-                });
-            });
+        getCondition().then((cached) => {
+            setCondition(cached);
+            setFutureHourly(cached?.futureHourly ?? []);
+            setSunrises(cached?.sunrises ?? []);
+            setSunsets(cached?.sunsets ?? []);
+        });
 
         return () => {
-            isActive = false;
+            setCondition(null);
+            setFutureHourly([]);
+            setSunrises([]);
+            setSunsets([]);
         };
     }, [venue?.placeId, venue?.lat, venue?.lng, weatherData]);
 
-    if (!venue?.placeId || conditionState.placeId !== venue.placeId) {
-        return { condition: null, futureHourly: [], sunrise: null, sunset: null };
-    }
-
-    return {
-        condition: conditionState.condition,
-        futureHourly: conditionState.futureHourly,
-        sunrise: conditionState.sunrise,
-        sunset: conditionState.sunset,
-    };
+    return { condition, futureHourly, sunrises, sunsets };
 };
 
 export default usePitchCondition;

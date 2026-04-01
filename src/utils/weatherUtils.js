@@ -21,16 +21,96 @@ export const getIconClass = (condition, isNight = false) => {
     }
 };
 
+const toArray = (value) => (Array.isArray(value) ? value : (value ? [value] : []));
+
+const toTimestampMs = (value) => {
+    if (value == null) return NaN;
+    if (value instanceof Date) return value.getTime();
+
+    if (typeof value === 'number') {
+        return value < 1000000000000 ? value * 1000 : value;
+    }
+
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? NaN : parsed;
+};
+
+const buildDayIntervals = (sunrises = [], sunsets = []) => {
+    const sunriseTimes = toArray(sunrises)
+        .map(toTimestampMs)
+        .filter(Number.isFinite)
+        .sort((a, b) => a - b);
+
+    const sunsetTimes = toArray(sunsets)
+        .map(toTimestampMs)
+        .filter(Number.isFinite)
+        .sort((a, b) => a - b);
+
+    const intervals = [];
+    let sunsetIdx = 0;
+
+    for (const sunriseTime of sunriseTimes) {
+        while (sunsetIdx < sunsetTimes.length && sunsetTimes[sunsetIdx] <= sunriseTime) {
+            sunsetIdx += 1;
+        }
+
+        if (sunsetIdx < sunsetTimes.length) {
+            intervals.push({ start: sunriseTime, end: sunsetTimes[sunsetIdx] });
+            sunsetIdx += 1;
+        }
+    }
+
+    return intervals;
+};
+
+const isNightForTime = (timeValue, sunrises = [], sunsets = []) => {
+    const timestamp = toTimestampMs(timeValue);
+    if (!Number.isFinite(timestamp)) return false;
+
+    const dayIntervals = buildDayIntervals(sunrises, sunsets);
+    if (dayIntervals.length === 0) return false;
+
+    for (const interval of dayIntervals) {
+        if (timestamp >= interval.start && timestamp < interval.end) {
+            return false;
+        }
+
+        if (timestamp < interval.start) {
+            return true;
+        }
+    }
+
+    return true;
+};
+
 /**
  * Shared helper to get icons for timeline items that might be after dark.
  */
-export const getHourlyIconClass = (condition, timeIso, sunrise, sunset) => {
-    if (!sunrise || !sunset) return getIconClass(condition);
-    const t = new Date(timeIso).getTime();
-    const sr = new Date(sunrise).getTime();
-    const ss = new Date(sunset).getTime();
-    const isNight = t < sr || t > ss;
+export const getHourlyIconClass = (condition, timeIso, sunrises = [], sunsets = []) => {
+    const isNight = isNightForTime(timeIso, sunrises, sunsets);
     return getIconClass(condition, isNight);
+};
+
+/**
+ * Ensure every timeline item has an icon class computed in weatherUtils.
+ */
+export const assignTimelineIconClasses = (timelineItems = [], sunrises = [], sunsets = []) => {
+    return timelineItems.map((item) => {
+        if (item.isSunEvent) {
+            return {
+                ...item,
+                iconClass: getSunIconClass(item.type, item.condition || 'clear')
+            };
+        }
+
+        const timeIso = item.time_iso || item.time;
+        const condition = item.condition || wmoToCondition(item.weather_code) || 'clouds';
+
+        return {
+            ...item,
+            iconClass: getHourlyIconClass(condition, timeIso, sunrises, sunsets)
+        };
+    });
 };
 
 /**
@@ -120,12 +200,23 @@ export const transformWeatherForDisplay = (weatherData) => {
 
 const formatHour = (h) => `${h.toString().padStart(2, '0')}:00`;
 
+const buildForecastSlot = (forecastItem) => {
+    const time = new Date(forecastItem.dt * 1000);
+    return {
+        time: formatHour(time.getHours()),
+        temp: Math.round(forecastItem.main.temp),
+        dt: forecastItem.dt,
+        time_iso: time.toISOString(),
+        condition: forecastItem.weather[0].main
+    };
+};
+
 /**
  * Build the 5-item hourly strip shown in the WeatherBar.
  * Two "before" slots use real past open-meteo entries where weather changed;
  * two "after" slots use real forecast entries.
  */
-export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrise, sunset) => {
+export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrises, sunsets) => {
     const currentTemp = Math.round(weatherData.main.temp);
     const currentCondition = weatherData.weather[0]?.main;
     const now = new Date();
@@ -138,19 +229,19 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrise,
 
     let before1 = {
         time: formatHour(twoHoursAgo.getHours()),
-        iconClass: getHourlyIconClass('clear', twoHoursAgo, sunrise, sunset),
+        condition: 'clear',
         temp: currentTemp + 2,
         time_iso: twoHoursAgo.toISOString()
     };
     let before2 = {
         time: formatHour(oneHourAgo.getHours()),
-        iconClass: getHourlyIconClass('snow', oneHourAgo, sunrise, sunset),
+        condition: 'snow',
         temp: currentTemp - 1,
         time_iso: oneHourAgo.toISOString()
     };
     const current = {
         time: formatHour(currentHour),
-        iconClass: getHourlyIconClass(currentCondition, nowIso, sunrise, sunset),
+        condition: currentCondition,
         temp: currentTemp,
         isCurrent: true,
         time_iso: nowIso
@@ -185,13 +276,13 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrise,
             if (pastSlots.length >= 2) {
                 before1 = {
                     time: formatHour(new Date(pastSlots[0].time).getHours()),
-                    iconClass: getHourlyIconClass(wmoToCondition(pastSlots[0].weather_code), pastSlots[0].time, sunrise, sunset),
+                    condition: wmoToCondition(pastSlots[0].weather_code),
                     temp: Math.round(pastSlots[0].temp),
                     time_iso: pastSlots[0].time
                 };
                 before2 = {
                     time: formatHour(new Date(pastSlots[1].time).getHours()),
-                    iconClass: getHourlyIconClass(wmoToCondition(pastSlots[1].weather_code), pastSlots[1].time, sunrise, sunset),
+                    condition: wmoToCondition(pastSlots[1].weather_code),
                     temp: Math.round(pastSlots[1].temp),
                     time_iso: pastSlots[1].time
                 };
@@ -223,60 +314,69 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrise,
 
         futureSlots.sort((a, b) => a.dt - b.dt);
 
-        const f1 = futureSlots[0];
-        const f1TimeIso = new Date(f1.dt * 1000).toISOString();
-        items.push({
-            time: formatHour(new Date(f1.dt * 1000).getHours()),
-            iconClass: getHourlyIconClass(f1.weather[0].main, f1TimeIso, sunrise, sunset),
-            temp: Math.round(f1.main.temp),
-            dt: f1.dt,
-            time_iso: f1TimeIso,
-            condition: f1.weather[0].main
-        });
-
-        const f2 = futureSlots[1];
-        const f2TimeIso = new Date(f2.dt * 1000).toISOString();
-        items.push({
-            time: formatHour(new Date(f2.dt * 1000).getHours()),
-            iconClass: getHourlyIconClass(f2.weather[0].main, f2TimeIso, sunrise, sunset),
-            temp: Math.round(f2.main.temp),
-            dt: f2.dt,
-            time_iso: f2TimeIso,
-            condition: f2.weather[0].main
-        });
+        items.push(buildForecastSlot(futureSlots[0]));
+        items.push(buildForecastSlot(futureSlots[1]));
     } else {
         const h1 = new Date(now.getTime() + 3600000);
         const h2 = new Date(now.getTime() + 7200000);
-        items.push({ time: formatHour(h1.getHours()), iconClass: getHourlyIconClass('rain', h1, sunrise, sunset), temp: currentTemp, condition: 'rain', time_iso: h1.toISOString() });
-        items.push({ time: formatHour(h2.getHours()), iconClass: getHourlyIconClass('clouds', h2, sunrise, sunset), temp: currentTemp + 1, condition: 'clouds', time_iso: h2.toISOString() });
+        items.push({ time: formatHour(h1.getHours()), temp: currentTemp, condition: 'rain', time_iso: h1.toISOString() });
+        items.push({ time: formatHour(h2.getHours()), temp: currentTemp + 1, condition: 'clouds', time_iso: h2.toISOString() });
     }
 
-    return injectSunEvents(items, sunrise, sunset);
+    return assignTimelineIconClasses(injectSunEvents(items, sunrises, sunsets), sunrises, sunsets);
+};
+
+/**
+ * Build pitch forecast timeline with precomputed icon classes.
+ */
+export const buildPitchForecastItems = (futureHourly = [], sunrises = [], sunsets = []) => {
+    const items = futureHourly.map((fh) => ({
+        time: fh.time,
+        time_iso: fh.time,
+        displayTime: `${new Date(fh.time).getHours().toString().padStart(2, '0')}:00`,
+        condition: wmoToCondition(fh.weather_code),
+        temp: Math.round(fh.temp)
+    }));
+
+    const timeline = injectSunEvents(items, sunrises, sunsets);
+    return assignTimelineIconClasses(timeline, sunrises, sunsets);
 };
 
 /**
  * Injects sunrise/sunset items into a timeline array.
  */
-export const injectSunEvents = (hourlyItems, sunrise, sunset) => {
-    if (!sunrise && !sunset) return hourlyItems;
+export const injectSunEvents = (hourlyItems, sunrises = [], sunsets = []) => {
+    // Standardize inputs as arrays
+    const sunriseList = toArray(sunrises);
+    const sunsetList = toArray(sunsets);
+
+    if (sunriseList.length === 0 && sunsetList.length === 0) return hourlyItems;
 
     const result = [...hourlyItems];
     const events = [];
-    if (sunrise) events.push({ time: sunrise, type: 'sunrise' });
-    if (sunset) events.push({ time: sunset, type: 'sunset' });
+    const nowMs = Date.now();
 
-    // Sort chronologically so earlier insertions don't displace later search indices
-    events.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    sunriseList.forEach(sr => {
+        const timeMs = toTimestampMs(sr);
+        if (Number.isFinite(timeMs) && timeMs > nowMs) events.push({ time: sr, timeMs, type: 'sunrise' });
+    });
+    sunsetList.forEach(ss => {
+        const timeMs = toTimestampMs(ss);
+        if (Number.isFinite(timeMs) && timeMs > nowMs) events.push({ time: ss, timeMs, type: 'sunset' });
+    });
+
+    events.sort((a, b) => a.timeMs - b.timeMs);
 
     events.forEach(event => {
         const eventTime = new Date(event.time);
-        const eventMs = eventTime.getTime();
+        const eventMs = event.timeMs;
 
         let insertIdx = -1;
         for (let i = 0; i < result.length - 1; i++) {
-            // time_iso holds the full ISO string; previously-inserted sun events include it too
-            const t1 = new Date(result[i].time_iso).getTime();
-            const t2 = new Date(result[i + 1].time_iso).getTime();
+            const t1 = toTimestampMs(result[i].time_iso || result[i].time);
+            const t2 = toTimestampMs(result[i + 1].time_iso || result[i + 1].time);
+
+            if (!Number.isFinite(t1) || !Number.isFinite(t2)) continue;
 
             if (eventMs > t1 && eventMs < t2) {
                 insertIdx = i + 1;
@@ -294,6 +394,7 @@ export const injectSunEvents = (hourlyItems, sunrise, sunset) => {
                 temp: prevItem.temp,
                 isSunEvent: true,
                 type: event.type,
+                time_iso: event.time // for consistent sorting/comparison
             });
         }
     });

@@ -89,12 +89,12 @@
   font-size: clamp(0.75rem, 2.8vw, 0.95rem);
 }
 
-.weather-bar__item--sun {
+.weather-bar__item--sunrise {
   opacity: 1;
-  background: #fef3c7;
-  border-color: #fcd34d;
+  background: #fffbeb;
+  border-color: #fbd38d;
 }
 
-.weather-bar__temp--sun {
+.weather-bar__item--sunrise .weather-bar__temp {
   color: #b45309;
 }
