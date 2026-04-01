@@ -84,9 +84,47 @@ export const fetchPastWeather = async (lat, lng) => {
     try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,sunrise,sunset&hourly=temperature_2m,weather_code&past_days=2&forecast_days=2&timezone=auto`;
         const res = await fetch(url);
-        if (!res.ok) return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrise: null, sunset: null };
+        if (!res.ok) return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrises: [], sunsets: [] };
 
         const data = await res.json();
+        const offsetSeconds = Number.isFinite(data.utc_offset_seconds) ? data.utc_offset_seconds : 0;
+
+        const toUtcIso = (localTime) => {
+            if (!localTime) return null;
+
+            const withZone = /[zZ]|[+-]\d{2}:\d{2}$/.test(localTime);
+            if (withZone) {
+                const zonedMs = new Date(localTime).getTime();
+                return Number.isNaN(zonedMs) ? null : new Date(zonedMs).toISOString();
+            }
+
+            const matched = String(localTime).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+            if (matched) {
+                const [, y, m, d, h, min, sec] = matched;
+                const utcMs = Date.UTC(
+                    Number(y),
+                    Number(m) - 1,
+                    Number(d),
+                    Number(h),
+                    Number(min),
+                    Number(sec || 0),
+                ) - offsetSeconds * 1000;
+                return new Date(utcMs).toISOString();
+            }
+
+            const [datePart, timePart] = localTime.split('T');
+            if (!datePart || !timePart) {
+                const fallback = new Date(localTime);
+                return Number.isNaN(fallback.getTime()) ? null : fallback.toISOString();
+            }
+
+            const [year, month, day] = datePart.split('-').map(Number);
+            const [hour, minute] = timePart.split(':').map(Number);
+
+            const utcMs = Date.UTC(year, month - 1, day, hour, minute) - offsetSeconds * 1000;
+            return new Date(utcMs).toISOString();
+        };
+
         const precipArray = data.daily?.precipitation_sum || [];
 
         let totalRainMm = 0;
@@ -99,26 +137,47 @@ export const fetchPastWeather = async (lat, lng) => {
         const codes = data.hourly?.weather_code || [];
 
         const allHourly = times.map((time, hourIndex) => ({
-            time,
+            time: toUtcIso(time),
             temp: temps[hourIndex],
             weather_code: codes[hourIndex],
-        }));
+        })).filter((hourly) => hourly.time);
 
-        const nowIso = new Date().toISOString().slice(0, 16);
+        const nowIso = new Date().toISOString();
         const pastHourly = allHourly.filter((h) => h.time < nowIso);
         // We want at least 12 hours of future data to be safe for 6h display + any sun event insertions
         const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 12); 
 
-        // The 'daily' array will have 4 entries (2 past days, 1 current, 1 forecast day)
-        // We want the current day's sunrise/sunset.
-        // Usually index 2 is the current day if we have past_days=2.
-        const currentDayIndex = 2;
-        const sunrise = data.daily?.sunrise?.[currentDayIndex] || null;
-        const sunset = data.daily?.sunset?.[currentDayIndex] || null;
+        // Use current and next local day solar events for explicit day/night windows.
+        const dailyDates = data.daily?.time || [];
+        const dailySunrises = data.daily?.sunrise || [];
+        const dailySunsets = data.daily?.sunset || [];
 
-        return { totalRainMm, pastHourly, futureHourly, sunrise, sunset };
+        const todayLocalDate = new Date(Date.now() + offsetSeconds * 1000)
+            .toISOString()
+            .slice(0, 10);
+
+        let todayIdx = dailyDates.indexOf(todayLocalDate);
+        if (todayIdx === -1) {
+            todayIdx = Math.max(0, dailyDates.length - 2);
+        }
+
+        const selectedIndices = [todayIdx, todayIdx + 1]
+            .filter((idx) => idx >= 0 && idx < Math.max(dailySunrises.length, dailySunsets.length));
+
+        const fallbackLength = Math.min(2, Math.max(dailySunrises.length, dailySunsets.length));
+        const fallbackIndices = Array.from({ length: fallbackLength }, (_, idx) => idx);
+        const indicesToUse = selectedIndices.length > 0 ? selectedIndices : fallbackIndices;
+
+        const sunrises = indicesToUse
+            .map((idx) => toUtcIso(dailySunrises[idx]))
+            .filter(Boolean);
+        const sunsets = indicesToUse
+            .map((idx) => toUtcIso(dailySunsets[idx]))
+            .filter(Boolean);
+
+        return { totalRainMm, pastHourly, futureHourly, sunrises, sunsets };
     } catch (e) {
         console.error('Failed to fetch past weather from Open-Meteo:', e);
-        return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrise: null, sunset: null };
+        return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrises: [], sunsets: [] };
     }
 };

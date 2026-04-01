@@ -16,7 +16,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
     const [photoExpanded, setPhotoExpanded] = useState(false);
 
     const details = usePlaceDetails(map, venue?.placeId);
-    const { condition, futureHourly, sunrise, sunset } = usePitchCondition(venue, weatherData);
+    const { condition, futureHourly, sunrises, sunsets } = usePitchCondition(venue, weatherData);
 
     if (!venue) return null;
 
@@ -56,8 +56,8 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                     
                     <PitchForecast
                         futureHourly={futureHourly}
-                        sunrise={sunrise}
-                        sunset={sunset}
+                        sunrises={sunrises}
+                        sunsets={sunsets}
                     />
 
                     <PitchInfo

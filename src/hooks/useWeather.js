@@ -6,7 +6,9 @@ import { getUserLocation } from '@services/locationService';
 const gridKey = (lat, lng) =>
     `${Math.round(lat * 100) / 100},${Math.round(lng * 100) / 100}`;
 
-/* Module-level weather cache: gridKey -> { weatherData, forecastData, airQuality, uvIndex, pastHourly } */
+const WEATHER_CACHE_TTL_MS = 10 * 60 * 1000;
+
+/* Module-level weather cache: gridKey -> weather payload + timeline fields */
 const weatherCache = new Map();
 
 export const useWeather = () => {
@@ -16,8 +18,8 @@ export const useWeather = () => {
     const [airQuality, setAirQuality] = useState(null);
     const [uvIndex, setUvIndex] = useState(null);
     const [pastHourly, setPastHourly] = useState([]);
-    const [sunrise, setSunrise] = useState(null);
-    const [sunset, setSunset] = useState(null);
+    const [sunrises, setSunrises] = useState([]);
+    const [sunsets, setSunsets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -27,11 +29,12 @@ export const useWeather = () => {
     /* Fetch + cache weather for any coordinate (bucketed to ~1 km). */
     const fetchAndCache = useCallback(async (lat, lng) => {
         const key = gridKey(lat, lng);
-        if (weatherCache.has(key)) {
-            return weatherCache.get(key);
+        const cached = weatherCache.get(key);
+        if (cached?.fetchedAt && Date.now() - cached.fetchedAt < WEATHER_CACHE_TTL_MS) {
+            return cached;
         }
 
-        const [{ current, forecast, airQuality: aq, uvIndex: uv }, { pastHourly: ph, sunrise: sr, sunset: ss }] =
+        const [{ current, forecast, airQuality: aq, uvIndex: uv }, { pastHourly: ph, sunrises: sr, sunsets: ss }] =
             await Promise.all([
                 fetchWeatherByCoords(lat, lng),
                 fetchPastWeather(lat, lng),
@@ -43,8 +46,9 @@ export const useWeather = () => {
             airQuality: aq,
             uvIndex: uv,
             pastHourly: ph,
-            sunrise: sr,
-            sunset: ss,
+            sunrises: sr || [],
+            sunsets: ss || [],
+            fetchedAt: Date.now(),
         };
         weatherCache.set(key, entry);
         return entry;
@@ -61,8 +65,8 @@ export const useWeather = () => {
         setAirQuality(entry.airQuality);
         setUvIndex(entry.uvIndex);
         setPastHourly(entry.pastHourly);
-        setSunrise(entry.sunrise);
-        setSunset(entry.sunset);
+        setSunrises(entry.sunrises);
+        setSunsets(entry.sunsets);
     }, []);
 
     // Initial fetch at user's GPS location
@@ -75,9 +79,9 @@ export const useWeather = () => {
                 const entry = await fetchAndCache(coords.lat, coords.lng);
                 cityNameRef.current = entry.weatherData.name; // lock the city name
                 applyWeather(entry);
-            } catch (error) {
-                console.error('Failed to initialise weather:', error);
-                setError(error);
+            } catch (err) {
+                console.error('Failed to initialise weather:', err);
+                setError(err);
             } finally {
                 setLoading(false);
             }
@@ -101,5 +105,17 @@ export const useWeather = () => {
         [fetchAndCache, applyWeather],
     );
 
-    return { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, sunrise, sunset, loading, error, refreshWeather };
+    return {
+        location,
+        weatherData,
+        forecastData,
+        airQuality,
+        uvIndex,
+        pastHourly,
+        sunrises,
+        sunsets,
+        loading,
+        error,
+        refreshWeather,
+    };
 };

@@ -37,11 +37,20 @@
   color: var(--color-black);
 }
 
-.pitch-modal__forecast-item--sun {
-  background: rgb(251 191 36 / 0.15);
-  border-color: rgb(251 191 36 / 0.4);
+.pitch-modal__forecast-item--sunrise {
+  background: #fffbeb;
+  border-color: #fbd38d;
 }
 
-.pitch-modal__forecast-item--sun .pitch-modal__forecast-temp {
+.pitch-modal__forecast-item--sunrise .pitch-modal__forecast-temp {
   color: #b45309;
+}
+
+.pitch-modal__forecast-item--sunset {
+  background: #fff5f2;
+  border-color: #feb2b2;
+}
+
+.pitch-modal__forecast-item--sunset .pitch-modal__forecast-temp {
+  color: #c53030;
 }
