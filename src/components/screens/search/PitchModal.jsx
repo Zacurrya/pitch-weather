@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { getDistanceKm, getWalkingMinutes, getDrivingMinutes, getBusMinutes, getTodayHours, getVenueSportIcon } from '@utils/pitchUtils';
 import { conditionColor, conditionLabel, pitchVerdict } from '@utils/conditionUtils';
-import { getIconPath, wmoToCondition } from '@utils/weatherUtils';
+import { getIconClass, wmoToCondition, injectSunEvents } from '@utils/weatherUtils';
 import usePlaceDetails from '@hooks/usePlaceDetails';
 import usePitchCondition from '@hooks/usePitchCondition';
 import PhotoGallery from './PhotoGallery';
@@ -79,7 +79,7 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
 
     // Hooks handle all data fetching
     const details = usePlaceDetails(map, venue?.placeId);
-    const { condition, futureHourly } = usePitchCondition(venue, weatherData);
+    const { condition, futureHourly, sunrise, sunset } = usePitchCondition(venue, weatherData);
 
     if (!venue) return null;
 
@@ -187,18 +187,17 @@ const PitchModal = ({ venue, userLocation, weatherData, map, onClose }) => {
                         </a>
                     </div>
 
-                    {/* Next 5 hours from Open-Meteo (1-hour intervals, pitch coordinates) */}
+                    {/* Next 6 hours from Open-Meteo (1-hour intervals, pitch coordinates) */}
                     {futureHourly.length > 0 && (
                         <div className="pitch-modal__forecast">
-                            {futureHourly.map((h) => {
-                                const hour = new Date(h.time).getHours();
-                                const time = `${hour.toString().padStart(2, '0')}:00`;
-                                const icon = getIconPath(wmoToCondition(h.weather_code));
+                            {futureHourly.slice(0, 6).map((h) => {
+                                const time = `${new Date(h.time).getHours().toString().padStart(2, '0')}:00`;
+                                const iconClass = getIconClass(wmoToCondition(h.weather_code));
                                 const temp = Math.round(h.temp);
                                 return (
                                     <div key={h.time} className="pitch-modal__forecast-item">
                                         <span className="pitch-modal__forecast-time">{time}</span>
-                                        <img src={icon} alt={time} className="pitch-modal__forecast-icon" />
+                                        <i className={`wi ${iconClass} pitch-modal__forecast-icon`} aria-hidden="true" />
                                         <span className="pitch-modal__forecast-temp">{temp}°C</span>
                                     </div>
                                 );

@@ -72,14 +72,12 @@
 }
 
 .weather-bar__icon {
-  object-fit: contain;
-  width: clamp(1.6rem, 7vw, 2.2rem);
-  height: clamp(1.6rem, 7vw, 2.2rem);
+  font-size: clamp(0.9rem, 3.8vw, 1.3rem);
+  color: black;
 }
 
 .weather-bar__icon--current {
-  width: clamp(2rem, 9vw, 3rem);
-  height: clamp(2rem, 9vw, 3rem);
+  font-size: clamp(1.3rem, 5.8vw, 1.9rem);
 }
 
 .weather-bar__temp {
@@ -91,4 +89,14 @@
 
 .weather-bar__temp--current {
   font-size: clamp(0.75rem, 2.8vw, 0.95rem);
+}
+
+.weather-bar__item--sun {
+  opacity: 1;
+  background: #fef3c7;
+  border-color: #fcd34d;
+}
+
+.weather-bar__temp--sun {
+  color: #b45309;
 }

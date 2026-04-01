@@ -88,11 +88,14 @@
 }
 
 .weather-screen__icon {
-  margin-block: calc(var(--spacing) * 1);
-  object-fit: contain;
-  width: clamp(5.5rem, 25vw, 9rem);
-  height: clamp(5.5rem, 25vw, 9rem);
-  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.1));
+  margin-top: calc(var(--spacing) * 7);
+  margin-bottom: calc(var(--spacing) * 2);
+  font-size: clamp(3.2rem, 14vw, 5.1rem);
+  color: var(--color-black);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .weather-screen__temp {
@@ -301,7 +304,7 @@
   height: calc(var(--spacing) * 9);
   width: calc(var(--spacing) * 9);
   color: var(--color-white);
-  transition-property: transform,translate,scale,rotate;
+  transition-property: transform, translate, scale, rotate;
   transition-timing-function: var(--default-transition-timing-function);
   transition-duration: var(--default-transition-duration);
   stroke-width: 3;

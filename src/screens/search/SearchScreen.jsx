@@ -13,7 +13,7 @@ import { panToTargetWithOffset } from '@utils/mapUtils';
 import './SearchScreen.css';
 
 const SearchScreen = ({ onOpenWeather }) => {
-  const { location, weatherData, forecastData, pastHourly, refreshWeather } = useWeatherContext();
+  const { location, weatherData, forecastData, pastHourly, sunrise, sunset, refreshWeather } = useWeatherContext();
 
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState(null);
@@ -84,6 +84,8 @@ const SearchScreen = ({ onOpenWeather }) => {
         weatherData={weatherData}
         forecastData={forecastData}
         pastHourly={pastHourly}
+        sunrise={sunrise}
+        sunset={sunset}
         onCurrentClick={onOpenWeather}
         hidden={searchExpanded}
       />

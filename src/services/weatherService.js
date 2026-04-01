@@ -82,9 +82,9 @@ export const fetchWeatherByCoords = async (lat, lng) => {
  */
 export const fetchPastWeather = async (lat, lng) => {
     try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum&hourly=temperature_2m,weather_code&past_days=2&forecast_days=1&timezone=auto`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum,sunrise,sunset&hourly=temperature_2m,weather_code&past_days=2&forecast_days=1&timezone=auto`;
         const res = await fetch(url);
-        if (!res.ok) return { totalRainMm: 0, pastHourly: [], futureHourly: [] };
+        if (!res.ok) return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrise: null, sunset: null };
 
         const data = await res.json();
         const precipArray = data.daily?.precipitation_sum || [];
@@ -106,11 +106,18 @@ export const fetchPastWeather = async (lat, lng) => {
 
         const nowIso = new Date().toISOString().slice(0, 16);
         const pastHourly = allHourly.filter((h) => h.time < nowIso);
-        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 5);
+        const futureHourly = allHourly.filter((h) => h.time >= nowIso).slice(0, 7); // Fetch a bit more to accommodate insertions
 
-        return { totalRainMm, pastHourly, futureHourly };
+        // The 'daily' array will have 4 entries (2 past days, 1 current, 1 forecast day)
+        // We want the current day's sunrise/sunset.
+        // Usually index 2 is the current day if we have past_days=2.
+        const currentDayIndex = 2;
+        const sunrise = data.daily?.sunrise?.[currentDayIndex] || null;
+        const sunset = data.daily?.sunset?.[currentDayIndex] || null;
+
+        return { totalRainMm, pastHourly, futureHourly, sunrise, sunset };
     } catch (e) {
         console.error('Failed to fetch past weather from Open-Meteo:', e);
-        return { totalRainMm: 0, pastHourly: [], futureHourly: [] };
+        return { totalRainMm: 0, pastHourly: [], futureHourly: [], sunrise: null, sunset: null };
     }
 };

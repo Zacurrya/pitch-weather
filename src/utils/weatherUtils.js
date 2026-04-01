@@ -10,24 +10,36 @@ export { getUserLocation } from '@services/locationService';
 /* -------- Icon / Background helpers -------- */
 
 /**
- * Map a weather condition string to an SVG icon path.
+ * Map a weather condition string to a weather-icons (erikflowers) CSS class.
+ * See: https://erikflowers.github.io/weather-icons/
  */
-export const getIconPath = (condition) => {
+export const getIconClass = (condition, isNight = false) => {
+    const prefix = isNight ? 'wi-night-' : 'wi-day-';
     switch (condition?.toLowerCase()) {
         case 'clear':
-            return '/weather_icons/Sunny.svg';
+            return isNight ? 'wi-night-clear' : 'wi-day-sunny';
         case 'clouds':
-            return '/weather_icons/Cloudy.svg';
+            return isNight ? 'wi-night-cloudy' : 'wi-day-cloudy';
         case 'rain':
         case 'drizzle':
-            return '/weather_icons/Raining.svg';
+            return isNight ? 'wi-night-rain' : 'wi-day-rain';
         case 'snow':
-            return '/weather_icons/Snowing.svg';
+            return isNight ? 'wi-night-snow' : 'wi-day-snow';
         case 'thunderstorm':
-            return '/weather_icons/Hail.svg';
+            return isNight ? 'wi-night-thunderstorm' : 'wi-day-thunderstorm';
         default:
-            return '/weather_icons/SunnyCloudy.svg';
+            return isNight ? 'wi-night-cloudy' : 'wi-day-cloudy-high';
     }
+};
+
+/**
+ * Specifically for sun events using weather-icons classes.
+ */
+export const getSunIconClass = (type, condition) => {
+    // Weather-icons has specific sunrise/sunset
+    if (type === 'sunrise') return 'wi-sunrise';
+    if (type === 'sunset') return 'wi-sunset';
+    return getIconClass(condition);
 };
 
 /**
@@ -83,7 +95,7 @@ export const transformWeatherForDisplay = (weatherData) => {
     const windSpeedKmH = Math.round(weatherData.wind.speed * 3.6);
     const windDeg = weatherData.wind.deg || 0;
 
-    const weatherIcon = getIconPath(weatherData.weather[0].main);
+    const weatherIconClass = getIconClass(weatherData.weather[0].main);
 
     return {
         temp,
@@ -93,7 +105,7 @@ export const transformWeatherForDisplay = (weatherData) => {
         visibilityMi,
         windSpeedKmH,
         windDeg,
-        weatherIcon,
+        weatherIconClass,
         cityName: weatherData.name,
     };
 };
@@ -107,15 +119,36 @@ const formatHour = (h) => `${h.toString().padStart(2, '0')}:00`;
  * Two "before" slots use real past open-meteo entries where weather changed;
  * two "after" slots use real forecast entries.
  */
-export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
+export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrise, sunset) => {
     const currentTemp = Math.round(weatherData.main.temp);
     const currentCondition = weatherData.weather[0]?.main;
-    const currentHour = new Date().getHours();
+    const now = new Date();
+    const currentHour = now.getHours();
+    const nowIso = now.toISOString();
 
     // Placeholder values for the two past slots
-    let before1 = { time: formatHour((currentHour - 2 + 24) % 24), icon: getIconPath('clear'), temp: currentTemp + 2 };
-    let before2 = { time: formatHour((currentHour - 1 + 24) % 24), icon: getIconPath('snow'), temp: currentTemp - 1 };
-    const current = { time: formatHour(currentHour), icon: getIconPath(currentCondition), temp: currentTemp, isCurrent: true };
+    const twoHoursAgo = new Date(now.getTime() - 7200000);
+    const oneHourAgo = new Date(now.getTime() - 3600000);
+
+    let before1 = { 
+        time: formatHour(twoHoursAgo.getHours()), 
+        iconClass: getIconClass('clear'), 
+        temp: currentTemp + 2,
+        time_iso: twoHoursAgo.toISOString()
+    };
+    let before2 = { 
+        time: formatHour(oneHourAgo.getHours()), 
+        iconClass: getIconClass('snow'), 
+        temp: currentTemp - 1,
+        time_iso: oneHourAgo.toISOString()
+    };
+    const current = { 
+        time: formatHour(currentHour), 
+        iconClass: getIconClass(currentCondition), 
+        temp: currentTemp, 
+        isCurrent: true,
+        time_iso: nowIso
+    };
 
     if (pastHourly && pastHourly.length > 0) {
         const nowMs = Date.now();
@@ -146,17 +179,21 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
             if (pastSlots.length >= 2) {
                 before1 = {
                     time: formatHour(new Date(pastSlots[0].time).getHours()),
-                    icon: getIconPath(wmoToCondition(pastSlots[0].weather_code)),
+                    iconClass: getIconClass(wmoToCondition(pastSlots[0].weather_code)),
                     temp: Math.round(pastSlots[0].temp),
+                    time_iso: pastSlots[0].time
                 };
                 before2 = {
                     time: formatHour(new Date(pastSlots[1].time).getHours()),
-                    icon: getIconPath(wmoToCondition(pastSlots[1].weather_code)),
+                    iconClass: getIconClass(wmoToCondition(pastSlots[1].weather_code)),
                     temp: Math.round(pastSlots[1].temp),
+                    time_iso: pastSlots[1].time
                 };
             }
         }
     }
+
+    let items = [before1, before2, current];
 
     if (forecastData?.list && forecastData.list.length >= 2) {
         let futureSlots = [];
@@ -181,27 +218,73 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly) => {
         futureSlots.sort((a, b) => a.dt - b.dt);
 
         const f1 = futureSlots[0];
-        const after1 = {
+        items.push({
             time: formatHour(new Date(f1.dt * 1000).getHours()),
-            icon: getIconPath(f1.weather[0].main),
+            iconClass: getIconClass(f1.weather[0].main),
             temp: Math.round(f1.main.temp),
-        };
+            dt: f1.dt,
+            time_iso: new Date(f1.dt * 1000).toISOString(),
+            condition: f1.weather[0].main
+        });
 
         const f2 = futureSlots[1];
-        const after2 = {
+        items.push({
             time: formatHour(new Date(f2.dt * 1000).getHours()),
-            icon: getIconPath(f2.weather[0].main),
+            iconClass: getIconClass(f2.weather[0].main),
             temp: Math.round(f2.main.temp),
-        };
-
-        return [before1, before2, current, after1, after2];
+            dt: f2.dt,
+            time_iso: new Date(f2.dt * 1000).toISOString(),
+            condition: f2.weather[0].main
+        });
+    } else {
+        const h1 = new Date(now.getTime() + 3600000);
+        const h2 = new Date(now.getTime() + 7200000);
+        items.push({ time: formatHour(h1.getHours()), iconClass: getIconClass('rain'), temp: currentTemp, condition: 'rain', time_iso: h1.toISOString() });
+        items.push({ time: formatHour(h2.getHours()), iconClass: getIconClass('clouds'), temp: currentTemp + 1, condition: 'clouds', time_iso: h2.toISOString() });
     }
 
-    return [
-        before1,
-        before2,
-        current,
-        { time: formatHour((currentHour + 1) % 24), icon: getIconPath('rain'), temp: currentTemp },
-        { time: formatHour((currentHour + 2) % 24), icon: getIconPath('clouds'), temp: currentTemp + 1 },
-    ];
+    return injectSunEvents(items, sunrise, sunset);
+};
+
+/**
+ * Injects sunrise/sunset items into a timeline array.
+ */
+export const injectSunEvents = (hourlyItems, sunrise, sunset) => {
+    if (!sunrise && !sunset) return hourlyItems;
+
+    const result = [...hourlyItems];
+    const events = [];
+    if (sunrise) events.push({ time: sunrise, type: 'sunrise' });
+    if (sunset) events.push({ time: sunset, type: 'sunset' });
+
+    events.forEach(event => {
+        const eventTime = new Date(event.time);
+        const eventMs = eventTime.getTime();
+
+        // Find where to insert
+        let insertIdx = -1;
+        for (let i = 0; i < result.length - 1; i++) {
+            const t1 = new Date(result[i].time_iso || result[i].time).getTime();
+            const t2 = new Date(result[i + 1].time_iso || result[i + 1].time).getTime();
+
+            if (eventMs > t1 && eventMs < t2) {
+                insertIdx = i + 1;
+                break;
+            }
+        }
+
+        if (insertIdx !== -1) {
+            const prevItem = result[insertIdx - 1];
+            const cond = prevItem.condition || wmoToCondition(prevItem.weather_code) || 'clear';
+            result.splice(insertIdx, 0, {
+                time: `${eventTime.getHours().toString().padStart(2, '0')}:${eventTime.getMinutes().toString().padStart(2, '0')}`,
+                iconClass: getSunIconClass(event.type, cond),
+                temp: prevItem.temp,
+                isSunEvent: true,
+                type: event.type
+            });
+        }
+    });
+
+    return result;
 };

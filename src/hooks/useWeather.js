@@ -16,6 +16,8 @@ export const useWeather = () => {
     const [airQuality, setAirQuality] = useState(null);
     const [uvIndex, setUvIndex] = useState(null);
     const [pastHourly, setPastHourly] = useState([]);
+    const [sunrise, setSunrise] = useState(null);
+    const [sunset, setSunset] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -29,7 +31,7 @@ export const useWeather = () => {
             return weatherCache.get(key);
         }
 
-        const [{ current, forecast, airQuality: aq, uvIndex: uv }, { pastHourly: ph }] =
+        const [{ current, forecast, airQuality: aq, uvIndex: uv }, { pastHourly: ph, sunrise: sr, sunset: ss }] =
             await Promise.all([
                 fetchWeatherByCoords(lat, lng),
                 fetchPastWeather(lat, lng),
@@ -41,6 +43,8 @@ export const useWeather = () => {
             airQuality: aq,
             uvIndex: uv,
             pastHourly: ph,
+            sunrise: sr,
+            sunset: ss,
         };
         weatherCache.set(key, entry);
         return entry;
@@ -57,6 +61,8 @@ export const useWeather = () => {
         setAirQuality(entry.airQuality);
         setUvIndex(entry.uvIndex);
         setPastHourly(entry.pastHourly);
+        setSunrise(entry.sunrise);
+        setSunset(entry.sunset);
     }, []);
 
     // Initial fetch at user's GPS location
@@ -95,5 +101,5 @@ export const useWeather = () => {
         [fetchAndCache, applyWeather],
     );
 
-    return { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, loading, error, refreshWeather };
+    return { location, weatherData, forecastData, airQuality, uvIndex, pastHourly, sunrise, sunset, loading, error, refreshWeather };
 };

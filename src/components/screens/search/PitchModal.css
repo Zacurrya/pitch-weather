@@ -131,9 +131,9 @@
 }
 
 .pitch-modal__forecast-icon {
-  height: calc(var(--spacing) * 7);
-  width: calc(var(--spacing) * 7);
-  object-fit: contain;
+  font-size: 1.15rem;
+  color: var(--color-black);
+  margin-block: calc(var(--spacing) * 1);
 }
 
 .pitch-modal__forecast-temp {
@@ -141,6 +141,15 @@
   line-height: var(--text-sm--line-height);
   font-weight: var(--font-weight-bold);
   color: var(--color-black);
+}
+
+.pitch-modal__forecast-item--sun {
+  background: rgb(251 191 36 / 0.15);
+  border-color: rgb(251 191 36 / 0.4);
+}
+
+.pitch-modal__forecast-item--sun .pitch-modal__forecast-temp {
+  color: #b45309;
 }
 
 /* Row 2: Status, hours, photo */

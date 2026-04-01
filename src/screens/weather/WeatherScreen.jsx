@@ -16,7 +16,7 @@ const WeatherScreen = ({ onOpenMap }) => {
         visibilityMi,
         windSpeedKmH,
         windDeg,
-        weatherIcon,
+        weatherIconClass,
         cityName,
     } = transformWeatherForDisplay(weatherData);
 
@@ -56,10 +56,9 @@ const WeatherScreen = ({ onOpenMap }) => {
                         {isRaining ? 'Currently Raining' : rainPct != null ? `${rainLabel} (${rainPct}%)` : ''}
                     </p>
 
-                    <img
-                        src={weatherIcon}
-                        alt={description}
-                        className="weather-screen__icon"
+                    <i
+                        className={`wi ${weatherIconClass} weather-screen__icon`}
+                        aria-label={description}
                     />
 
                     <h2 className="weather-screen__temp">
