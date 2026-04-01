@@ -374,7 +374,6 @@ export const injectSunEvents = (hourlyItems, sunrises = [], sunsets = []) => {
         const eventTime = new Date(event.time);
         const eventMs = event.timeMs;
 
-        // Find where to insert
         let insertIdx = -1;
         for (let i = 0; i < result.length - 1; i++) {
             const t1 = toTimestampMs(result[i].time_iso || result[i].time);
@@ -393,6 +392,7 @@ export const injectSunEvents = (hourlyItems, sunrises = [], sunsets = []) => {
             const cond = prevItem.condition || wmoToCondition(prevItem.weather_code) || 'clear';
             result.splice(insertIdx, 0, {
                 time: `${eventTime.getHours().toString().padStart(2, '0')}:${eventTime.getMinutes().toString().padStart(2, '0')}`,
+                time_iso: event.time,
                 iconClass: getSunIconClass(event.type, cond),
                 temp: prevItem.temp,
                 isSunEvent: true,
