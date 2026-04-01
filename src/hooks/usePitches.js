@@ -1,22 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
 import { searchNearbyPitches } from '@services/placesService';
-
-// Haversine distance in metres.
-const haversineM = (lat1, lng1, lat2, lng2) => {
-    const R = 6371000;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-};
+import { getDistanceKm } from '@utils/pitchUtils';
 
 // Does point fall inside any of the circles?
 const isPointCovered = (lat, lng, circles) =>
-    circles.some((c) => haversineM(lat, lng, c.lat, c.lng) <= c.radius);
+    circles.some((c) => getDistanceKm(lat, lng, c.lat, c.lng) * 1000 <= c.radius);
 
 // Offset a lat/lng by dist metres at bearing radians (0 = north, pi/2 = east).
 const offsetPoint = (lat, lng, dist, bearing) => ({

@@ -1,4 +1,5 @@
 import { Footprints, Bus, Car } from 'lucide-react';
+import { formatDistance } from '@utils/pitchUtils';
 import './PitchInfo.css';
 
 const PitchInfo = ({ isOpen, venue, todayHours, distKm, walkMins, busMins, driveMins, thumbUrl, onPhotoClick }) => {
@@ -29,7 +30,7 @@ const PitchInfo = ({ isOpen, venue, todayHours, distKm, walkMins, busMins, drive
                 {distKm != null && (
                     <div className="pitch-modal__distance-inline">
                         <span className="pitch-modal__distance">
-                            {distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`}
+                            {formatDistance(distKm)}
                         </span>
                         <div className="pitch-modal__transit-options">
                             <div className="pitch-modal__transit-item">

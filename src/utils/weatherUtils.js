@@ -323,7 +323,19 @@ export const buildHourlyItems = (weatherData, forecastData, pastHourly, sunrises
         items.push({ time: formatHour(h2.getHours()), temp: currentTemp + 1, condition: 'clouds', time_iso: h2.toISOString() });
     }
 
-    return assignTimelineIconClasses(injectSunEvents(items, sunrises, sunsets), sunrises, sunsets);
+    // Only inject the single nearest upcoming sun event
+    const nowMs = Date.now();
+    const nextSunEvent = [
+        ...toArray(sunrises).map((t) => ({ time: t, ms: toTimestampMs(t), type: 'sunrise' })),
+        ...toArray(sunsets).map((t) => ({ time: t, ms: toTimestampMs(t), type: 'sunset' })),
+    ]
+        .filter((e) => Number.isFinite(e.ms) && e.ms > nowMs)
+        .sort((a, b) => a.ms - b.ms)[0];
+
+    const injectSunrises = nextSunEvent?.type === 'sunrise' ? [nextSunEvent.time] : [];
+    const injectSunsets = nextSunEvent?.type === 'sunset' ? [nextSunEvent.time] : [];
+
+    return assignTimelineIconClasses(injectSunEvents(items, injectSunrises, injectSunsets), sunrises, sunsets);
 };
 
 /**

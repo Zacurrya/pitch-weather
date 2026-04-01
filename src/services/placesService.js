@@ -3,6 +3,27 @@
  * Pure async functions wrapping the PlacesService, no React dependencies.
  */
 
+const mapPlaceToVenue = (r, sportType) => ({
+    name: r.name,
+    type: sportType,
+    placeId: r.place_id,
+    lat: r.geometry.location.lat(),
+    lng: r.geometry.location.lng(),
+    address: r.vicinity || r.formatted_address || '',
+    rating: r.rating ?? null,
+    openNow: r.opening_hours?.open_now ?? null,
+    photoUrl: r.photos?.[0]?.getUrl({ maxWidth: 400 }) || null,
+});
+
+const dedupeByPlaceId = (batches) => {
+    const seen = new Set();
+    return batches.flat().filter((v) => {
+        if (seen.has(v.placeId)) return false;
+        seen.add(v.placeId);
+        return true;
+    });
+};
+
 /**
  * Search for nearby sports pitches using the Google Maps Places API.
  * Runs multiple keyword permutations to maximise results
@@ -26,17 +47,7 @@ export const searchNearbyPitches = (map, location, radius = 3000) => {
                     resolve(
                         results
                             .filter((r) => !(r.types || []).includes('stadium'))
-                            .map((r) => ({
-                                name: r.name,
-                                type: sportType,
-                                placeId: r.place_id,
-                                lat: r.geometry.location.lat(),
-                                lng: r.geometry.location.lng(),
-                                address: r.vicinity || '',
-                                rating: r.rating ?? null,
-                                openNow: r.opening_hours?.open_now ?? null,
-                                photoUrl: r.photos?.[0]?.getUrl({ maxWidth: 400 }) || null,
-                            })),
+                            .map((r) => mapPlaceToVenue(r, sportType)),
                     );
                 } else {
                     resolve([]);
@@ -49,14 +60,7 @@ export const searchNearbyPitches = (map, location, radius = 3000) => {
         search('football recreation ground', 'football'),
         search('cricket pitch', 'cricket'),
         search('cricket club', 'cricket'),
-    ]).then((batches) => {
-        const seen = new Set();
-        return batches.flat().filter((v) => {
-            if (seen.has(v.placeId)) return false;
-            seen.add(v.placeId);
-            return true;
-        });
-    });
+    ]).then(dedupeByPlaceId);
 };
 
 
@@ -77,17 +81,7 @@ export const searchPitchesByText = (map, query, location) => {
                     resolve(
                         results
                             .filter((r) => !(r.types || []).includes('stadium'))
-                            .map((r) => ({
-                                name: r.name,
-                                type: sportType,
-                                placeId: r.place_id,
-                                lat: r.geometry.location.lat(),
-                                lng: r.geometry.location.lng(),
-                                address: r.vicinity || r.formatted_address || '',
-                                rating: r.rating ?? null,
-                                openNow: r.opening_hours?.open_now ?? null,
-                                photoUrl: r.photos?.[0]?.getUrl({ maxWidth: 400 }) || null,
-                            })),
+                            .map((r) => mapPlaceToVenue(r, sportType)),
                     );
                 } else {
                     resolve([]);
@@ -98,14 +92,7 @@ export const searchPitchesByText = (map, query, location) => {
     return Promise.all([
         search(`${query} football pitch`, 'football'),
         search(`${query} cricket pitch`, 'cricket'),
-    ]).then((batches) => {
-        const seen = new Set();
-        return batches.flat().filter((v) => {
-            if (seen.has(v.placeId)) return false;
-            seen.add(v.placeId);
-            return true;
-        });
-    });
+    ]).then(dedupeByPlaceId);
 };
 
 // Fetch detailed place info (website, formatted phone, opening hours).

@@ -1,7 +1,7 @@
 import { wmoToCondition } from './weatherUtils';
 
 // WMO codes that indicate rain/drizzle/thunderstorm
-const RAIN_CONDITIONS = new Set(['rain', 'thunderstorm']);
+const RAIN_CONDITIONS = new Set(['rain', 'drizzle', 'thunderstorm']);
 
 
 // Count how many of the past hourly entries had rain.
@@ -37,7 +37,7 @@ const avgTemp = (pastHourly) => {
 };
 
 // Clamp a value between 0 and 1.
-const clamp01 = (v) => Math.max(0, Math.min(1, v));
+export const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
 /**
 Calculate pitch surface conditions as percentage scores.
@@ -47,10 +47,14 @@ Calculate pitch surface conditions as percentage scores.
 @param pastHourly Array of { time, temp, weather_code } from Open-Meteo
 @returns { wetness, muddiness } each 0-100
 */
+// Returns true if a condition string (OWM .main) indicates rain/drizzle/thunderstorm.
+export const isRainyCondition = (condition) =>
+    RAIN_CONDITIONS.has(condition?.toLowerCase());
+
 export const calcPitchCondition = (weatherData, recentRainMm = 0, pastHourly = []) => {
     // Current conditions
     const condition = weatherData?.weather?.[0]?.main?.toLowerCase() || '';
-    const isRaining = ['rain', 'drizzle', 'thunderstorm'].some((c) => condition.includes(c));
+    const isRaining = isRainyCondition(condition);
     const humidity = weatherData?.main?.humidity ?? 50;
 
     // Derived factors
